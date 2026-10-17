@@ -28,16 +28,25 @@ class LedgerReader {
 
   Selectable<QueryRow> _query([CalendarMonth? month]) {
     final sql = ledgerSnapshotQuery
-        .replaceAll('/* BUDGET_FILTER */', month != null ? 'WHERE month = ?' : '')
-        .replaceAll('/* ENTRY_FILTER */', month != null
-            ? 'WHERE occurred_local >= ? AND occurred_local <= ?' : '');
+        .replaceAll(
+          '/* BUDGET_FILTER */',
+          month != null ? 'WHERE month = ?' : '',
+        )
+        .replaceAll(
+          '/* ENTRY_FILTER */',
+          month != null
+              ? 'WHERE occurred_local >= ? AND occurred_local <= ?'
+              : '',
+        );
     return database.customSelect(
       sql,
-      variables: month != null ? [
-        Variable.withString(month.key),
-        Variable.withString('${month.key}-01'),
-        Variable.withString('${month.key}-${month.days}'),
-      ] : const [],
+      variables: month != null
+          ? [
+              Variable.withString(month.key),
+              Variable.withString('${month.key}-01'),
+              Variable.withString('${month.key}-${month.days}'),
+            ]
+          : const [],
       readsFrom: {
         database.categories,
         database.monthlyBudgets,
@@ -46,8 +55,9 @@ class LedgerReader {
     );
   }
 
-  Stream<LedgerMonthData> watchMonth(CalendarMonth month) =>
-      _query(month).watch().map((rows) {
+  Stream<LedgerMonthData> watchMonth(CalendarMonth month) => _query(month)
+      .watch()
+      .map((rows) {
         final contents = _decode(rows);
         return LedgerMonthData(
           month: month,
@@ -55,7 +65,8 @@ class LedgerReader {
           entries: contents.entries,
           categories: contents.categories,
         );
-      }).handleError((Object error, StackTrace stack) {
+      })
+      .handleError((Object error, StackTrace stack) {
         Error.throwWithStackTrace(storageException(error), stack);
       });
 
@@ -73,7 +84,8 @@ class LedgerReader {
     List<MonthlyBudget> budgets,
     List<Category> categories,
     List<LedgerEntry> entries,
-  }) _decode(List<QueryRow> rows) {
+  })
+  _decode(List<QueryRow> rows) {
     try {
       final budgets = <MonthlyBudget>[];
       final categories = <Category>[];
@@ -122,7 +134,10 @@ class LedgerReader {
       });
       return (budgets: budgets, categories: categories, entries: entries);
     } catch (error) {
-      throw PocketFlowException(PocketFlowErrorCode.dataCorrupted, cause: error);
+      throw PocketFlowException(
+        PocketFlowErrorCode.dataCorrupted,
+        cause: error,
+      );
     }
   }
 }

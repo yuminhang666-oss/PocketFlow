@@ -9,10 +9,9 @@ import 'entry_id.dart';
 class DriftLedgerRepository implements LedgerRepository {
   DriftLedgerRepository(
     this.database, {
-    Clock clock = const SystemClock(),
+    this._clock = const SystemClock(),
     String Function()? idGenerator,
-  }) : _clock = clock,
-       _newId = idGenerator ?? newEntryId,
+  }) : _newId = idGenerator ?? newEntryId,
        _reader = LedgerReader(database);
 
   final AppDatabase database;
@@ -46,10 +45,12 @@ class DriftLedgerRepository implements LedgerRepository {
             ],
             updates: {database.monthlyBudgets},
           );
-          final row = await database.customSelect(
-            'SELECT * FROM monthly_budgets WHERE month = ?',
-            variables: [Variable.withString(month.key)],
-          ).getSingle();
+          final row = await database
+              .customSelect(
+                'SELECT * FROM monthly_budgets WHERE month = ?',
+                variables: [Variable.withString(month.key)],
+              )
+              .getSingle();
           return MonthlyBudget(
             month: month,
             amount: Money.fromFen(readStoredInt(row, 'amount_fen')),
@@ -60,105 +61,109 @@ class DriftLedgerRepository implements LedgerRepository {
 
   @override
   Future<LedgerEntry> createExpense(EntryDraft draft) => _guard(() async {
-        final now = _clock.now();
-        _validateDraft(draft, now);
-        return database.transaction(() async {
-          await _requireCategory(draft.categoryId);
-          final entry = LedgerEntry(
-            id: _newId(),
-            amount: draft.amount,
-            localDate: draft.localDate,
-            categoryId: draft.categoryId,
-            note: draft.note,
-            occurredAtUtcMs: draft.occurredAtUtcMs,
-            createdAtUtcMs: now.millisecondsSinceEpoch,
-            updatedAtUtcMs: now.millisecondsSinceEpoch,
-          );
-          validateEntry(entry);
-          await insertEntry(database, entry);
-          return entry;
-        });
-      });
+    final now = _clock.now();
+    _validateDraft(draft, now);
+    return database.transaction(() async {
+      await _requireCategory(draft.categoryId);
+      final entry = LedgerEntry(
+        id: _newId(),
+        amount: draft.amount,
+        localDate: draft.localDate,
+        categoryId: draft.categoryId,
+        note: draft.note,
+        occurredAtUtcMs: draft.occurredAtUtcMs,
+        createdAtUtcMs: now.millisecondsSinceEpoch,
+        updatedAtUtcMs: now.millisecondsSinceEpoch,
+      );
+      validateEntry(entry);
+      await insertEntry(database, entry);
+      return entry;
+    });
+  });
 
   @override
-  Future<LedgerEntry> updateExpense(String id, EntryDraft draft) =>
-      _guard(() async {
-        final now = _clock.now();
-        _validateDraft(draft, now);
-        return database.transaction(() async {
-          final row = await database.customSelect(
-            "SELECT * FROM ledger_entries WHERE id = ? AND kind = 'expense'",
-            variables: [Variable.withString(id)],
-          ).getSingleOrNull();
-          if (row == null) {
-            throw const PocketFlowException(PocketFlowErrorCode.notFound);
-          }
-          final old = decodeEntryRow(row);
-          await _requireCategory(
-            draft.categoryId,
-            allowArchived: old.categoryId == draft.categoryId,
-          );
-          final nowMs = now.millisecondsSinceEpoch;
-          final updated = nowMs < old.updatedAtUtcMs ? old.updatedAtUtcMs : nowMs;
-          final entry = LedgerEntry(
-            id: old.id,
-            amount: draft.amount,
-            localDate: draft.localDate,
-            categoryId: draft.categoryId,
-            kind: old.kind,
-            note: draft.note,
-            occurredAtUtcMs: draft.occurredAtUtcMs,
-            createdAtUtcMs: old.createdAtUtcMs,
-            updatedAtUtcMs: updated,
-          );
-          validateEntry(entry);
-          final changed = await database.customUpdate(
-            'UPDATE ledger_entries SET amount_fen = ?, occurred_local = ?, '
-            'occurred_at_utc_ms = ?, category_id = ?, note = ?, '
-            'updated_at_utc_ms = ? WHERE id = ?',
-            variables: [
-              Variable.withInt(entry.amount.fen),
-              Variable.withString(entry.localDate),
-              Variable.withInt(entry.occurredAtUtcMs),
-              Variable.withString(entry.categoryId),
-              Variable.withString(entry.note),
-              Variable.withInt(entry.updatedAtUtcMs),
-              Variable.withString(entry.id),
-            ],
-            updates: {database.ledgerEntries},
-          );
-          if (changed != 1) {
-            throw const PocketFlowException(PocketFlowErrorCode.notFound);
-          }
-          return entry;
-        });
-      });
-
-  @override
-  Future<void> deleteEntry(String id) => _guard(() async {
+  Future<LedgerEntry> updateExpense(String id, EntryDraft draft) => _guard(
+    () async {
+      final now = _clock.now();
+      _validateDraft(draft, now);
+      return database.transaction(() async {
+        final row = await database
+            .customSelect(
+              "SELECT * FROM ledger_entries WHERE id = ? AND kind = 'expense'",
+              variables: [Variable.withString(id)],
+            )
+            .getSingleOrNull();
+        if (row == null) {
+          throw const PocketFlowException(PocketFlowErrorCode.notFound);
+        }
+        final old = decodeEntryRow(row);
+        await _requireCategory(
+          draft.categoryId,
+          allowArchived: old.categoryId == draft.categoryId,
+        );
+        final nowMs = now.millisecondsSinceEpoch;
+        final updated = nowMs < old.updatedAtUtcMs ? old.updatedAtUtcMs : nowMs;
+        final entry = LedgerEntry(
+          id: old.id,
+          amount: draft.amount,
+          localDate: draft.localDate,
+          categoryId: draft.categoryId,
+          kind: old.kind,
+          note: draft.note,
+          occurredAtUtcMs: draft.occurredAtUtcMs,
+          createdAtUtcMs: old.createdAtUtcMs,
+          updatedAtUtcMs: updated,
+        );
+        validateEntry(entry);
         final changed = await database.customUpdate(
-          'DELETE FROM ledger_entries WHERE id = ?',
-          variables: [Variable.withString(id)],
+          'UPDATE ledger_entries SET amount_fen = ?, occurred_local = ?, '
+          'occurred_at_utc_ms = ?, category_id = ?, note = ?, '
+          'updated_at_utc_ms = ? WHERE id = ?',
+          variables: [
+            Variable.withInt(entry.amount.fen),
+            Variable.withString(entry.localDate),
+            Variable.withInt(entry.occurredAtUtcMs),
+            Variable.withString(entry.categoryId),
+            Variable.withString(entry.note),
+            Variable.withInt(entry.updatedAtUtcMs),
+            Variable.withString(entry.id),
+          ],
           updates: {database.ledgerEntries},
-          updateKind: UpdateKind.delete,
         );
         if (changed != 1) {
           throw const PocketFlowException(PocketFlowErrorCode.notFound);
         }
+        return entry;
       });
+    },
+  );
 
-  Future<void> _requireCategory(
-    String id, {
-    bool allowArchived = false,
-  }) async {
-    final row = await database.customSelect(
-      'SELECT is_archived FROM categories WHERE id = ?',
+  @override
+  Future<void> deleteEntry(String id) => _guard(() async {
+    final changed = await database.customUpdate(
+      'DELETE FROM ledger_entries WHERE id = ?',
       variables: [Variable.withString(id)],
-    ).getSingleOrNull();
-    if (row == null || (!allowArchived && readStoredInt(row, 'is_archived') == 1)) {
+      updates: {database.ledgerEntries},
+      updateKind: UpdateKind.delete,
+    );
+    if (changed != 1) {
+      throw const PocketFlowException(PocketFlowErrorCode.notFound);
+    }
+  });
+
+  Future<void> _requireCategory(String id, {bool allowArchived = false}) async {
+    final row = await database
+        .customSelect(
+          'SELECT is_archived FROM categories WHERE id = ?',
+          variables: [Variable.withString(id)],
+        )
+        .getSingleOrNull();
+    if (row == null ||
+        (!allowArchived && readStoredInt(row, 'is_archived') == 1)) {
       throw const PocketFlowException(PocketFlowErrorCode.invalidCategory);
     }
-    if (readStoredInt(row, 'is_archived') != 0 && readStoredInt(row, 'is_archived') != 1) {
+    if (readStoredInt(row, 'is_archived') != 0 &&
+        readStoredInt(row, 'is_archived') != 1) {
       throw const PocketFlowException(PocketFlowErrorCode.dataCorrupted);
     }
   }

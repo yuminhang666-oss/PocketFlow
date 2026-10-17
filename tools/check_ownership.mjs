@@ -10,7 +10,7 @@ export function checkOwnership(branch, paths) {
     A: /^(lib\/app\/(?!composition\/)|lib\/shared\/widgets\/|lib\/features\/(home|entry_editor|ledger_list|settings)\/presentation\/|design\/|docs\/module-notes\/A\.md$|docs\/ui-ux-proposal-v1\.md$)/,
     B: /^(lib\/core\/database\/|lib\/features\/budget\/(domain|application)\/|lib\/features\/transactions\/|docs\/module-notes\/B\.md$)/,
     C: /^(lib\/features\/(statistics|export|backup)\/|docs\/module-notes\/C\.md$)/,
-    D: /^(test\/|integration_test\/|android\/|\.github\/workflows\/|tools\/(?!check_ownership\.mjs$)|docs\/module-notes\/D\.md$)/,
+    D: /^(test\/|integration_test\/|android\/|\.github\/workflows\/|tools\/(?!check_ownership\.mjs$)|docs\/module-notes\/D\.md$|docs\/qa-report\.md$)/,
   };
   if (root) return [];
   if (!role) throw new Error('Use a documented module or integration branch.');

@@ -20,30 +20,32 @@ class StatusPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (loading)
-              const SizedBox.square(
-                dimension: 28,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            else
-              Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 16),
-            Text(title,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge),
-            if (message != null) ...[
-              const SizedBox(height: 8),
-              Text(message!, textAlign: TextAlign.center),
-            ],
-            if (onAction != null && actionLabel != null) ...[
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
-            ],
-          ],
+    padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (loading)
+          const SizedBox.square(
+            dimension: 28,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 16),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-      );
+        if (message != null) ...[
+          const SizedBox(height: 8),
+          Text(message!, textAlign: TextAlign.center),
+        ],
+        if (onAction != null && actionLabel != null) ...[
+          const SizedBox(height: 16),
+          OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+        ],
+      ],
+    ),
+  );
 }

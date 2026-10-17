@@ -1,5 +1,3 @@
-import 'dart:ui' show FontFeature;
-
 import 'package:flutter/material.dart';
 
 import '../../core/domain/money.dart';
@@ -16,17 +14,24 @@ class AmountText extends StatelessWidget {
   Widget build(BuildContext context) {
     final parts = amount.decimal.split('.');
     final whole = parts[0].replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+$)'), (match) => '${match[1]},');
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (match) => '${match[1]},',
+    );
     return Semantics(
-        label: '${prefix.startsWith('−') ? '支出' : prefix.startsWith('+') ? '收入' : ''}${amount.decimal} 元',
-        excludeSemantics: true,
-        child: Text(
-          '$prefix$whole.${parts[1]}',
-          softWrap: true,
-          style: (style ?? Theme.of(context).textTheme.titleLarge)?.copyWith(
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+      label:
+          '${prefix.startsWith('−')
+              ? '支出'
+              : prefix.startsWith('+')
+              ? '收入'
+              : ''}${amount.decimal} 元',
+      excludeSemantics: true,
+      child: Text(
+        '$prefix$whole.${parts[1]}',
+        softWrap: true,
+        style: (style ?? Theme.of(context).textTheme.titleLarge)?.copyWith(
+          fontFeatures: const [FontFeature.tabularFigures()],
         ),
-      );
+      ),
+    );
   }
 }

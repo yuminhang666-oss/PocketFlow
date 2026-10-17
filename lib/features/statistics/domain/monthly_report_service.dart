@@ -3,8 +3,7 @@ import 'report_arithmetic.dart';
 
 /// Pure aggregation of one repository snapshot. Never caches running totals.
 final class DefaultMonthlyReportService implements MonthlyReportService {
-  const DefaultMonthlyReportService({Clock clock = const SystemClock()})
-      : _clock = clock;
+  const DefaultMonthlyReportService({this._clock = const SystemClock()});
 
   final Clock _clock;
 
@@ -15,9 +14,11 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
     if (month.compareTo(current) > 0) {
       throw const PocketFlowException(PocketFlowErrorCode.invalidDate);
     }
-    return calendarDayKey(month == current
-        ? today
-        : DateTime.utc(month.year, month.month, month.days));
+    return calendarDayKey(
+      month == current
+          ? today
+          : DateTime.utc(month.year, month.month, month.days),
+    );
   }
 
   @override
@@ -42,7 +43,8 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
     }
     final ids = <String>{};
     for (final entry in data.entries) {
-      if (!ids.add(entry.id) || !categories.containsKey(entry.categoryId) ||
+      if (!ids.add(entry.id) ||
+          !categories.containsKey(entry.categoryId) ||
           CalendarMonth.fromDate(entry.date) != data.month ||
           !_validTimestamp(entry.occurredAtUtcMs) ||
           !_validTimestamp(entry.createdAtUtcMs) ||
@@ -63,14 +65,18 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
       if (entry.kind != EntryKind.expense) continue;
       final fen = BigInt.from(entry.amount.fen);
       dailyFen[entry.date.day - 1] += fen;
-      categoryFen.update(entry.categoryId, (old) => old + fen,
-          ifAbsent: () => fen);
+      categoryFen.update(
+        entry.categoryId,
+        (old) => old + fen,
+        ifAbsent: () => fen,
+      );
     }
     final daily = [
       for (var i = 0; i < dailyFen.length; i++)
         DailyExpense(
-          localDate: calendarDayKey(DateTime.utc(data.month.year,
-              data.month.month, i + 1)),
+          localDate: calendarDayKey(
+            DateTime.utc(data.month.year, data.month.month, i + 1),
+          ),
           amount: Money.fromFen(checkedReportInt(dailyFen[i])),
         ),
     ];
@@ -84,8 +90,9 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
         CategoryExpense(
           categoryId: category.id,
           categoryName: category.name,
-          amount: Money.fromFen(checkedReportInt(
-              categoryFen[category.id] ?? BigInt.zero)),
+          amount: Money.fromFen(
+            checkedReportInt(categoryFen[category.id] ?? BigInt.zero),
+          ),
         ),
     ];
     final spent = sumReportFen(daily.map((d) => d.amount.fen));
@@ -95,8 +102,11 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
       asOfLocalDate: asOfLocalDate,
       budget: budget,
       totalExpense: Money.fromFen(spent),
-      remaining: budget == null ? null : Money.fromFen(checkedReportInt(
-          BigInt.from(budget.fen) - BigInt.from(spent))),
+      remaining: budget == null
+          ? null
+          : Money.fromFen(
+              checkedReportInt(BigInt.from(budget.fen) - BigInt.from(spent)),
+            ),
       daily: daily,
       categoryTotals: totals,
       entries: entries,

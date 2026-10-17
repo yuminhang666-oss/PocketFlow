@@ -6,7 +6,11 @@ import 'theme/pocketflow_theme.dart';
 
 /// The root composition supplies home. No mock repository is installed here.
 class PocketFlowApp extends StatelessWidget {
-  const PocketFlowApp({super.key, this.home, this.themeMode = ThemeMode.system});
+  const PocketFlowApp({
+    super.key,
+    this.home,
+    this.themeMode = ThemeMode.system,
+  });
   final Widget? home;
   final ThemeMode themeMode;
 
@@ -20,7 +24,12 @@ class PocketFlowApp extends StatelessWidget {
     theme: PocketFlowTheme.light,
     darkTheme: PocketFlowTheme.dark,
     themeMode: themeMode,
-    home: home ?? const Scaffold(body: SafeArea(child: Center(
-      child: StatusPanel(title: '正在准备账本', loading: true)))),
+    home:
+        home ??
+        const Scaffold(
+          body: SafeArea(
+            child: Center(child: StatusPanel(title: '正在准备账本', loading: true)),
+          ),
+        ),
   );
 }

@@ -16,7 +16,8 @@ final class JsonBackupCodec implements BackupCodec {
       }
       if (_integer(root, 'formatVersion') != BackupDocument.formatVersion) {
         throw const PocketFlowException(
-            PocketFlowErrorCode.unsupportedBackupVersion);
+          PocketFlowErrorCode.unsupportedBackupVersion,
+        );
       }
       final document = BackupDocument(
         exportedAtUtcMs: _timestamp(root, 'exportedAtUtcMs'),
@@ -24,14 +25,20 @@ final class JsonBackupCodec implements BackupCodec {
           final row = _object(value);
           final archived = row['isArchived'];
           if (archived is! bool) throw const FormatException('Invalid boolean');
-          return Category(id: _string(row, 'id'), name: _string(row, 'name'),
-              sortOrder: _integer(row, 'sortOrder'), isArchived: archived);
+          return Category(
+            id: _string(row, 'id'),
+            name: _string(row, 'name'),
+            sortOrder: _integer(row, 'sortOrder'),
+            isArchived: archived,
+          );
         }),
         budgets: _array(root, 'budgets').map((value) {
           final row = _object(value);
-          return MonthlyBudget(month: CalendarMonth.parse(_string(row, 'month')),
-              amount: Money.fromFen(_integer(row, 'amountFen')),
-              updatedAtUtcMs: _timestamp(row, 'updatedAtUtcMs'));
+          return MonthlyBudget(
+            month: CalendarMonth.parse(_string(row, 'month')),
+            amount: Money.fromFen(_integer(row, 'amountFen')),
+            updatedAtUtcMs: _timestamp(row, 'updatedAtUtcMs'),
+          );
         }),
         entries: _array(root, 'entries').map((value) {
           final row = _object(value);
@@ -72,20 +79,15 @@ final class JsonBackupCodec implements BackupCodec {
         'formatVersion': BackupDocument.formatVersion,
         'exportedAtUtcMs': document.exportedAtUtcMs,
         'currency': BackupDocument.currency,
-        'budgets': [for (final b in document.budgets) {
-          'month': b.month.key, 'amountFen': b.amount.fen,
-          'updatedAtUtcMs': b.updatedAtUtcMs,
-        }],
-        'categories': [for (final c in document.categories) {
-          'id': c.id, 'name': c.name, 'sortOrder': c.sortOrder,
-          'isArchived': c.isArchived,
-        }],
-        'entries': [for (final e in document.entries) {
-          'id': e.id, 'amountFen': e.amount.fen, 'kind': e.kind.name,
-          'localDate': e.localDate, 'occurredAtUtcMs': e.occurredAtUtcMs,
-          'categoryId': e.categoryId, 'note': e.note,
-          'createdAtUtcMs': e.createdAtUtcMs, 'updatedAtUtcMs': e.updatedAtUtcMs,
-        }],
+        'budgets': [
+          for (final b in document.budgets) {'month': b.month.key, 'amountFen': b.amount.fen, 'updatedAtUtcMs': b.updatedAtUtcMs},
+        ],
+        'categories': [
+          for (final c in document.categories) {'id': c.id, 'name': c.name, 'sortOrder': c.sortOrder, 'isArchived': c.isArchived},
+        ],
+        'entries': [
+          for (final e in document.entries) {'id': e.id, 'amountFen': e.amount.fen, 'kind': e.kind.name, 'localDate': e.localDate, 'occurredAtUtcMs': e.occurredAtUtcMs, 'categoryId': e.categoryId, 'note': e.note, 'createdAtUtcMs': e.createdAtUtcMs, 'updatedAtUtcMs': e.updatedAtUtcMs},
+        ],
       })}\n';
     } catch (_) {
       throw const PocketFlowException(PocketFlowErrorCode.invalidBackup);
@@ -135,22 +137,30 @@ final class JsonBackupCodec implements BackupCodec {
     final entries = <String>{};
     final months = <String>{};
     for (final c in document.categories) {
-      if (!categories.add(c.id) || c.id.isEmpty || c.id.length > 64 ||
-          c.name.isEmpty || c.name.length > 30) {
+      if (!categories.add(c.id) ||
+          c.id.isEmpty ||
+          c.id.length > 64 ||
+          c.name.isEmpty ||
+          c.name.length > 30) {
         throw const FormatException('Invalid or duplicate category');
       }
     }
     for (final b in document.budgets) {
-      if (!months.add(b.month.key) || b.amount.fen < 0 ||
+      if (!months.add(b.month.key) ||
+          b.amount.fen < 0 ||
           b.amount.fen > Money.maxInputFen) {
         throw const FormatException('Invalid or duplicate budget');
       }
       _checkTimestamp(b.updatedAtUtcMs);
     }
     for (final e in document.entries) {
-      if (!entries.add(e.id) || !categories.contains(e.categoryId) ||
-          e.id.isEmpty || e.id.length > 64 || e.amount.fen <= 0 ||
-          e.amount.fen > Money.maxInputFen || e.note.length > 500 ||
+      if (!entries.add(e.id) ||
+          !categories.contains(e.categoryId) ||
+          e.id.isEmpty ||
+          e.id.length > 64 ||
+          e.amount.fen <= 0 ||
+          e.amount.fen > Money.maxInputFen ||
+          e.note.length > 500 ||
           e.updatedAtUtcMs < e.createdAtUtcMs) {
         throw const FormatException('Invalid entry or relation');
       }

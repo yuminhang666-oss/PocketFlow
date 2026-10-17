@@ -1,3 +1,5 @@
+> 历史记录：以下为 M0/独立模块阶段的验证。当前集成结果见 [集成报告](integration-report.md) 和 [项目状态](status.md)。
+
 # PocketFlow QA 与环境验证报告
 
 日期：2026-10-17（Asia/Shanghai）。角色 D。合同 v1.0.0。

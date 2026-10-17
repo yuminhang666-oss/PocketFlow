@@ -12,8 +12,10 @@ class BudgetProgress extends StatelessWidget {
     final budget = snapshot.budget;
     if (budget == null) return const SizedBox.shrink();
     if (budget.fen == 0) {
-      return const Text('本月预算为零',
-          style: TextStyle(color: PocketFlowTheme.onHero));
+      return const Text(
+        '本月预算为零',
+        style: TextStyle(color: PocketFlowTheme.onHero),
+      );
     }
     // A display ratio only; financial values come directly from the snapshot.
     final ratio = snapshot.spent.fen / budget.fen;
@@ -32,8 +34,10 @@ class BudgetProgress extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text('预算已用 $percent%',
-            style: const TextStyle(color: PocketFlowTheme.onHero)),
+        Text(
+          '预算已用 $percent%',
+          style: const TextStyle(color: PocketFlowTheme.onHero),
+        ),
       ],
     );
   }

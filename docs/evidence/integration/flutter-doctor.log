@@ -1,0 +1,46 @@
+[√] Flutter (Channel stable, 3.47.7, on Microsoft Windows [版本 10.0.26200.9457], locale zh-CN) [547ms]
+    • Flutter version 3.47.7 on channel stable at D:\Codex\PocketFlowTools\3.47.7\flutter
+    • Upstream repository https://github.com/flutter/flutter.git
+    • Framework revision abaf9c5237 (9 days ago), 2026-10-08 09:51:21 -0700
+    • Engine revision deb287481e
+    • Dart version 3.13.5
+    • DevTools version 2.60.0
+    • Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-native-assets, enable-record-use, enable-swift-package-manager, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[√] Windows Version (Windows 11 or higher, 25H2, 2009) [1,629ms]
+
+[√] Android toolchain - develop for Android devices (Android SDK version 36.0.0) [5.0s]
+    • Android SDK at D:\Codex\PocketFlowTools\android-sdk
+    • Emulator version unknown
+    • Platform android-36, build-tools 36.0.0
+    • ANDROID_HOME = D:\Codex\PocketFlowTools\android-sdk
+    • ANDROID_SDK_ROOT = D:\Codex\PocketFlowTools\android-sdk
+    • Java binary at: D:\Codex\PocketFlowTools\jdk17\jdk-17.0.20.1+1\bin\java
+      This JDK is specified by the JAVA_HOME environment variable.
+      To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+    • Java version OpenJDK Runtime Environment Temurin-17.0.20.1+1 (build 17.0.20.1+1)
+    • All Android licenses accepted.
+
+[X] Chrome - develop for the web (Cannot find Chrome executable at .\Google\Chrome\Application\chrome.exe) [330ms]
+    ! Cannot find Chrome. Try setting CHROME_EXECUTABLE to a Chrome executable.
+
+[X] Visual Studio - develop Windows apps [328ms]
+    X Visual Studio not installed; this is necessary to develop Windows apps.
+      Download at https://visualstudio.microsoft.com/downloads/.
+      Please install the "Desktop development with C++" workload, including all of its default components
+
+[√] Proxy Configuration [402ms]
+    • HTTP_PROXY is set
+    • NO_PROXY is localhost,127.0.0.1,::1
+    • NO_PROXY contains localhost
+    • NO_PROXY contains ::1
+    • NO_PROXY contains 127.0.0.1
+
+[√] Connected device (2 available) [624ms]
+    • Windows (desktop) • windows • windows-x64    • Microsoft Windows [版本 10.0.26200.9457]
+    • Edge (web)        • edge    • web-javascript • Microsoft Edge 155.0.4283.45
+
+[√] Network resources [3.1s]
+    • All expected network resources are available.
+
+! Doctor found issues in 2 categories.

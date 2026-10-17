@@ -12,16 +12,16 @@ int checkedReportInt(BigInt value) {
 }
 
 int sumReportFen(Iterable<int> values) => checkedReportInt(
-      values.fold(BigInt.zero, (sum, value) => sum + BigInt.from(value)),
-    );
+  values.fold(BigInt.zero, (sum, value) => sum + BigInt.from(value)),
+);
 
 /// Display only: rational percentage rounded half up to two decimal places.
 /// An absent/zero denominator is unknown, including an explicit zero budget.
 String? reportPercent(int numerator, int? denominator) {
   if (denominator == null || denominator <= 0) return null;
   final divisor = BigInt.from(denominator);
-  final scaled = (BigInt.from(numerator) * BigInt.from(10000) +
-          divisor ~/ BigInt.two) ~/
+  final scaled =
+      (BigInt.from(numerator) * BigInt.from(10000) + divisor ~/ BigInt.two) ~/
       divisor;
   return '${scaled ~/ BigInt.from(100)}.'
       '${(scaled % BigInt.from(100)).toString().padLeft(2, '0')}%';

@@ -3,9 +3,14 @@ import 'report_arithmetic.dart';
 
 /// C-owned presentation projection. Amounts remain integer fen until painting.
 final class DailyChartPoint {
-  const DailyChartPoint({required this.day, required this.expense,
-    required this.remaining, required this.referenceRemaining});
+  const DailyChartPoint({
+    required this.day,
+    required this.expense,
+    required this.remaining,
+    required this.referenceRemaining,
+  });
   final int day;
+
   /// Null after cutoff, rather than a misleading zero-spend actual observation.
   final Money? expense;
   final Money? remaining;
@@ -25,11 +30,19 @@ List<DailyChartPoint> monthlyChartData(MonthlyReport report) {
         return DailyChartPoint(
           day: day,
           expense: expense,
-          remaining: expense == null || budget == null ? null :
-              Money.fromFen(checkedReportInt(BigInt.from(budget.fen) - spent)),
-          referenceRemaining: budget == null ? null : Money.fromFen(
-              checkedReportInt(BigInt.from(budget.fen) -
-                  BigInt.from(budget.fen) * BigInt.from(day) ~/ days)),
+          remaining: expense == null || budget == null
+              ? null
+              : Money.fromFen(
+                  checkedReportInt(BigInt.from(budget.fen) - spent),
+                ),
+          referenceRemaining: budget == null
+              ? null
+              : Money.fromFen(
+                  checkedReportInt(
+                    BigInt.from(budget.fen) -
+                        BigInt.from(budget.fen) * BigInt.from(day) ~/ days,
+                  ),
+                ),
         );
       })(),
   ]);

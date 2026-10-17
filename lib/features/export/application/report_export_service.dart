@@ -8,10 +8,14 @@ final class ReportExportService {
   final MarkdownExporter markdown;
 
   Future<bool> save(MonthlyReport report) => files.saveText(
-      suggestedName: 'pocketflow-${report.month.key}.md',
-      mimeType: 'text/markdown', content: markdown.render(report));
+    suggestedName: 'pocketflow-${report.month.key}.md',
+    mimeType: 'text/markdown',
+    content: markdown.render(report),
+  );
 
   Future<bool> share(MonthlyReport report) => files.shareTextFile(
-      suggestedName: 'pocketflow-${report.month.key}.md',
-      mimeType: 'text/markdown', content: markdown.render(report));
+    suggestedName: 'pocketflow-${report.month.key}.md',
+    mimeType: 'text/markdown',
+    content: markdown.render(report),
+  );
 }

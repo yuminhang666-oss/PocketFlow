@@ -1,0 +1,17 @@
+✔ integer fen aggregation is exact (2.6161ms)
+✔ invalid amount, precision, type, kind and missing category are rejected (1.0603ms)
+✔ unset, zero and duplicate month budgets remain distinguishable (0.5119ms)
+✔ edit, cross-month move and deletion recalculate aggregates (0.5821ms)
+✔ income and other months do not consume monthly expense budget (0.6079ms)
+✔ all-category and daily sums agree with monthly total (0.5607ms)
+✔ a failed import-like transaction rolls back without changing old entries (0.5836ms)
+✔ foreign key prevents removing a category with existing entries (0.6948ms)
+✔ SQL data survives file close/reopen (31.9429ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 122.783

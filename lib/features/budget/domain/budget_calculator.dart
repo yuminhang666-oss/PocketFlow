@@ -21,8 +21,8 @@ final class BudgetCalculator {
     final period = comparison < 0
         ? MonthPeriod.past
         : comparison > 0
-            ? MonthPeriod.future
-            : MonthPeriod.current;
+        ? MonthPeriod.future
+        : MonthPeriod.current;
     final cutoff = calendarDay(today);
     var spentTotal = BigInt.zero;
     for (final entry in entries) {

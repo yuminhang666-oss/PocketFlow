@@ -9,22 +9,31 @@ class RecoveryCodec {
   const RecoveryCodec();
 
   String encode(BackupDocument document) => jsonEncode({
-        'recoveryVersion': 1,
-        'exportedAtUtcMs': document.exportedAtUtcMs,
-        'categories': [
-          for (final c in document.categories)
-            [c.id, c.name, c.sortOrder, c.isArchived],
+    'recoveryVersion': 1,
+    'exportedAtUtcMs': document.exportedAtUtcMs,
+    'categories': [
+      for (final c in document.categories)
+        [c.id, c.name, c.sortOrder, c.isArchived],
+    ],
+    'budgets': [
+      for (final b in document.budgets)
+        [b.month.key, b.amount.fen, b.updatedAtUtcMs],
+    ],
+    'entries': [
+      for (final e in document.entries)
+        [
+          e.id,
+          e.amount.fen,
+          e.localDate,
+          e.categoryId,
+          e.kind.name,
+          e.note,
+          e.occurredAtUtcMs,
+          e.createdAtUtcMs,
+          e.updatedAtUtcMs,
         ],
-        'budgets': [
-          for (final b in document.budgets)
-            [b.month.key, b.amount.fen, b.updatedAtUtcMs],
-        ],
-        'entries': [
-          for (final e in document.entries)
-            [e.id, e.amount.fen, e.localDate, e.categoryId, e.kind.name,
-             e.note, e.occurredAtUtcMs, e.createdAtUtcMs, e.updatedAtUtcMs],
-        ],
-      });
+    ],
+  });
 
   BackupDocument decode(String payload) {
     final root = jsonDecode(payload) as Map<String, dynamic>;
@@ -52,14 +61,21 @@ class RecoveryCodec {
 
   Category _category(List<dynamic> row) {
     if (row.length != 4) throw const FormatException('Invalid category row');
-    return Category(id: row[0] as String, name: row[1] as String,
-        sortOrder: row[2] as int, isArchived: row[3] as bool);
+    return Category(
+      id: row[0] as String,
+      name: row[1] as String,
+      sortOrder: row[2] as int,
+      isArchived: row[3] as bool,
+    );
   }
 
   MonthlyBudget _budget(List<dynamic> row) {
     if (row.length != 3) throw const FormatException('Invalid budget row');
-    return MonthlyBudget(month: CalendarMonth.parse(row[0] as String),
-        amount: Money.fromFen(row[1] as int), updatedAtUtcMs: row[2] as int);
+    return MonthlyBudget(
+      month: CalendarMonth.parse(row[0] as String),
+      amount: Money.fromFen(row[1] as int),
+      updatedAtUtcMs: row[2] as int,
+    );
   }
 
   LedgerEntry _entry(List<dynamic> row) {

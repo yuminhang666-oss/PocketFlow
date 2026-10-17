@@ -9,8 +9,10 @@ void validateTimestamp(int value) {
 }
 
 void validateCategory(Category category) {
-  if (category.id.isEmpty || category.id.length > 64 ||
-      category.name.isEmpty || category.name.length > 30) {
+  if (category.id.isEmpty ||
+      category.id.length > 64 ||
+      category.name.isEmpty ||
+      category.name.length > 30) {
     throw ArgumentError('Invalid category');
   }
 }
@@ -24,8 +26,10 @@ void validateBudget(MonthlyBudget budget) {
 }
 
 void validateEntry(LedgerEntry entry) {
-  if (entry.id.isEmpty || entry.id.length > 64 ||
-      entry.categoryId.isEmpty || entry.categoryId.length > 64 ||
+  if (entry.id.isEmpty ||
+      entry.id.length > 64 ||
+      entry.categoryId.isEmpty ||
+      entry.categoryId.length > 64 ||
       entry.note.length > 500) {
     throw ArgumentError('Invalid entry fields');
   }
@@ -68,5 +72,5 @@ void validateBackup(BackupDocument document) {
 
 PocketFlowException storageException(Object error) =>
     error is PocketFlowException
-        ? error
-        : PocketFlowException(PocketFlowErrorCode.storageFailure, cause: error);
+    ? error
+    : PocketFlowException(PocketFlowErrorCode.storageFailure, cause: error);

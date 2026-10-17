@@ -11,10 +11,9 @@ import 'recovery_codec.dart';
 class DriftBackupStore implements BackupStore {
   DriftBackupStore(
     this.database, {
-    Clock clock = const SystemClock(),
+    this._clock = const SystemClock(),
     String Function()? idGenerator,
-  }) : _clock = clock,
-       _newId = idGenerator ?? newEntryId,
+  }) : _newId = idGenerator ?? newEntryId,
        _reader = LedgerReader(database);
 
   final AppDatabase database;
@@ -39,7 +38,10 @@ class DriftBackupStore implements BackupStore {
     try {
       validateBackup(document);
     } catch (error) {
-      throw PocketFlowException(PocketFlowErrorCode.invalidBackup, cause: error);
+      throw PocketFlowException(
+        PocketFlowErrorCode.invalidBackup,
+        cause: error,
+      );
     }
     try {
       return await database.transaction(() async {
@@ -60,7 +62,10 @@ class DriftBackupStore implements BackupStore {
             updates: {database.recoverySnapshots},
           );
         } catch (error) {
-          throw PocketFlowException(PocketFlowErrorCode.backupFailed, cause: error);
+          throw PocketFlowException(
+            PocketFlowErrorCode.backupFailed,
+            cause: error,
+          );
         }
 
         await database.delete(database.ledgerEntries).go();
@@ -107,9 +112,12 @@ class DriftBackupStore implements BackupStore {
       });
     } catch (error, stack) {
       Error.throwWithStackTrace(
-        error is PocketFlowException ? error : PocketFlowException(
-          PocketFlowErrorCode.restoreFailed, cause: error,
-        ),
+        error is PocketFlowException
+            ? error
+            : PocketFlowException(
+                PocketFlowErrorCode.restoreFailed,
+                cause: error,
+              ),
         stack,
       );
     }
@@ -119,17 +127,22 @@ class DriftBackupStore implements BackupStore {
   /// still needs a main-owned contract; C must not read this table directly.
   Future<BackupDocument> readRecovery(String id) async {
     try {
-      final row = await database.customSelect(
-        'SELECT payload FROM recovery_snapshots WHERE id = ?',
-        variables: [Variable.withString(id)],
-      ).getSingleOrNull();
+      final row = await database
+          .customSelect(
+            'SELECT payload FROM recovery_snapshots WHERE id = ?',
+            variables: [Variable.withString(id)],
+          )
+          .getSingleOrNull();
       if (row == null) {
         throw const PocketFlowException(PocketFlowErrorCode.notFound);
       }
       try {
         return _codec.decode(row.read<String>('payload'));
       } catch (error) {
-        throw PocketFlowException(PocketFlowErrorCode.dataCorrupted, cause: error);
+        throw PocketFlowException(
+          PocketFlowErrorCode.dataCorrupted,
+          cause: error,
+        );
       }
     } catch (error, stack) {
       Error.throwWithStackTrace(storageException(error), stack);

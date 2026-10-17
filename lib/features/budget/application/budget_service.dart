@@ -6,12 +6,10 @@ import '../domain/budget_calculator.dart';
 /// UI-independent budget streams. Main owns Riverpod/lifecycle wiring.
 class BudgetService {
   BudgetService({
-    required LedgerRepository repository,
-    Clock clock = const SystemClock(),
-    BudgetCalculator calculator = const BudgetCalculator(),
-  }) : _repository = repository,
-       _clock = clock,
-       _calculator = calculator;
+    required this._repository,
+    this._clock = const SystemClock(),
+    this._calculator = const BudgetCalculator(),
+  });
 
   final LedgerRepository _repository;
   final Clock _clock;
@@ -110,30 +108,34 @@ class _BudgetWatch {
         _data = null;
         final generation = ++_generation;
         _retire(_ledger);
-        _ledger = repository.watchMonth(month).listen(
-          (data) {
-            if (!_closed && generation == _generation) {
-              if (data.month != month) {
-                _data = null;
-                _controller.addError(const PocketFlowException(
-                  PocketFlowErrorCode.dataCorrupted,
-                ));
-                return;
-              }
-              _data = data;
-              _emit();
-            }
-          },
-          onError: (Object error, StackTrace stack) {
-            if (!_closed && generation == _generation) {
-              _data = null;
-              _controller.addError(_businessError(error), stack);
-            }
-          },
-          onDone: () {
-            if (!_closed && generation == _generation) unawaited(close());
-          },
-        );
+        _ledger = repository
+            .watchMonth(month)
+            .listen(
+              (data) {
+                if (!_closed && generation == _generation) {
+                  if (data.month != month) {
+                    _data = null;
+                    _controller.addError(
+                      const PocketFlowException(
+                        PocketFlowErrorCode.dataCorrupted,
+                      ),
+                    );
+                    return;
+                  }
+                  _data = data;
+                  _emit();
+                }
+              },
+              onError: (Object error, StackTrace stack) {
+                if (!_closed && generation == _generation) {
+                  _data = null;
+                  _controller.addError(_businessError(error), stack);
+                }
+              },
+              onDone: () {
+                if (!_closed && generation == _generation) unawaited(close());
+              },
+            );
       } else {
         _emit();
       }
@@ -147,12 +149,14 @@ class _BudgetWatch {
     final today = _today;
     if (_closed || data == null || today == null) return;
     try {
-      _controller.add(calculator.calculate(
-        month: data.month,
-        today: today,
-        budget: data.budget?.amount,
-        entries: data.entries,
-      ));
+      _controller.add(
+        calculator.calculate(
+          month: data.month,
+          today: today,
+          budget: data.budget?.amount,
+          entries: data.entries,
+        ),
+      );
     } catch (error, stack) {
       _controller.addError(_businessError(error), stack);
     }
@@ -161,22 +165,23 @@ class _BudgetWatch {
   void _retire(StreamSubscription<LedgerMonthData>? subscription) {
     if (subscription == null) return;
     late final Future<void> cancellation;
-    cancellation = subscription.cancel().catchError(
-      (Object error, StackTrace stack) {
-        if (!_closed) _controller.addError(_businessError(error), stack);
-      },
-    ).whenComplete(() {
-      _cancellations.remove(cancellation);
-    });
+    cancellation = subscription
+        .cancel()
+        .catchError((Object error, StackTrace stack) {
+          if (!_closed) _controller.addError(_businessError(error), stack);
+        })
+        .whenComplete(() {
+          _cancellations.remove(cancellation);
+        });
     _cancellations.add(cancellation);
   }
 
   Future<void> close() => _closing ??= _close();
 
   PocketFlowException _businessError(Object error) =>
-      error is PocketFlowException ? error : PocketFlowException(
-        PocketFlowErrorCode.dataCorrupted, cause: error,
-      );
+      error is PocketFlowException
+      ? error
+      : PocketFlowException(PocketFlowErrorCode.dataCorrupted, cause: error);
 
   Future<void> _close() async {
     _closed = true;
