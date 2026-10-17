@@ -1,0 +1,28 @@
+# Flutter / Dart
+.dart_tool/
+build/
+.flutter-plugins*
+android/local.properties
+*.g.dart
+coverage/
+
+# Local tools and private financial data
+.tooling/
+.local/
+.worktrees/
+backups/
+exports/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.jks
+*.keystore
+android/key.properties
+.env
+.env.*
+
+# Editors
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,29 @@
+name: Architecture and SQL design checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ownership-and-sql-design:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check module ownership
+        env:
+          HEAD_BRANCH: ${{ github.head_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node tools/check_ownership.mjs "$HEAD_BRANCH" "$BASE_SHA" "$HEAD_SHA"
+      - name: Check SQL design prototype
+        run: node --test tools/schema.test.mjs
+      # D adds real Flutter generation/analyze/test/build jobs after M1.
+      # This job deliberately does not claim Flutter or Android validation.

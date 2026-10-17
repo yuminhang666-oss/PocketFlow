@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-17",
+  "method": "GitHub metadata, default-branch commit, selected source files; no upstream build or runtime test",
+  "repositories": [
+    {
+      "repository": "jameskokoska/Cashew",
+      "url": "https://github.com/jameskokoska/Cashew",
+      "commit": "9cfbe50c16d95429891d44faf5f2c77a3abdb93b",
+      "lastCommitAt": "2026-03-09T01:35:16Z",
+      "pushedAt": "2026-03-09T01:35:16Z",
+      "license": "GPL-3.0",
+      "stars": 4707,
+      "archived": false,
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "budget/lib/database/tables.dart",
+        "budget/lib/functions.dart",
+        "budget/lib/widgets/budgetContainer.dart",
+        "budget/pubspec.yaml"
+      ]
+    },
+    {
+      "repository": "enrique-lozano/Monekin",
+      "url": "https://github.com/enrique-lozano/Monekin",
+      "commit": "c4050637fe85944f156593971e70ee56702c0329",
+      "lastCommitAt": "2026-10-15T11:16:47Z",
+      "pushedAt": "2026-10-15T11:16:51Z",
+      "license": "AGPL-3.0",
+      "stars": 262,
+      "archived": false,
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "lib/core/database/app_db.dart",
+        "lib/core/database/backup/backup_database_service.dart",
+        "lib/core/models/budget/budget.dart",
+        "pubspec.yaml"
+      ]
+    },
+    {
+      "repository": "nkuppan/expensemanager",
+      "url": "https://github.com/nkuppan/expensemanager",
+      "commit": "24ef7e89941d794157e65ece5ebf943e2f2ce924",
+      "lastCommitAt": "2026-10-14T16:59:24Z",
+      "pushedAt": "2026-10-14T16:59:31Z",
+      "license": "Apache-2.0",
+      "stars": 155,
+      "archived": false,
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "core/data/src/main/kotlin/com/naveenapps/expensemanager/core/data/repository/ExportRepositoryImpl.kt",
+        "core/database/src/main/kotlin/com/naveenapps/expensemanager/core/database/entity/TransactionEntity.kt"
+      ]
+    },
+    {
+      "repository": "PrabinCode/lumina-expense",
+      "url": "https://github.com/PrabinCode/lumina-expense",
+      "commit": "531bc6a75d5d9ee4d7689657712f6949909b85a0",
+      "lastCommitAt": "2026-10-06T21:44:50Z",
+      "pushedAt": "2026-10-06T21:45:20Z",
+      "license": "MIT",
+      "stars": 2,
+      "archived": false,
+      "sourcePaths": [
+        "LICENSE",
+        "README.md",
+        "lib/core/database/tables.dart",
+        "lib/features/analytics/presentation/widgets/cash_flow_bar_chart.dart",
+        "lib/features/backup/services/backup_restore_service.dart",
+        "lib/features/budgets/data/budget_repository.dart",
+        "pubspec.yaml"
+      ]
+    }
+  ]
+}
