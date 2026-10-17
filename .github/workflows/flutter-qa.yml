@@ -1,0 +1,43 @@
+name: Flutter contract and MVP checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter-qa:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require owner-reviewed dependency lock
+        run: |
+          if (-not (Test-Path 'pubspec.lock')) {
+            throw 'M1 prerequisite: the owner must review and commit the generated pubspec.lock. An unlocked dependency resolution is not a reproducible gate.'
+          }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - name: Install pinned official Flutter SDK with SHA256 verification
+        run: ./tools/bootstrap-flutter.ps1 -ToolRoot "$env:RUNNER_TEMP\PocketFlowTools"
+      - name: Generate, analyze and test against the dependency lock
+        run: ./tools/verify.ps1 -ToolRoot "$env:RUNNER_TEMP\PocketFlowTools" -ResolveDependencies
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-qa-evidence
+          path: .local/qa/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

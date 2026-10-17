@@ -1,0 +1,33 @@
+00:00 +0: loading D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart
+00:00 +0: D:/Codex/PocketFlowTools/probes/m0-candidate/test/budget_calculator_test.dart: user example counts today and produces 60 yuan per day
+00:00 +1: D:/Codex/PocketFlowTools/probes/m0-candidate/test/budget_calculator_test.dart: one-fen expense floors allowance rather than overspending
+00:00 +2: D:/Codex/PocketFlowTools/probes/m0-candidate/test/budget_calculator_test.dart: last day and leap/nonleap February have correct denominators
+00:00 +3: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +4: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +5: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +6: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +7: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +8: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +9: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +10: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +11: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +12: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +13: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 1.0
+00:00 +14: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(320.0, 568.0), text scale 2.0
+00:00 +15: D:/Codex/PocketFlowTools/probes/m0-candidate/test/app_foundation_test.dart: foundation empty state renders at Size(412.0, 915.0), text scale 1.0
+00:00 +16: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +17: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +18: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +19: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +20: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +21: D:/Codex/PocketFlowTools/probes/m0-candidate/test/domain_contract_test.dart: entry accepts boundaries and rejects invalid money and audit order
+00:00 +22: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema SQLite rejects noninteger, nonpositive and excessive amounts
+00:00 +23: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema SQLite rejects noninteger, nonpositive and excessive amounts
+00:00 +24: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema SQLite rejects noninteger, nonpositive and excessive amounts
+00:00 +25: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema SQLite rejects noninteger, nonpositive and excessive amounts
+00:00 +26: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema SQLite rejects duplicate IDs and unknown categories
+00:00 +27: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real generated Drift schema failed multiwrite transaction retains the previous record
+00:00 +28: D:/Codex/PocketFlowTools/probes/m0-candidate/test/database_foundation_test.dart: real SQLite file retains entries after closing and reopening
+00:00 +29: D:/Codex/PocketFlowTools/probes/m0-candidate/test/money_test.dart: decimal money preserves every fen including 0.1 + 0.2
+00:00 +30: D:/Codex/PocketFlowTools/probes/m0-candidate/test/money_test.dart: rejects malformed, negative and overprecision input
+00:00 +31: All tests passed!
