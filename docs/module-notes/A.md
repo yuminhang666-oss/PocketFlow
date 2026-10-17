@@ -55,7 +55,7 @@ flutter run -t design/ui-ux/preview.dart
 
 | 检查 | 工具与结果 | 限制 |
 | --- | --- | --- |
-| M0 来源与隔离目录 | 通过 GitHub 连接读取远程规范；55 个文件与远程 blob SHA 一致；本地 HEAD 为上述 M0 SHA | Git HTTPS 凭据辅助进程不可用，发布通过已有 GitHub 连接；未触碰主控工作树的分支与改动 |
+| M0 来源与隔离目录 | 通过 GitHub 连接读取远程规范；55 个文件与远程 blob SHA 一致；独立目录的初始 HEAD 为上述 M0 SHA | 沙箱内 Git HTTPS 凭据辅助进程不可用，使用连接读取并校验 Git 对象；未触碰主控工作树的分支与改动 |
 | UI 文件所有权 | `node design/ui-ux/inspect-ui.mjs`：变更路径均在 A 范围内 | 静态路径检查 |
 | 相对导入/受控层依赖 | 同脚本：21 个 Dart 文件，无缺失的项目内导入，无 UI 对数据库/预算算法/Mock 入口的导入 | 不解析第三方包，不等于 Dart analyze |
 | 错误文案 | 同脚本：v1 全部 12 个错误码都有对应中文映射 | 未运行错误场景 Widget |
@@ -82,11 +82,12 @@ Flutter/Dart 仍不在 PATH，指定 D 盘项目工具目录未发现工具链�
 
 ## 未解决问题与集成依赖
 
-- 必须先由 D 完成 M1 工具链，运行格式化、分析、Widget/设备检查；源码尚未经过 Dart 编译，PR 保持 Draft。
+- 必须先由 D 完成 M1 工具链，运行格式化、分析、Widget/设备检查；源码尚未经过 Dart 编译，提交时应创建 Draft PR。
 - 主控需把 PocketFlowApp 的 home 与主题状态、B 的原子快照/保存接口接入；无参数正式入口目前仅加载占位。
 - 新增后实际预算刷新、跨午夜、持久化等待 B 与主控；预览内存反馈不能代替数据库验证。
 - C 提供图表、导出与备份恢复；本 PR 不处理恢复确认、文件选择和恢复点展示。
 - 记录编辑/删除交互、真实类别加载重试流程与主题持久化后续按主控集成范围推进；未自行扩展 v1 合同。
 - 未修改在线 Figma；HTML 样稿与本地设计图用于本轮审阅，现有失败的 Figma 草稿仍不标记为完成。
+- 远程交付暂被网络阻塞：GitHub 连接持续返回传输错误；禁止交互提示的直接 Git 检查也在约 21 秒后无法连接 github.com:443。已完成本地提交和 Git bundle 校验，尚未推送、尚未创建 PR。PR 描述与 bundle 位于独立工作目录的忽略目录 `.local/`；网络恢复后从本分支继续提交到既有远程，不合并 main。
 
 官方 API 检查参考：[Flutter ThemeData.copyWith](https://api.flutter.dev/flutter/material/ThemeData/copyWith.html)、[PopScope](https://api.flutter.dev/flutter/widgets/PopScope-class.html)、[Riverpod AsyncValue](https://pub.dev/documentation/riverpod/latest/riverpod/AsyncValue-class.html)。仅核对接口用法，不能替代实际编译。
