@@ -2,7 +2,7 @@
 
 ## 唯一权威基线
 
-- 仓库：https://github.com/yuminhang666-oss/PocketFlow（私有）；默认基线：`main`。
+- 仓库：https://github.com/yuminhang666-oss/PocketFlow（公开）；默认基线：`main`。
 - 开始/续接时从远程读取本文件及 docs/architecture.md、data-contracts.md、interfaces.md、ownership.md、milestones.md、status.md 和自己的 docs/handoffs/ 交接文件。
 - 不假定对话间共享上下文或本地文件。未合并 PR 不构成公共接口事实。
 - 每个对话用独立 clone/worktree；禁止在其他对话正在使用的目录切换分支、reset、stash 或覆盖文件。

@@ -1,0 +1,10 @@
+Analyzing m0-candidate...                                       
+
+   info - Parameter 'executor' could be a super parameter. Trying converting 'executor' to a super parameter - lib\core\database\app_database.dart:10:3 - use_super_parameters
+   info - The getter 'amountFen' recursively returns itself. Try changing the value being returned - lib\core\database\tables.dart:16:7 - recursive_getters
+   info - The getter 'amountFen' recursively returns itself. Try changing the value being returned - lib\core\database\tables.dart:17:7 - recursive_getters
+   info - The getter 'amountFen' recursively returns itself. Try changing the value being returned - lib\core\database\tables.dart:30:7 - recursive_getters
+   info - The getter 'amountFen' recursively returns itself. Try changing the value being returned - lib\core\database\tables.dart:31:7 - recursive_getters
+   info - The getter 'kind' recursively returns itself. Try changing the value being returned - lib\core\database\tables.dart:32:39 - recursive_getters
+
+6 issues found. (ran in 9.0s)

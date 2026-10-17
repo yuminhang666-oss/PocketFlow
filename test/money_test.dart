@@ -10,8 +10,17 @@ void main() {
   });
 
   test('rejects malformed, negative and overprecision input', () {
-    for (final input in ['', '-1', '1.001', 'NaN', '1e3', '1,000',
-      '1000000000', '.5', '1.']) {
+    for (final input in [
+      '',
+      '-1',
+      '1.001',
+      'NaN',
+      '1e3',
+      '1,000',
+      '1000000000',
+      '.5',
+      '1.',
+    ]) {
       expect(() => Money.parse(input), throwsFormatException, reason: input);
     }
   });

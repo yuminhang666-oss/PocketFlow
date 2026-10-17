@@ -12,8 +12,10 @@ final class CalendarMonth implements Comparable<CalendarMonth> {
     if (!RegExp(r'^\d{4}-\d{2}$').hasMatch(value)) {
       throw const FormatException('月份应为 YYYY-MM');
     }
-    return CalendarMonth(int.parse(value.substring(0, 4)),
-        int.parse(value.substring(5, 7)));
+    return CalendarMonth(
+      int.parse(value.substring(0, 4)),
+      int.parse(value.substring(5, 7)),
+    );
   }
 
   final int year;

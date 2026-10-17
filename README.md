@@ -1,66 +1,48 @@
 # PocketFlow · 大学生生活费管理
 
-把每月生活费变成每天心中有数的额度。目标平台：Android；默认人民币；离线使用、无需账号。
+Android离线生活费管理：设置月预算、快速记账、实时查看每天还能花多少；支持明细增删改、分类/每日/预算图表、Markdown月报和JSON完整备份恢复。
 
-## 统一协作入口（2026-10-17）
+统一公开仓库：[yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)。本轮交付分支：`integration/mvp-delivery`；共享合同：v1.0.0。A/B/C/D原始提交保留在集成历史中，main通过PR审阅后集成。
 
-私有仓库：[yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)；基准分支 `main`；共享合同 `v1.0.0`。
+当前测试版：**0.1.1**。旧0.1.0有Android原生依赖漏打包缺陷，建议直接覆盖更新。
 
-主控负责架构、接口和集成；A 负责 UI，B 负责数据库与记账预算，C 负责统计导出备份，D 负责测试与 Android 构建。各对话使用独立目录、独立分支、PR 交付，不直接推送或合并 main。
+- [下载0.1.1 APK](https://github.com/yuminhang666-oss/PocketFlow/releases/download/mvp-v0.1.1-debug/PocketFlow-0.1.1-debug.apk)
+- [故障原因、覆盖更新与Android运行证据](docs/hotfix-0.1.1.md)
 
-必读：[架构](docs/architecture.md)、[数据合同](docs/data-contracts.md)、[模块接口](docs/interfaces.md)、[文件范围](docs/ownership.md)、[里程碑](docs/milestones.md)、[项目状态](docs/status.md)、[PR流程](docs/workflow.md)。
+## 当前验证
 
-交接：[A](docs/handoffs/A-ui.md) / [B](docs/handoffs/B-core.md) / [C](docs/handoffs/C-report-backup.md) / [D](docs/handoffs/D-test-build.md)。先读取远程 M0 基线，不根据另一聊天的片段重新设计模型。
+依赖解析、Drift生成、静态分析通过；39项Flutter测试通过，另有9项SQL设计检查。真实SQLite CRUD、持久化重开、v1→v2迁移、恢复失败回滚和正式界面接线已有验证。APK的最终构建、大小和SHA256见 `docs/apk-delivery.md`。
 
-## 工程状态
+0.1.1已在Android API36模拟器验证首次启动、预算/增删改/统计、重启、系统Markdown与JSON恢复，以及0.1.0覆盖升级保留测试数据。用户真实手机仍待复测；Release签名未配置。
 
-已完成第一阶段的开源代码调研、架构与数据模型规划、MVP 验收清单，以及 Flutter 源码基础结构。已编写整数金额、日历月份、动态预算的领域代码与测试。Figma 界面用于评审设计，示例金额不是用户真实账单。
+- [集成核查与测试报告](docs/integration-report.md)
+- [Android安装与个人试用清单](docs/android-trial-checklist.md)
+- [架构](docs/architecture.md)、[数据合同](docs/data-contracts.md)、[接口](docs/interfaces.md)
+- [模块边界](docs/ownership.md)、[PR流程](docs/workflow.md)
 
-**当前还不是可安装的应用。** 此机器没有发现 Flutter / Dart / Android SDK，Android 平台工程尚未生成，依赖尚未解析，Dart / Flutter 测试尚未执行，尚未生成 APK。当前首页仅为未设置预算的空态界面，没有接入数据库或开放记账操作。
+## 开发运行
 
-## 阅读入口
-
-- [开源调研与取舍](docs/01-research.md)
-- [架构、数据库与计算规则](docs/02-architecture.md)
-- [开发任务与验收标准](docs/03-mvp-plan.md)
-- [界面与交互规范](docs/04-design.md)
-- [环境检查与下一步](docs/05-environment.md)
-- [验证记录](docs/06-validation.md)
-
-Figma：[PocketFlow 设计文件](https://www.figma.com/design/1aJ6wUjoLXAA649lqVyhYr)（最近检查画布为空，未交付四页设计）。
-
-## 项目目录
-
-```text
-lib/
-  main.dart                     # 入口
-  app/                          # Material 3 主题与首页空态
-  core/domain/                  # 金额、月份、消费记录；不依赖 Flutter
-  core/database/                # Drift 数据库与 SQL 模型
-  features/budget/domain/        # 每日可支配预算计算
-  features/transactions/domain/  # 数据仓库接口
-test/                           # Dart 金额与预算边界测试（待执行）
-tools/                          # SQLite 设计验证
-design/                         # Figma 构建源码、节点记录与设计规范
-docs/                           # 调研、计划与验收证据
-```
-
-## 开发工具就绪后
-
-先按 `docs/05-environment.md` 在临时空目录生成 Android 工程，再把生成的平台目录合入项目，保留本项目源码与文档。之后在本目录运行：
+固定Flutter3.47.7 / Dart3.13.5。Android构建使用JDK17、API36、NDK28.2.13676358、Gradle9.3.1。Windows请使用全英文独立检出目录，当前工具链在中文路径有已复现的生成/分析问题。
 
 ```powershell
-flutter pub get
-dart run build_runner build
-flutter analyze
-flutter test
-flutter run
+# 本机已有获准工具安装时，可先执行：. ./tools/enter-android.ps1
+flutter pub get --enforce-lockfile
+dart run build_runner build --force-jit
+flutter analyze --no-pub
+flutter test --no-pub
+./tools/build-test-apk.ps1
 ```
 
-依赖版本在 pubspec.yaml 中按 2026-10-17 的 pub.dev 元数据固定，实际兼容性需要完成依赖解析后确认；不手写 pubspec.lock 或 Drift 生成文件。
+Android SDK/JDK可通过当前进程的JAVA_HOME、ANDROID_HOME和PATH设置；不需要修改全局配置。不要提交android/local.properties、签名密钥、工具链、构建缓存或真实账单。
 
-## 工程与隐私边界
+APK默认输出：`build/app/outputs/flutter-apk/app-debug.apk`。实际安装、启动和SAF分享功能须按试用清单在手机验收。
 
-没有复制四个参考应用的业务代码、图标或品牌资源。本阶段只参考设计与架构思路。项目发布许可证待决定。不要将个人账单、备份、签名密钥或本机路径配置提交到仓库。未来导出只调用用户主动选择的系统分享；Markdown 用于阅读分析，JSON 用于完整恢复。
+## 数据与限制
 
-GitHub 仓库由用户提供，主控发布 M0 合同基线和模块分支；实际提交及运行验证见项目状态，不以本 README 代替验收证据。
+全部财务金额按整数分运算。当前月剩余天数包含今天，每天建议金额向下取整；超支保留负余额并显示0元建议额度；历史月显示结余。
+
+无需账号、没有后端或自动上传。Markdown用于分析，JSON用于完整恢复；恢复是替换现有账本，需明确确认，恢复前保留本地快照。当前没有一键撤销恢复入口，试用前请保存JSON备份。主题选择暂不跨应用重启保存。
+
+项目开源许可证尚未确定；参考项目业务代码没有复制，研究来源见docs/01-research.md。第三方依赖沿用各自许可证。
+
+构建测试更新需保留原本机签名文件 `D:\Codex\PocketFlowTools\signing\pocketflow-test.keystore`；构建脚本会检查证书指纹与递增版本，不能使用另一台机器新生成的调试密钥交付覆盖更新。私钥不上传。生成Android平台后必须重新执行依赖解析，使原生插件被注册和打包。

@@ -1,0 +1,16 @@
+{
+  "platform": "Android API36 Google APIs x86_64 / Emulator37.2.12",
+  "oldVersionCode": 1,
+  "newVersionCode": 2,
+  "firstInstallTime": "2026-10-17 12:14:15",
+  "preservedFixtureVerified": true,
+  "freshDatabaseVerified": true,
+  "budgetFen": 150000,
+  "entryCount": 1,
+  "spentFen": 3000,
+  "markdownMatchesDatabase": true,
+  "jsonMatchesDatabase": true,
+  "recoverySnapshotEntries": 2,
+  "offlineRestartVerified": true,
+  "physicalPhoneTested": false
+}

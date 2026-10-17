@@ -1,0 +1,10 @@
+  compiling builders/jit
+  6s compiling builders/jit
+  0s drift_dev on 100 inputs; lib/app/pocketflow_app.dart
+  12s drift_dev on 100 inputs: 1 output; spent 6s analyzing, 4s sdk, 2s resolving; lib/contracts/backup_store.dart
+  14s drift_dev on 100 inputs: 20 output; spent 7s analyzing, 4s sdk, 2s resolving; test/app_foundation_test.dart
+  14s drift_dev on 100 inputs: 25 skipped, 46 output, 29 no-op; spent 7s analyzing, 4s sdk, 2s resolving
+  0s source_gen:combining_builder on 50 inputs; lib/app/pocketflow_app.dart
+  0s source_gen:combining_builder on 50 inputs: 25 skipped, 1 output, 24 no-op
+  Built with build_runner/jit in 22s; wrote 47 outputs.
+Running build hooks...Running build hooks...

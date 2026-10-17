@@ -7,7 +7,7 @@
 | A | feat/a-ui-mvp | lib/app/（排除 composition/）、lib/shared/widgets/、lib/features/home/presentation/、entry_editor/presentation/、ledger_list/presentation/、settings/presentation/；design/；docs/module-notes/A.md；docs/ui-ux-proposal-v1.md |
 | B | feat/b-ledger-budget | lib/core/database/；lib/features/budget/domain/、application/；lib/features/transactions/；docs/module-notes/B.md |
 | C | feat/c-report-backup | lib/features/statistics/、export/、backup/；docs/module-notes/C.md |
-| D | chore/d-test-build | test/、integration_test/、android/、.github/workflows/；tools/（排除 check_ownership.mjs）；docs/module-notes/D.md |
+| D | chore/d-test-build | test/、integration_test/、android/、.github/workflows/；tools/（排除 check_ownership.mjs）；docs/module-notes/D.md；docs/qa-report.md |
 | 主控 | integration/<milestone>、contract/<change> | lib/core/domain/、lib/contracts/、lib/main.dart、lib/app/composition/；根配置/依赖；AGENTS.md、CODEOWNERS、架构/合同/计划/决策；tools/check_ownership.mjs；跨模块集成 |
 
 A/B/C 不直接改 test/；在模块交付说明列测试场景，D 按公共合同补测试。模块可运行现有测试，不受所有权限制。若一个缺陷必须修改别的模块，提交主控处理或拆成另一模块的 PR；不要把所有权当作不报告缺陷的理由。

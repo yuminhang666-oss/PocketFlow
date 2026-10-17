@@ -1,0 +1,42 @@
+00:00 +0: loading D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart
+00:00 +0: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +1: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +2: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +3: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +4: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +5: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +6: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +7: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +8: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +9: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +10: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +11: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +12: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +13: D:/Codex/PocketFlowIntegration/test/app_foundation_test.dart: actual empty home at Size(320.0, 568.0), text scale 1.0
+00:00 +14: D:/Codex/PocketFlowIntegration/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +15: D:/Codex/PocketFlowIntegration/test/database_foundation_test.dart: real generated Drift schema fresh schema seeds categories and enables foreign keys and index
+00:00 +16: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +17: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +18: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +19: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +20: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +21: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +22: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +23: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +24: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +25: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +26: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +27: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:00 +28: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +29: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +30: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +31: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +32: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +33: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +34: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+Shell: C contract checks passed (Dart execution, not Android integration).
+00:01 +35: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +36: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:01 +37: D:/Codex/PocketFlowIntegration/test/database_startup_error_test.dart: database startup error stays visible until an explicit retry
+00:02 +38: D:/Codex/PocketFlowIntegration/test/user_flow_widget_test.dart: production composition: budget, entry, edit/delete, charts and file flows
+00:07 +39: All tests passed!

@@ -1,0 +1,10 @@
+Before update:
+    versionCode=1 minSdk=24 targetSdk=36
+    versionName=0.1.0
+    lastUpdateTime=2026-10-17 12:14:15
+      firstInstallTime=2026-10-17 12:14:15
+After adb install -r (Success):
+    versionCode=2 minSdk=24 targetSdk=36
+    versionName=0.1.1
+    lastUpdateTime=2026-10-17 12:16:08
+      firstInstallTime=2026-10-17 12:14:15

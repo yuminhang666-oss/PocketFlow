@@ -1,10 +1,10 @@
 # PocketFlow 架构与协作规范
 
-状态：架构基线 v1.0.0，2026-10-17；接口语义已确定，Flutter 编译验证仍待工具链就绪。
+状态：合同 v1.0.0，2026-10-17；MVP 已完成正式装配和自动测试。实际 Android 构建及设备验收状态见 docs/status.md 与 docs/apk-delivery.md。
 
 ## 1. 唯一权威来源
 
-GitHub 的默认分支 `main` 是所有开发对话共享代码、接口和决策的唯一权威来源。统一私有仓库为 [yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)，clone URL 为 `https://github.com/yuminhang666-oss/PocketFlow.git`。负责人已核验当前连接具备 push 权限。实际初始化/同步状态与基线提交见 `docs/status.md`；模块必须以远程 main 的已发布合同为起点。
+GitHub 的默认分支 `main` 是所有开发对话共享代码、接口和决策的唯一权威来源。统一公开仓库为 [yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)，clone URL 为 `https://github.com/yuminhang666-oss/PocketFlow.git`。负责人已核验当前连接具备 push 权限。实际初始化/同步状态与基线提交见 `docs/status.md`；模块必须以远程 main 的已发布合同为起点。
 
 每个对话开始或续接都必须先读取仓库中的 `AGENTS.md`、本文件、`docs/data-contracts.md`、`docs/interfaces.md`、`docs/ownership.md`、`docs/milestones.md` 和自己的交接文件。不能假定可以读取另一个对话的聊天、本机文件或未合并分支。PR 链接和 commit SHA 是交付标识；聊天中的“已完成”不是共享代码证据。
 
@@ -23,11 +23,11 @@ GitHub 的默认分支 `main` 是所有开发对话共享代码、接口和决�
 | 状态 | Riverpod 3；首版手写 Provider | 便于注入测试替身，减少状态代码生成依赖 |
 | 存储 | Drift + SQLite，本地应用目录 | 类型化查询、迁移、事务与可观察查询 |
 | 领域 | 纯 Dart、整数分金额、明确日历类型 | 独立测试，不让 UI/图表改变财务口径 |
-| 图表 | fl_chart，在 M3 阶段由负责人统一加入 | 只在图表坐标层使用 double |
+| 图表 | fl_chart 1.2.0，已统一启用 | 只在图表坐标层使用 double |
 | 文件 | Markdown 与 JSON 独立服务；系统文件选择/分享适配器 | 月报不是备份；平台权限隔离 |
 | 工程 | 一个仓库、独立分支、PR、负责人集成 | 避免跨对话隐式状态与目录冲突 |
 
-当前 pubspec 固定候选版本，正式解析后提交真实生成的 pubspec.lock；禁止手写锁文件或依赖安装假成功。已核验官方文档支持的分层和查询流见 [Flutter](https://docs.flutter.dev/app-architecture/guide)、[Drift](https://drift.simonbinder.eu/dart_api/streams/)、[Riverpod](https://riverpod.dev/docs/introduction/getting_started)。
+当前 pubspec 已固定兼容版本并提交真实生成的 pubspec.lock；禁止手写锁文件或依赖安装假成功。已核验官方文档支持的分层和查询流见 [Flutter](https://docs.flutter.dev/app-architecture/guide)、[Drift](https://drift.simonbinder.eu/dart_api/streams/)、[Riverpod](https://riverpod.dev/docs/introduction/getting_started)。
 
 ## 4. 目录与依赖方向
 
@@ -52,7 +52,7 @@ lib/
       domain/ application/ data/     # B：记账校验与 Repository 实现
     statistics/ export/ backup/     # C：统计、导出和备份实现
 test/ integration_test/              # D：自动测试
-android/                            # D：Android 平台工程与构建；尚未生成
+android/                            # D：Android 平台工程与构建；已生成并补齐文件通道
 .github/workflows/                   # D：CI，禁止发布或暴露密钥
 docs/                               # 共享规范与交接
 design/                             # A：Figma 与设计源文件
@@ -80,3 +80,13 @@ tools/                              # D：可重复验证工具
 本次授权涵盖 PocketFlow 架构、仓库初始化、模块分支与 PR 协作；不涵盖公共发布、账单上传、签名密钥外传、全局环境修改。安装工具或连接权限不足时，完成可审阅内容后说明具体最小操作。其他对话不得向 main 提交或推送，负责人统一审查/合并，禁止 force push 和未经协调重写共享历史。
 
 发布开源许可证尚未确定。参考项目的代码没有复制到工程中；调研来源见 `01-research.md`。Figma 空白文件与未完成构建脚本已留作 A 的输入，尚未形成可交付四页界面，不可标为完成。
+
+
+## 8. MVP 集成决定
+
+正式装配、schema v2、兼容依赖锁和 Android 原生文件通道见 [ADR 0002](decisions/0002-mvp-integration.md)。本次依赖解析、Drift 生成、静态分析及 38 项 Flutter 测试已通过；设备行为不能由这些结果替代。工具安装与 SDK 许可已有用户针对 D:\Codex\PocketFlowTools 的明确授权，未改全局 PATH。
+
+2026-10-17用户追加明确授权：将PocketFlow仓库改为公开，并公开既有Debug测试版下载。该决定见 [ADR 0003](decisions/0003-public-test-download.md)，覆盖上文关于当前仓库可见性与本测试版公开下载的旧限制；账单及签名私钥上传仍未获授权。
+
+
+Android插件打包与固定测试签名的交付门禁见 [ADR0004](decisions/0004-android-startup-and-update-signing.md)。0.1.1已直接在实际Android模拟器验证核心流程、原生文件保存/恢复及覆盖更新，物理手机复测仍由用户进行。
