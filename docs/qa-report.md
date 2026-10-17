@@ -96,13 +96,15 @@ P0：数据损坏/丢失、安全或无法建立核心闭环；P1：主要功能
 1. **ENV-01 / P1 / 已定位并绕过**：本地命令行网络没有使用现有Windows代理；直接Git访问公开仓库也超时。复现：无代理运行 `git ls-remote https://github.com/flutter/flutter.git refs/heads/stable`；使用进程级代理后成功。建议复用环境脚本，不改全局Git、不关闭TLS验证。
 2. **BUILD-01 / P1 / 待主控**：基线无真实 `pubspec.lock`，暂不能保证传递依赖可复现。首次生成候选锁，主控审查后纳入公共基线，CI强制校验锁。定位：根pubspec与架构M1。
 3. **BUILD-02 / P1 / 交付缺口**：原main尚不能生成Drift，Android工程缺失，原CI只有ownership/SQL原型检查。本轮D补充正式Flutter CI；它要求先有主控审阅的锁。候选Drift与测试结果不能替代原main的门禁，也不能代表Android通过。
-4. **SCOPE-01 / P2 / 待主控协调**：用户明确要求 `docs/qa-report.md`，现有 `tools/check_ownership.mjs` 的D白名单只允许 `docs/module-notes/D.md`。本报告按用户当前精确要求纳入D的草稿PR；预计ownership检查仅此路径被拒，主控协调白名单后再合并。D不擅改ownership。
+4. **SCOPE-01 / P2 / 待主控协调**：用户明确要求 `docs/qa-report.md`，现有 `tools/check_ownership.mjs` 的D白名单只允许 `docs/module-notes/D.md`。本报告按用户当前精确要求纳入D的草稿PR；首次远程ownership检查已确认仅此路径被拒，主控协调白名单后再合并。D不擅改ownership。
 5. **LICENSE-01 / P2 / 待发布前完成**：项目许可证尚未确定；第三方传递依赖清单须以真实锁文件为准核验。未发现引用项目代码复制的证据，不据此声称许可证全面合规。
 6. **DEP-01 / P1 / 已复现，阻断编译测试**：`pubspec.yaml`的`build_runner: 2.17.1`与`drift_dev: 2.35.1`无可满足版本组合。复现：官方Flutter3.47.7运行`flutter pub get`。日志：`tools/qa-evidence/m0/original-pub-get.log`。官方包元数据同样确认前者build约束`>=5.0.0 <5.1.0`，后者`>=3.0.0 <5.0.0`。建议由主控将build_runner精确固定到2.16.2（build约束`^4.0.9`），评估候选实跑结果后合入真实锁文件。D仅在独立诊断副本验证，不更改共享根依赖。
 7. **PATH-01 / P1 / 已复现环境限制**：同一`void main() {}`经Dart3.13.5编译AOT，中文输出路径退出254，ASCII输出路径退出0；中文目录`flutter analyze`发生LSP JSON截断、退出255，英文克隆能完成分析。使用全英文独立构建检出；脚本提前检查路径。JIT仅是代码生成模式，不能解决未来release AOT的中文路径问题。
 8. **ANALYZE-01 / P2（阻断严格门禁）/ B处理**：`lib/core/database/app_database.dart:10`的use_super_parameters和`tables.dart:16,17,30,31,32`的recursive_getters共6条info。不是已复现栈溢出：生成表的5项真实数据库测试通过。建议B按Drift DSL核对，在确认生成行为后局部处理误报，并使用super参数；不全局关闭lint或吞掉分析失败。
 
-所有执行结果以具体输入和日志为准；模块未实现、测试未执行、设备未具备的项目不得标“通过”。正式Flutter CI配置已写但尚未在远程执行；未声称CI通过。
+首次远程CI已实际执行（PR #2，head `a5f0bee1852a99bc604f8eaac038f24d4311f9fc`）：[ownership检查](https://github.com/yuminhang666-oss/PocketFlow/actions/runs/39000625775)失败，日志确认唯一拒绝项为`docs/qa-report.md`，SQL步骤被跳过；[Flutter门禁](https://github.com/yuminhang666-oss/PocketFlow/actions/runs/39000625772)因根`pubspec.lock`缺失而失败，SDK安装、生成、分析和测试步骤都未运行。两项均未通过；远程结果与本地候选测试必须区分。
+
+所有执行结果以具体输入和日志为准；模块未实现、测试未执行、设备未具备的项目不得标“通过”。
 
 ## 发布检查清单
 

@@ -38,5 +38,6 @@ jobs:
         with:
           name: flutter-qa-evidence
           path: .local/qa/
+          include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

@@ -12,7 +12,7 @@
 
 MVP回归顺序：环境→共享合同/预算→B真实数据库CRUD/重启/事务/迁移→A正式接线与重复提交→C统计守恒/Markdown/JSON与恢复回滚→Android安装离线验收。未交付功能保持待验证，不以SQL原型或静态首页替代。
 
-Flutter3.47.7与Dart3.13.5已安装、官方SHA256匹配，版本命令与doctor实际成功；SDK展开约3.49GB，保留下载包后约5.42GB，缓存另计。doctor网络资源可达，Android SDK缺失。新增Windows Flutter CI门禁：主控须先合入锁，否则明确失败；不把无锁解析称作可复现验证。远程CI尚未运行。
+Flutter3.47.7与Dart3.13.5已安装、官方SHA256匹配，版本命令与doctor实际成功；SDK展开约3.49GB，保留下载包后约5.42GB，缓存另计。doctor网络资源可达，Android SDK缺失。新增Windows Flutter CI门禁：主控须先合入锁，否则明确失败；不把无锁解析称作可复现验证。
 
 **DEP-01 / P1：主分支不能解析依赖。** `build_runner2.17.1`要求build5.x，与`drift_dev2.35.1`要求build<5冲突。官方SDK实际`flutter pub get`失败，日志在`.local/qa/20261017-114002/pub-get.log`。官方包API核实2.16.2要求build^4.0.9，候选成功解析；公共pubspec未修改。
 
@@ -23,3 +23,5 @@ Flutter3.47.7与Dart3.13.5已安装、官方SHA256匹配，版本命令与doctor
 共享证据`tools/qa-evidence/m0/`保存生成的候选锁、配置diff、实跑命令日志和源码SHA；该锁仅供主控审阅，任何脚本/CI都不将其作为活动锁。完整本地证据另存`.local/qa/candidate-20261017-114521/`；不包含真实账单。完整MVP用例、缺陷与发布检查清单在用户指定`docs/qa-report.md`。该单文件按当前用户精确要求纳入草稿PR，当前ownership白名单将拒绝此路径，主控协调后再合并，不擅改白名单。
 
 主控事项：修正上述依赖冲突并合入真实锁；审核正式Flutter CI；Android现代JDK/SDK/许可；协调用户要求的`docs/qa-report.md`路径（当前D白名单仅允许本说明）；发布前确定许可证。D不修改共享模型、根依赖、其他模块实现、ownership脚本，不合并main。
+
+PR #2首次远程CI（head a5f0bee）：ownership run39000625775失败，仅拒绝docs/qa-report.md，SQL步骤跳过；Flutter run39000625772失败于根pubspec.lock缺失，SDK安装和后续Flutter验证未运行。已读实际job日志确认，不声称CI通过。后续提交如只更新说明，不以重复CI代替前置事项处理。
