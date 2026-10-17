@@ -20,6 +20,6 @@ Flutter3.47.7与Dart3.13.5已安装、官方SHA256匹配，版本命令与doctor
 
 **PATH-01 / P1环境限制**：最小空程序在中文输出路径AOT退出254，英文路径退出0；中文分析器LSP崩溃255，英文分析正常完成。请用全英文独立克隆，verify脚本会预检拒绝非ASCII Windows工作路径。JIT是生成器的官方模式，不能解决未来release AOT路径问题。
 
-本地证据`.local/qa/candidate-20261017-114521/`保存候选锁、配置diff、命令日志和源码SHA；不包含真实账单。完整MVP用例、缺陷与发布检查清单在用户指定`docs/qa-report.md`。该单文件按当前用户精确要求纳入草稿PR，当前ownership白名单将拒绝此路径，主控协调后再合并，不擅改白名单。
+共享证据`tools/qa-evidence/m0/`保存生成的候选锁、配置diff、实跑命令日志和源码SHA；该锁仅供主控审阅，任何脚本/CI都不将其作为活动锁。完整本地证据另存`.local/qa/candidate-20261017-114521/`；不包含真实账单。完整MVP用例、缺陷与发布检查清单在用户指定`docs/qa-report.md`。该单文件按当前用户精确要求纳入草稿PR，当前ownership白名单将拒绝此路径，主控协调后再合并，不擅改白名单。
 
 主控事项：修正上述依赖冲突并合入真实锁；审核正式Flutter CI；Android现代JDK/SDK/许可；协调用户要求的`docs/qa-report.md`路径（当前D白名单仅允许本说明）；发布前确定许可证。D不修改共享模型、根依赖、其他模块实现、ownership脚本，不合并main。

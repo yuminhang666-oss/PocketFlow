@@ -1,0 +1,147 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "817DB31F22638627D7B0F4A83D38256231EE724241603F6843BA52C89712CB31",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\main.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "F581739827A4FA396ADEDEAAC9B89C84AAC7F923C59A9C62042EBDA5445FD83A",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\app\\pocketflow_app.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "DFCCF07035627A87AAE91215FF4265F2B5BA91E023199E49BD261F8D8BAF7B1D",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\backup_store.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "A2DCD50020FC15AFD35024D776776A720CDF129145CF87B0E2FC61E9A2C74BFA",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\clock.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "75F7FA34E39FB1E0D4F1FCAA434AD7B9234283675BA3F1371A32DD8FE48D593A",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\contracts.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "31BE7F1B01F5BFF31B749A71F66F276A605E879782E3B73F371D872060D36F01",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\file_transfer_port.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "F9E2EF1A8853E1F60EFDC9F48C7C2E5280FAF7A4DCC3DE776B1094A6EC4AE429",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\ledger_repository.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "323544EEAE4204F929377D59292815FFCC41DB68F1F4C940E4AA2F9C9D1FA82A",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\pocketflow_exception.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "84424E253A39BF88490A8E4E0453021D38EBEDBBEF42D37A965C2B0E3A8E175B",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\contracts\\report_services.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "E06D434C35C48F894083189ADFF4869AC7F8754BD952E99F98DAD13CDBE4B3CC",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\database\\app_database.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "68A5C7D2683C89087F5FABABBA50ED8DCBAC15025E4B1CB16D4DFF9ED09F8377",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\database\\app_database.g.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "4290B1B5E571DD81A1CF00E2AB1DE835064A5C6A09C4D7B4D70EA853B4986E0B",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\database\\tables.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "36CDB9F4237E643DF0A4FA57286486226DE50D3F8EEE0B40D5A6283395423B52",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\backup_models.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "1BCCDFE3DFD1D8E5DB0CCDF223A0236C997831FB212FBE0B1692FB86E7622435",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\budget_snapshot.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "41684E09FE0A5ADBB1B733C45FDE4E8A493743B6D20534433A3753BEFA747ECF",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\calendar_month.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "E087BBB37D7CAB38946BE409E78313EE160E34741DA2C58887AFDF439EDBC43E",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\ledger_entry.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "671F1B0D07812098F9038477F52A7D27B7A77366EAEEFFBF466AE3322BC42B92",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\ledger_models.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "44A3F231675FB8DCD9DD798CD48B0F029ED12BDE1A4968999351A296FF98970B",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\money.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "819D40D1F2E8A047D4E3724B8F005A3267334D98F69E3582F6BAB26F4384A8CC",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\core\\domain\\report_models.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "850D0CC4A48E92091C2C876A3A621F283FF5A21365469BA31DE60E49458FEC6C",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\features\\budget\\domain\\budget_calculator.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "2E909DC7FCD1E82844C1611B538C188DC782C36CA6881E50692616B4906EB449",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\lib\\features\\transactions\\domain\\ledger_repository.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "AB0BC540933995CB54C147F48392800245F55C753F0AB2B460B33E62FDB90692",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\app_foundation_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "689B9D3806BA4698764EE3D0314EBE1C6C8879F67B39BF0E2753DD80BEF04492",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\budget_calculator_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "3568511585BF5B4956A56DDB17432A459035B250B32AFCBF6F4BC2AC9A272FCE",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\budget_mvp_regression_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "E4963E9943616724BBF74F155A642554C0BA89D2BF28D0686444D3744EBC5343",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\database_foundation_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "C612E6BE399261080CD6C71418E9629CA9C090E5DE8223F69B0665178CE6C907",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\domain_contract_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "1D28A767B7E2859CD7F93793893A85B9CA21633A7C836ED58C4758D06F1B76EF",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\test\\money_test.dart"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "226D02DA3DCEBC0D65D5F58D0C9CF508650DB9FDB85348F72F46D1EFC7C45DE8",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\pubspec.yaml"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "50637902A6BF9B74B2A18603A89E302CA1C8D57383E6DC2D0243702CE818A6DC",
+    "Path": "D:\\Codex\\PocketFlowTools\\probes\\m0-candidate\\analysis_options.yaml"
+  }
+]

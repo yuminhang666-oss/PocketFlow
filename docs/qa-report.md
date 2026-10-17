@@ -89,7 +89,7 @@ P0：数据损坏/丢失、安全或无法建立核心闭环；P1：主要功能
 
 候选锁SHA256：`cbffdad20062a90a8987d6db776e9d8581a43394b8dd7f865f54b669c193f616`。100项解析依赖是候选图，不是已批准生产依赖。
 
-证据包：`.local/qa/candidate-20261017-114521/`，包含真实锁文件、候选配置diff、具体命令日志、源码SHA256清单（`validated-source-inputs.json`）。最初M0解析失败证据位于`.local/qa/20261017-114002/`。英文克隆的验证脚本在静态分析退出1时按预期停止，Flutter测试随后独立执行；不得称整套验证脚本通过。
+可共享证据包：`tools/qa-evidence/m0/`，包含真实候选锁文件（非项目活动锁）、候选配置diff、具体命令日志、源码SHA256清单（`validated-source-inputs.json`）和原M0解析失败日志，可直接随PR读取。完整本地证据另保存在`.local/qa/candidate-20261017-114521/`。英文克隆的验证脚本在静态分析退出1时按预期停止，Flutter测试随后独立执行；不得称整套验证脚本通过。
 
 ## 审查发现与协作事项
 
@@ -98,7 +98,7 @@ P0：数据损坏/丢失、安全或无法建立核心闭环；P1：主要功能
 3. **BUILD-02 / P1 / 交付缺口**：原main尚不能生成Drift，Android工程缺失，原CI只有ownership/SQL原型检查。本轮D补充正式Flutter CI；它要求先有主控审阅的锁。候选Drift与测试结果不能替代原main的门禁，也不能代表Android通过。
 4. **SCOPE-01 / P2 / 待主控协调**：用户明确要求 `docs/qa-report.md`，现有 `tools/check_ownership.mjs` 的D白名单只允许 `docs/module-notes/D.md`。本报告按用户当前精确要求纳入D的草稿PR；预计ownership检查仅此路径被拒，主控协调白名单后再合并。D不擅改ownership。
 5. **LICENSE-01 / P2 / 待发布前完成**：项目许可证尚未确定；第三方传递依赖清单须以真实锁文件为准核验。未发现引用项目代码复制的证据，不据此声称许可证全面合规。
-6. **DEP-01 / P1 / 已复现，阻断编译测试**：`pubspec.yaml`的`build_runner: 2.17.1`与`drift_dev: 2.35.1`无可满足版本组合。复现：官方Flutter3.47.7运行`flutter pub get`。日志：`.local/qa/20261017-114002/pub-get.log`。官方包元数据同样确认前者build约束`>=5.0.0 <5.1.0`，后者`>=3.0.0 <5.0.0`。建议由主控将build_runner精确固定到2.16.2（build约束`^4.0.9`），评估候选实跑结果后合入真实锁文件。D只在`.local/dependency-probe`验证，不更改共享根依赖。
+6. **DEP-01 / P1 / 已复现，阻断编译测试**：`pubspec.yaml`的`build_runner: 2.17.1`与`drift_dev: 2.35.1`无可满足版本组合。复现：官方Flutter3.47.7运行`flutter pub get`。日志：`tools/qa-evidence/m0/original-pub-get.log`。官方包元数据同样确认前者build约束`>=5.0.0 <5.1.0`，后者`>=3.0.0 <5.0.0`。建议由主控将build_runner精确固定到2.16.2（build约束`^4.0.9`），评估候选实跑结果后合入真实锁文件。D仅在独立诊断副本验证，不更改共享根依赖。
 7. **PATH-01 / P1 / 已复现环境限制**：同一`void main() {}`经Dart3.13.5编译AOT，中文输出路径退出254，ASCII输出路径退出0；中文目录`flutter analyze`发生LSP JSON截断、退出255，英文克隆能完成分析。使用全英文独立构建检出；脚本提前检查路径。JIT仅是代码生成模式，不能解决未来release AOT的中文路径问题。
 8. **ANALYZE-01 / P2（阻断严格门禁）/ B处理**：`lib/core/database/app_database.dart:10`的use_super_parameters和`tables.dart:16,17,30,31,32`的recursive_getters共6条info。不是已复现栈溢出：生成表的5项真实数据库测试通过。建议B按Drift DSL核对，在确认生成行为后局部处理误报，并使用super参数；不全局关闭lint或吞掉分析失败。
 
