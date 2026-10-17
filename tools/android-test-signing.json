@@ -1,0 +1,7 @@
+{
+  "applicationId": "cn.pocketflow",
+  "certificateSha256": "e0abafcf0c3f78b58602d1e369e2f740d7dc5e516eb414cc70b218912e409ec4",
+  "baselineVersionCode": 1,
+  "baselineApkSha256": "1a1b371b3a9d6cccead65433b1957e1bf0337f58343a6a78c993d71c92bbda25",
+  "note": "Public certificate fingerprint of the installed 0.1.0 test APK. The private signing key stays in the local tool directory and is never committed."
+}

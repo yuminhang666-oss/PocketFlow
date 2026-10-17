@@ -87,3 +87,6 @@ tools/                              # D：可重复验证工具
 正式装配、schema v2、兼容依赖锁和 Android 原生文件通道见 [ADR 0002](decisions/0002-mvp-integration.md)。本次依赖解析、Drift 生成、静态分析及 38 项 Flutter 测试已通过；设备行为不能由这些结果替代。工具安装与 SDK 许可已有用户针对 D:\Codex\PocketFlowTools 的明确授权，未改全局 PATH。
 
 2026-10-17用户追加明确授权：将PocketFlow仓库改为公开，并公开既有Debug测试版下载。该决定见 [ADR 0003](decisions/0003-public-test-download.md)，覆盖上文关于当前仓库可见性与本测试版公开下载的旧限制；账单及签名私钥上传仍未获授权。
+
+
+Android插件打包与固定测试签名的交付门禁见 [ADR0004](decisions/0004-android-startup-and-update-signing.md)。0.1.1已直接在实际Android模拟器验证核心流程、原生文件保存/恢复及覆盖更新，物理手机复测仍由用户进行。

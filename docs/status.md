@@ -1,17 +1,14 @@
 # 项目状态
 
-更新：2026-10-17（Asia/Shanghai）。公共合同 v1.0.0。
+更新：2026-10-17（Asia/Shanghai）。公共合同v1.0.0；数据库schema v2。
 
-- 公开仓库：https://github.com/yuminhang666-oss/PocketFlow；主分支 `main`。
-- M0：`26d8e4b47eef5d17fe2ca8385da3ddb58adce95e`。本轮集成分支 `integration/mvp-delivery`，通过 PR 交付，不直推 main。
-- 已保留并集成 B `3312266`、A `34b4276`、C `bcae0f4`、D `6035028` 的原始历史。核查时 A/B 为尚未推送的本地提交，C/D 已有远程分支和 Draft PR；原工作树未覆盖。现 A/B 已分别快进推送，并保留 Draft PR #3/#4，C/D 对应 #1/#2。
-- 正式入口已接入真实 Drift 数据库、预算、记账增删改、统计图表、Markdown 和 JSON 备份恢复；已补齐 Android 文件通道。
-- 已实际通过：锁定依赖解析、Drift 生成、静态分析（0 问题）、Flutter 测试 38/38（无跳过）；独立 SQL 设计检查 9/9。
-- Flutter 3.47.7 / Dart 3.13.5；JDK 17、Android API 36/build-tools 36.0.0、NDK 28.2.13676358 已在 D 盘安装并核验。只设置任务进程环境。
-- Debug APK 已实际构建成功并通过包信息、调试签名及复制后 SHA256 核验；163,682,534 字节（156.10 MiB）。文件路径与哈希见 [交付记录](apk-delivery.md)。
-- 无连接的 Android 真机/模拟器：安装、启动、系统文件选择及分享接收方尚未设备验收。不能将自动测试或构建成功记为 M5 全部完成。
-- Release 签名未配置，个人试用交付 Debug 包；Debug测试版已按用户授权公开下载；没有账单上传。
+- 公开仓库：https://github.com/yuminhang666-oss/PocketFlow。M0基线26d8e4b47eef5d17fe2ca8385da3ddb58adce95e；集成经PR #5交付。
+- A/B/C/D原始提交保留。0.1.0经用户手机反馈发现Android原生插件漏打包，已用原APK在模拟器复现；不能将先前Windows通过项当成Android运行通过。
+- 当前更新版0.1.1 / versionCode 2，补齐JNI插件及原生库、修复错误自动重试导致的持续加载；共享模型与数据库路径未改变。
+- 实际通过：静态分析0问题、Flutter测试39/39；Android API36模拟器首启、预算设置、消费增删改、统计、重启持久化、Markdown系统保存、JSON保存与确认恢复、离线读取。
+- 实际覆盖验证：安装原0.1.0→放入明确标记的虚构测试账本→adb install -r新0.1.1成功；firstInstallTime保持不变，1500预算/30消费/1470余额及备注保留。后续另从空账本实际保存，区分夹具与真实UI流程。
+- APK 163,977,930字节，SHA256 9ead1e7b3d9bc0c20608d09e167419e962c02f850f177b3ceac4b87a56b08658。包名cn.pocketflow与最初签名一致，三种ABI的JNI/SQLite/Flutter库、16KiB对齐均核验。
+- 用户真实手机/OEM差异、TalkBack与系统分享接收方仍待验收；正式Release签名未配置。主题选择仍只保留当前会话。
+- 私钥固定在本机独立signing目录，不入库、不上传；构建校验证书与版本，不能静默重建另一把密钥。
 
-测试范围、限制及原始交付核查见 [集成报告](integration-report.md)。旧 QA 与数字编号验证文档保留历史记录，当前状态以本文件和集成报告为准。CI 配置不等于已配置平台级分支保护。
-
-用户于2026-10-17明确授权仓库改为公开；已核验未登录访问仓库、测试版页面与APK均返回HTTP200。公开下载网址与检查范围见 [ADR 0003](decisions/0003-public-test-download.md)。
+完整修复与更新记录：[0.1.1报告](hotfix-0.1.1.md)。原0.1.0报告和证据保留为历史，不代表修复后的最终验收。

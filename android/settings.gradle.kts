@@ -23,4 +23,7 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.4.0" apply false
 }
 
+check(file("../.flutter-plugins-dependencies").isFile) {
+    "Android plugin configuration is missing. Run flutter pub get after the Android scaffold exists."
+}
 include(":app")

@@ -1,0 +1,160 @@
+--------- beginning of main
+10-17 12:14:19.050  3772  3870 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+10-17 12:14:19.486  3772  3881 I flutter : The Dart VM service is listening on http://127.0.0.1:41987/dQ2lsyycCCY=/
+10-17 12:14:19.653  3772  3772 E GeneratedPluginsRegister: Tried to automatically register plugins with FlutterEngine (io.flutter.embedding.engine.FlutterEngine@eb8b96b) but could not find or invoke the GeneratedPluginRegistrant.
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: Received exception while registering
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: java.lang.ClassNotFoundException: io.flutter.plugins.GeneratedPluginRegistrant
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.Class.classForName(Native Method)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.Class.forName(Class.java:597)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.Class.forName(Class.java:502)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at io.flutter.embedding.engine.plugins.util.GeneratedPluginRegister.registerGeneratedPlugins(GeneratedPluginRegister.java:77)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at io.flutter.embedding.android.FlutterActivity.configureFlutterEngine(FlutterActivity.java:1355)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at cn.pocketflow.MainActivity.configureFlutterEngine(MainActivity.kt:24)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach(FlutterActivityAndFragmentDelegate.java:228)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at io.flutter.embedding.android.FlutterActivity.onCreate(FlutterActivity.java:645)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.Activity.performCreate(Activity.java:9155)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.Activity.performCreate(Activity.java:9133)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1521)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4262)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4467)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:222)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2823)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.os.Looper.loopOnce(Looper.java:248)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.os.Looper.loop(Looper.java:338)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at android.app.ActivityThread.main(ActivityThread.java:9067)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.reflect.Method.invoke(Native Method)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: Caused by: java.lang.ClassNotFoundException: Didn't find class "io.flutter.plugins.GeneratedPluginRegistrant" on path: DexPathList[[zip file "/data/app/~~5jHTUhfDRRSTuBb2URDAug==/cn.pocketflow-6srhTHxsgbV_eUtAW_TQ4A==/base.apk"],nativeLibraryDirectories=[/data/app/~~5jHTUhfDRRSTuBb2URDAug==/cn.pocketflow-6srhTHxsgbV_eUtAW_TQ4A==/lib/x86_64, /data/app/~~5jHTUhfDRRSTuBb2URDAug==/cn.pocketflow-6srhTHxsgbV_eUtAW_TQ4A==/base.apk!/lib/x86_64, /system/lib64, /system_ext/lib64]]
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:259)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:637)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:573)
+10-17 12:14:19.667  3772  3772 E GeneratedPluginsRegister: 	... 25 more
+10-17 12:14:20.499  3772  3772 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Failed to load dynamic library at path: libdartjni.so
+10-17 12:14:20.499  3772  3772 E flutter : The library was found at the specified path, but it could not be loaded.
+10-17 12:14:20.499  3772  3772 E flutter : This might be due to missing dependencies or incorrect file permissions.
+10-17 12:14:20.499  3772  3772 E flutter : Please ensure that the file has the correct permissions.
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter : #0      _loadDartJniLibrary (package:jni/src/jni.dart:47:5)
+10-17 12:14:20.499  3772  3772 E flutter : #1      Jni._dylib (package:jni/src/jni.dart:53:40)
+10-17 12:14:20.499  3772  3772 E flutter : #2      Jni._dylib (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #3      Jni._bindings (package:jni/src/jni.dart:54:52)
+10-17 12:14:20.499  3772  3772 E flutter : #4      Jni._bindings (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #5      Jni.findClass.<anonymous closure> (package:jni/src/jni.dart:196:29)
+10-17 12:14:20.499  3772  3772 E flutter : #6      using (package:ffi/src/arena.dart:127:31)
+10-17 12:14:20.499  3772  3772 E flutter : #7      Jni.findClass (package:jni/src/jni.dart:196:12)
+10-17 12:14:20.499  3772  3772 E flutter : #8      new JClass.forName (package:jni/src/jclass.dart:17:50)
+10-17 12:14:20.499  3772  3772 E flutter : #9      JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart:51:38)
+10-17 12:14:20.499  3772  3772 E flutter : #10     JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #11     JniFlutterPlugin.applicationContext (package:jni_flutter/src/generated_plugin.dart:100:25)
+10-17 12:14:20.499  3772  3772 E flutter : #12     androidApplicationContext (package:jni_flutter/src/jni_flutter.dart:14:59)
+10-17 12:14:20.499  3772  3772 E flutter : #13     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart:13:44)
+10-17 12:14:20.499  3772  3772 E flutter : #14     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #15     PathProviderAndroid.getApplicationCachePath (package:path_provider_android/src/path_provider_android_real.dart:50:24)
+10-17 12:14:20.499  3772  3772 E flutter : #16     PathProviderAndroid.getTemporaryPath (package:path_provider_android/src/path_provider_android_real.dart:24:12)
+10-17 12:14:20.499  3772  3772 E flutter : #17     getTemporaryDirectory (package:path_provider/path_provider.dart:55:40)
+10-17 12:14:20.499  3772  3772 E flutter : #18     driftDatabase.<anonymous closure> (package:drift_flutter/src/native.dart:62:17)
+10-17 12:14:20.499  3772  3772 E flutter : #19     new Future.<anonymous closure> (dart:async/future.dart:260:40)
+10-17 12:14:20.499  3772  3772 E flutter : #20     Timer._createTimer.<anonymous closure> (dart:async-patch/timer_patch.dart:18:15)
+10-17 12:14:20.499  3772  3772 E flutter : #21     _Timer._runTimers (dart:isolate-patch/timer_impl.dart:423:19)
+10-17 12:14:20.499  3772  3772 E flutter : #22     _Timer._handleMessage (dart:isolate-patch/timer_impl.dart:454:5)
+10-17 12:14:20.499  3772  3772 E flutter : #23     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:192:12)
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Failed to load dynamic library at path: libdartjni.so
+10-17 12:14:20.499  3772  3772 E flutter : The library was found at the specified path, but it could not be loaded.
+10-17 12:14:20.499  3772  3772 E flutter : This might be due to missing dependencies or incorrect file permissions.
+10-17 12:14:20.499  3772  3772 E flutter : Please ensure that the file has the correct permissions.
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter : #0      _loadDartJniLibrary (package:jni/src/jni.dart:47:5)
+10-17 12:14:20.499  3772  3772 E flutter : #1      Jni._dylib (package:jni/src/jni.dart:53:40)
+10-17 12:14:20.499  3772  3772 E flutter : #2      Jni._dylib (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #3      Jni._bindings (package:jni/src/jni.dart:54:52)
+10-17 12:14:20.499  3772  3772 E flutter : #4      Jni._bindings (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #5      Jni.findClass.<anonymous closure> (package:jni/src/jni.dart:196:29)
+10-17 12:14:20.499  3772  3772 E flutter : #6      using (package:ffi/src/arena.dart:127:31)
+10-17 12:14:20.499  3772  3772 E flutter : #7      Jni.findClass (package:jni/src/jni.dart:196:12)
+10-17 12:14:20.499  3772  3772 E flutter : #8      new JClass.forName (package:jni/src/jclass.dart:17:50)
+10-17 12:14:20.499  3772  3772 E flutter : #9      JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart:51:38)
+10-17 12:14:20.499  3772  3772 E flutter : #10     JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #11     JniFlutterPlugin.applicationContext (package:jni_flutter/src/generated_plugin.dart:100:25)
+10-17 12:14:20.499  3772  3772 E flutter : #12     androidApplicationContext (package:jni_flutter/src/jni_flutter.dart:14:59)
+10-17 12:14:20.499  3772  3772 E flutter : #13     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart:13:44)
+10-17 12:14:20.499  3772  3772 E flutter : #14     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #15     PathProviderAndroid.getApplicationCachePath (package:path_provider_android/src/path_provider_android_real.dart:50:24)
+10-17 12:14:20.499  3772  3772 E flutter : #16     PathProviderAndroid.getTemporaryPath (package:path_provider_android/src/path_provider_android_real.dart:24:12)
+10-17 12:14:20.499  3772  3772 E flutter : #17     getTemporaryDirectory (package:path_provider/path_provider.dart:55:40)
+10-17 12:14:20.499  3772  3772 E flutter : #18     driftDatabase.<anonymous closure> (package:drift_flutter/src/native.dart:62:17)
+10-17 12:14:20.499  3772  3772 E flutter : #19     new Future.<anonymous closure> (dart:async/future.dart:260:40)
+10-17 12:14:20.499  3772  3772 E flutter : #20     Timer._createTimer.<anonymous closure> (dart:async-patch/timer_patch.dart:18:15)
+10-17 12:14:20.499  3772  3772 E flutter : #21     _Timer._runTimers (dart:isolate-patch/timer_impl.dart:423:19)
+10-17 12:14:20.499  3772  3772 E flutter : #22     _Timer._handleMessage (dart:isolate-patch/timer_impl.dart:454:5)
+10-17 12:14:20.499  3772  3772 E flutter : #23     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:192:12)
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Failed to load dynamic library at path: libdartjni.so
+10-17 12:14:20.499  3772  3772 E flutter : The library was found at the specified path, but it could not be loaded.
+10-17 12:14:20.499  3772  3772 E flutter : This might be due to missing dependencies or incorrect file permissions.
+10-17 12:14:20.499  3772  3772 E flutter : Please ensure that the file has the correct permissions.
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:20.499  3772  3772 E flutter : #0      _loadDartJniLibrary (package:jni/src/jni.dart:47:5)
+10-17 12:14:20.499  3772  3772 E flutter : #1      Jni._dylib (package:jni/src/jni.dart:53:40)
+10-17 12:14:20.499  3772  3772 E flutter : #2      Jni._dylib (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #3      Jni._bindings (package:jni/src/jni.dart:54:52)
+10-17 12:14:20.499  3772  3772 E flutter : #4      Jni._bindings (package:jni/src/jni.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #5      Jni.findClass.<anonymous closure> (package:jni/src/jni.dart:196:29)
+10-17 12:14:20.499  3772  3772 E flutter : #6      using (package:ffi/src/arena.dart:127:31)
+10-17 12:14:20.499  3772  3772 E flutter : #7      Jni.findClass (package:jni/src/jni.dart:196:12)
+10-17 12:14:20.499  3772  3772 E flutter : #8      new JClass.forName (package:jni/src/jclass.dart:17:50)
+10-17 12:14:20.499  3772  3772 E flutter : #9      JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart:51:38)
+10-17 12:14:20.499  3772  3772 E flutter : #10     JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #11     JniFlutterPlugin.applicationContext (package:jni_flutter/src/generated_plugin.dart:100:25)
+10-17 12:14:20.499  3772  3772 E flutter : #12     androidApplicationContext (package:jni_flutter/src/jni_flutter.dart:14:59)
+10-17 12:14:20.499  3772  3772 E flutter : #13     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart:13:44)
+10-17 12:14:20.499  3772  3772 E flutter : #14     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart)
+10-17 12:14:20.499  3772  3772 E flutter : #15     PathProviderAndroid.getApplicationCachePath (package:path_provider_android/src/path_provider_android_real.dart:50:24)
+10-17 12:14:20.499  3772  3772 E flutter : #16     PathProviderAndroid.getTemporaryPath (package:path_provider_android/src/path_provider_android_real.dart:24:12)
+10-17 12:14:20.499  3772  3772 E flutter : #17     getTemporaryDirectory (package:path_provider/path_provider.dart:55:40)
+10-17 12:14:20.499  3772  3772 E flutter : #18     driftDatabase.<anonymous closure> (package:drift_flutter/src/native.dart:62:17)
+10-17 12:14:20.499  3772  3772 E flutter : #19     new Future.<anonymous closure> (dart:async/future.dart:260:40)
+10-17 12:14:20.499  3772  3772 E flutter : #20     Timer._createTimer.<anonymous closure> (dart:async-patch/timer_patch.dart:18:15)
+10-17 12:14:20.499  3772  3772 E flutter : #21     _Timer._runTimers (dart:isolate-patch/timer_impl.dart:423:19)
+10-17 12:14:20.499  3772  3772 E flutter : #22     _Timer._handleMessage (dart:isolate-patch/timer_impl.dart:454:5)
+10-17 12:14:20.499  3772  3772 E flutter : #23     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:192:12)
+10-17 12:14:20.499  3772  3772 E flutter :
+10-17 12:14:22.659  3772  3772 E flutter : [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Failed to load dynamic library at path: libdartjni.so
+10-17 12:14:22.659  3772  3772 E flutter : The library was found at the specified path, but it could not be loaded.
+10-17 12:14:22.659  3772  3772 E flutter : This might be due to missing dependencies or incorrect file permissions.
+10-17 12:14:22.659  3772  3772 E flutter : Please ensure that the file has the correct permissions.
+10-17 12:14:22.659  3772  3772 E flutter :
+10-17 12:14:22.659  3772  3772 E flutter :
+10-17 12:14:22.659  3772  3772 E flutter : #0      _loadDartJniLibrary (package:jni/src/jni.dart:47:5)
+10-17 12:14:22.659  3772  3772 E flutter : #1      Jni._dylib (package:jni/src/jni.dart:53:40)
+10-17 12:14:22.659  3772  3772 E flutter : #2      Jni._dylib (package:jni/src/jni.dart)
+10-17 12:14:22.659  3772  3772 E flutter : #3      Jni._bindings (package:jni/src/jni.dart:54:52)
+10-17 12:14:22.659  3772  3772 E flutter : #4      Jni._bindings (package:jni/src/jni.dart)
+10-17 12:14:22.659  3772  3772 E flutter : #5      Jni.findClass.<anonymous closure> (package:jni/src/jni.dart:196:29)
+10-17 12:14:22.659  3772  3772 E flutter : #6      using (package:ffi/src/arena.dart:127:31)
+10-17 12:14:22.659  3772  3772 E flutter : #7      Jni.findClass (package:jni/src/jni.dart:196:12)
+10-17 12:14:22.659  3772  3772 E flutter : #8      new JClass.forName (package:jni/src/jclass.dart:17:50)
+10-17 12:14:22.659  3772  3772 E flutter : #9      JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart:51:38)
+10-17 12:14:22.659  3772  3772 E flutter : #10     JniFlutterPlugin._class (package:jni_flutter/src/generated_plugin.dart)
+10-17 12:14:22.659  3772  3772 E flutter : #11     JniFlutterPlugin.applicationContext (package:jni_flutter/src/generated_plugin.dart:100:25)
+10-17 12:14:22.659  3772  3772 E flutter : #12     androidApplicationContext (package:jni_flutter/src/jni_flutter.dart:14:59)
+10-17 12:14:22.659  3772  3772 E flutter : #13     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart:13:44)
+10-17 12:14:22.659  3772  3772 E flutter : #14     PathProviderAndroid._applicationContext (package:path_provider_android/src/path_provider_android_real.dart)
+10-17 12:14:22.659  3772  3772 E flutter : #15     PathProviderAndroid.getApplicationCachePath (package:path_provider_android/src/path_provider_android_real.dart:50:24)
+10-17 12:14:22.659  3772  3772 E flutter : #16     PathProviderAndroid.getTemporaryPath (package:path_provider_android/src/path_provider_android_real.dart:24:12)
+10-17 12:14:22.659  3772  3772 E flutter : #17     getTemporaryDirectory (package:path_provider/path_provider.dart:55:40)
+10-17 12:14:22.659  3772  3772 E flutter : #18     driftDatabase.<anonymous closure> (package:drift_flutter/src/native.dart:62:17)
+10-17 12:14:22.659  3772  3772 E flutter : #19     new Future.<anonymous closure> (dart:async/future.dart:260:40)
+10-17 12:14:22.659  3772  3772 E flutter : #20     Timer._createTimer.<anonymous closure> (dart:async-patch/timer_patch.dart:18:15)
+10-17 12:14:22.659  3772  3772 E flutter : #21     _Timer._runTimers (dart:isolate-patch/timer_impl.dart:423:19)
+10-17 12:14:22.659  3772  3772 E flutter : #22     _Timer._handleMessage (dart:isolate-patch/timer_impl.dart:454:5)
+10-17 12:14:22.659  3772  3772 E flutter : #23     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:192:12)
+10-17 12:14:22.659  3772  3772 E flutter :

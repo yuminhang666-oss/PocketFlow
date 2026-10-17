@@ -37,6 +37,8 @@ final fileTransferProvider = Provider<FileTransferPort>(
 final monthDataProvider = StreamProvider.autoDispose
     .family<LedgerMonthData, CalendarMonth>(
       (ref, month) => ref.watch(ledgerRepositoryProvider).watchMonth(month),
+      // Persistent local startup errors need an explicit retry, not a loading loop.
+      retry: (_, _) => null,
     );
 final backupTransferProvider = Provider<BackupTransferService>(
   (ref) => BackupTransferService(
@@ -414,7 +416,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                   onAbout: () => showAboutDialog(
                     context: context,
                     applicationName: 'PocketFlow',
-                    applicationVersion: '0.1.0 · 个人测试版',
+                    applicationVersion: '0.1.1 · 个人测试版',
                     children: [
                       const Text('离线管理生活费。Markdown 用于分析，JSON 用于完整备份。'),
                     ],

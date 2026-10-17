@@ -1,3 +1,5 @@
+> 历史记录：以下为0.1.0、尚未设备验证阶段，0.1.0存在Android原生依赖漏打包故障。当前请使用 [0.1.1更新与实际Android验证](hotfix-0.1.1.md)。
+
 # PocketFlow MVP 集成与验证
 
 日期：2026-10-17。集成分支：`integration/mvp-delivery`。M0 基线：`26d8e4b47eef5d17fe2ca8385da3ddb58adce95e`。公共合同继续为 v1.0.0。

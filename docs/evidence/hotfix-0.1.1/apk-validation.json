@@ -1,0 +1,14 @@
+{
+  "ApplicationId": "cn.pocketflow",
+  "VersionCode": 2,
+  "VersionName": "0.1.1",
+  "CertificateSha256": "e0abafcf0c3f78b58602d1e369e2f740d7dc5e516eb414cc70b218912e409ec4",
+  "Bytes": 163977930,
+  "Sha256": "9ead1e7b3d9bc0c20608d09e167419e962c02f850f177b3ceac4b87a56b08658",
+  "RequiredNativePluginsPresent": true,
+  "NativeAbis": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86_64"
+  ]
+}

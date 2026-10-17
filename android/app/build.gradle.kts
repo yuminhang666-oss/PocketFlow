@@ -29,6 +29,15 @@ android {
         versionName = flutter.versionName
     }
 
+    // Test updates must use the existing private key; its path is process-local.
+    val existingTestKeystore = System.getenv("POCKETFLOW_TEST_KEYSTORE")
+    if (existingTestKeystore != null) {
+        signingConfigs.getByName("debug") {
+            val keyFile = file(existingTestKeystore)
+            check(keyFile.isFile) { "Existing test keystore is missing; refusing to generate a replacement." }
+            storeFile = keyFile
+        }
+    }
     buildTypes {
         release {
             // Release signing must be configured explicitly before release delivery.
