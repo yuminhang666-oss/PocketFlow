@@ -24,7 +24,7 @@ final class BudgetCalculator {
             ? MonthPeriod.future
             : MonthPeriod.current;
     final cutoff = calendarDay(today);
-    var spentFen = 0;
+    var spentTotal = BigInt.zero;
     for (final entry in entries) {
       if (entry.kind != EntryKind.expense ||
           CalendarMonth.fromDate(entry.date) != month ||
@@ -32,8 +32,14 @@ final class BudgetCalculator {
           (period == MonthPeriod.current && entry.date.isAfter(cutoff))) {
         continue;
       }
-      spentFen += entry.amount.fen;
+      spentTotal += BigInt.from(entry.amount.fen);
     }
+    // Dart native int arithmetic wraps at 64 bits. Never let a large aggregate
+    // silently turn into negative spending. Money remains the shared int type.
+    if (spentTotal > BigInt.parse('9223372036854775807')) {
+      throw RangeError('Monthly expense total exceeds the supported range');
+    }
+    final spentFen = spentTotal.toInt();
     final remaining = budget == null ? null : budget - Money.fromFen(spentFen);
     final days = switch (period) {
       MonthPeriod.past => 0,
