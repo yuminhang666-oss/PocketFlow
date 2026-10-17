@@ -1,0 +1,73 @@
+{
+  "appId": "pocketflow",
+  "formatVersion": 1,
+  "exportedAtUtcMs": 1792238400000,
+  "currency": "CNY",
+  "budgets": [
+    {
+      "month": "2026-10",
+      "amountFen": 150000,
+      "updatedAtUtcMs": 1
+    }
+  ],
+  "categories": [
+    {
+      "id": "food",
+      "name": "餐饮",
+      "sortOrder": 0,
+      "isArchived": false
+    },
+    {
+      "id": "study",
+      "name": "学习",
+      "sortOrder": 1,
+      "isArchived": true
+    }
+  ],
+  "entries": [
+    {
+      "id": "a",
+      "amountFen": 60000,
+      "kind": "expense",
+      "localDate": "2026-10-01",
+      "occurredAtUtcMs": 1790812800000,
+      "categoryId": "food",
+      "note": "",
+      "createdAtUtcMs": 0,
+      "updatedAtUtcMs": 1
+    },
+    {
+      "id": "b",
+      "amountFen": 1800,
+      "kind": "expense",
+      "localDate": "2026-10-17",
+      "occurredAtUtcMs": 1792195200000,
+      "categoryId": "study",
+      "note": "测试夹具 | \\ `备注`\n<script> [链接](https://example.com)",
+      "createdAtUtcMs": 0,
+      "updatedAtUtcMs": 1
+    },
+    {
+      "id": "c",
+      "amountFen": 20000,
+      "kind": "income",
+      "localDate": "2026-10-02",
+      "occurredAtUtcMs": 1790899200000,
+      "categoryId": "food",
+      "note": "",
+      "createdAtUtcMs": 0,
+      "updatedAtUtcMs": 1
+    },
+    {
+      "id": "future",
+      "amountFen": 9999,
+      "kind": "expense",
+      "localDate": "2026-10-18",
+      "occurredAtUtcMs": 1792281600000,
+      "categoryId": "food",
+      "note": "",
+      "createdAtUtcMs": 0,
+      "updatedAtUtcMs": 1
+    }
+  ]
+}

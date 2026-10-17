@@ -1,0 +1,162 @@
+import 'dart:convert';
+
+import '../../../contracts/contracts.dart';
+
+/// External backup v1. No database writes, repair, merging or type coercion.
+final class JsonBackupCodec implements BackupCodec {
+  const JsonBackupCodec();
+
+  @override
+  BackupDocument decode(String content) {
+    try {
+      final root = _object(jsonDecode(content));
+      if (_string(root, 'appId') != BackupDocument.appId ||
+          _string(root, 'currency') != BackupDocument.currency) {
+        throw const FormatException('Wrong application or currency');
+      }
+      if (_integer(root, 'formatVersion') != BackupDocument.formatVersion) {
+        throw const PocketFlowException(
+            PocketFlowErrorCode.unsupportedBackupVersion);
+      }
+      final document = BackupDocument(
+        exportedAtUtcMs: _timestamp(root, 'exportedAtUtcMs'),
+        categories: _array(root, 'categories').map((value) {
+          final row = _object(value);
+          final archived = row['isArchived'];
+          if (archived is! bool) throw const FormatException('Invalid boolean');
+          return Category(id: _string(row, 'id'), name: _string(row, 'name'),
+              sortOrder: _integer(row, 'sortOrder'), isArchived: archived);
+        }),
+        budgets: _array(root, 'budgets').map((value) {
+          final row = _object(value);
+          return MonthlyBudget(month: CalendarMonth.parse(_string(row, 'month')),
+              amount: Money.fromFen(_integer(row, 'amountFen')),
+              updatedAtUtcMs: _timestamp(row, 'updatedAtUtcMs'));
+        }),
+        entries: _array(root, 'entries').map((value) {
+          final row = _object(value);
+          final kind = switch (_string(row, 'kind')) {
+            'expense' => EntryKind.expense,
+            'income' => EntryKind.income,
+            _ => throw const FormatException('Unknown entry kind'),
+          };
+          return LedgerEntry(
+            id: _string(row, 'id'),
+            amount: Money.fromFen(_integer(row, 'amountFen')),
+            localDate: _string(row, 'localDate'),
+            categoryId: _string(row, 'categoryId'),
+            kind: kind,
+            note: _string(row, 'note'),
+            occurredAtUtcMs: _timestamp(row, 'occurredAtUtcMs'),
+            createdAtUtcMs: _timestamp(row, 'createdAtUtcMs'),
+            updatedAtUtcMs: _timestamp(row, 'updatedAtUtcMs'),
+          );
+        }),
+      );
+      _validate(document);
+      return document;
+    } on PocketFlowException {
+      rethrow;
+    } catch (_) {
+      // Do not retain parser excerpts containing a financial note in diagnostics.
+      throw const PocketFlowException(PocketFlowErrorCode.invalidBackup);
+    }
+  }
+
+  @override
+  String encode(BackupDocument document) {
+    try {
+      _validate(document);
+      return '${const JsonEncoder.withIndent('  ').convert({
+        'appId': BackupDocument.appId,
+        'formatVersion': BackupDocument.formatVersion,
+        'exportedAtUtcMs': document.exportedAtUtcMs,
+        'currency': BackupDocument.currency,
+        'budgets': [for (final b in document.budgets) {
+          'month': b.month.key, 'amountFen': b.amount.fen,
+          'updatedAtUtcMs': b.updatedAtUtcMs,
+        }],
+        'categories': [for (final c in document.categories) {
+          'id': c.id, 'name': c.name, 'sortOrder': c.sortOrder,
+          'isArchived': c.isArchived,
+        }],
+        'entries': [for (final e in document.entries) {
+          'id': e.id, 'amountFen': e.amount.fen, 'kind': e.kind.name,
+          'localDate': e.localDate, 'occurredAtUtcMs': e.occurredAtUtcMs,
+          'categoryId': e.categoryId, 'note': e.note,
+          'createdAtUtcMs': e.createdAtUtcMs, 'updatedAtUtcMs': e.updatedAtUtcMs,
+        }],
+      })}\n';
+    } catch (_) {
+      throw const PocketFlowException(PocketFlowErrorCode.invalidBackup);
+    }
+  }
+
+  Map<String, dynamic> _object(Object? value) {
+    if (value is! Map<String, dynamic>) {
+      throw const FormatException('Expected object');
+    }
+    return value;
+  }
+
+  List<dynamic> _array(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value is! List<dynamic>) throw const FormatException('Expected array');
+    return value;
+  }
+
+  String _string(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value is! String) throw const FormatException('Expected string');
+    return value;
+  }
+
+  int _integer(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value is! int) throw const FormatException('Expected integer');
+    return value;
+  }
+
+  int _timestamp(Map<String, dynamic> row, String key) {
+    final value = _integer(row, key);
+    _checkTimestamp(value);
+    return value;
+  }
+
+  void _checkTimestamp(int value) {
+    if (value < -8640000000000000 || value > 8640000000000000) {
+      throw const FormatException('Invalid timestamp');
+    }
+  }
+
+  void _validate(BackupDocument document) {
+    _checkTimestamp(document.exportedAtUtcMs);
+    final categories = <String>{};
+    final entries = <String>{};
+    final months = <String>{};
+    for (final c in document.categories) {
+      if (!categories.add(c.id) || c.id.isEmpty || c.id.length > 64 ||
+          c.name.isEmpty || c.name.length > 30) {
+        throw const FormatException('Invalid or duplicate category');
+      }
+    }
+    for (final b in document.budgets) {
+      if (!months.add(b.month.key) || b.amount.fen < 0 ||
+          b.amount.fen > Money.maxInputFen) {
+        throw const FormatException('Invalid or duplicate budget');
+      }
+      _checkTimestamp(b.updatedAtUtcMs);
+    }
+    for (final e in document.entries) {
+      if (!entries.add(e.id) || !categories.contains(e.categoryId) ||
+          e.id.isEmpty || e.id.length > 64 || e.amount.fen <= 0 ||
+          e.amount.fen > Money.maxInputFen || e.note.length > 500 ||
+          e.updatedAtUtcMs < e.createdAtUtcMs) {
+        throw const FormatException('Invalid entry or relation');
+      }
+      _checkTimestamp(e.occurredAtUtcMs);
+      _checkTimestamp(e.createdAtUtcMs);
+      _checkTimestamp(e.updatedAtUtcMs);
+    }
+  }
+}
