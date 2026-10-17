@@ -4,7 +4,7 @@
 
 ## 1. 唯一权威来源
 
-GitHub 的默认分支 `main` 是所有开发对话共享代码、接口和决策的唯一权威来源。统一私有仓库为 [yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)，clone URL 为 `https://github.com/yuminhang666-oss/PocketFlow.git`。负责人已核验当前连接具备 push 权限。实际初始化/同步状态与基线提交见 `docs/status.md`；模块必须以远程 main 的已发布合同为起点。
+GitHub 的默认分支 `main` 是所有开发对话共享代码、接口和决策的唯一权威来源。统一公开仓库为 [yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)，clone URL 为 `https://github.com/yuminhang666-oss/PocketFlow.git`。负责人已核验当前连接具备 push 权限。实际初始化/同步状态与基线提交见 `docs/status.md`；模块必须以远程 main 的已发布合同为起点。
 
 每个对话开始或续接都必须先读取仓库中的 `AGENTS.md`、本文件、`docs/data-contracts.md`、`docs/interfaces.md`、`docs/ownership.md`、`docs/milestones.md` 和自己的交接文件。不能假定可以读取另一个对话的聊天、本机文件或未合并分支。PR 链接和 commit SHA 是交付标识；聊天中的“已完成”不是共享代码证据。
 
@@ -85,3 +85,5 @@ tools/                              # D：可重复验证工具
 ## 8. MVP 集成决定
 
 正式装配、schema v2、兼容依赖锁和 Android 原生文件通道见 [ADR 0002](decisions/0002-mvp-integration.md)。本次依赖解析、Drift 生成、静态分析及 38 项 Flutter 测试已通过；设备行为不能由这些结果替代。工具安装与 SDK 许可已有用户针对 D:\Codex\PocketFlowTools 的明确授权，未改全局 PATH。
+
+2026-10-17用户追加明确授权：将PocketFlow仓库改为公开，并公开既有Debug测试版下载。该决定见 [ADR 0003](decisions/0003-public-test-download.md)，覆盖上文关于当前仓库可见性与本测试版公开下载的旧限制；账单及签名私钥上传仍未获授权。

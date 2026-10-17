@@ -43,3 +43,12 @@ Debug 包使用本机生成的标准调试签名；私钥未进入仓库或交�
 ## 手机试用
 
 把 APK 传到自己的手机，由文件管理器打开并按系统提示安装。完整步骤及验收在 [个人试用清单](android-trial-checklist.md)。安装/启动、强制停止后重开、真实图表触摸、Android 文件保存/选择/分享接收方尚未设备验证；APK 构建成功不代表这些项目已通过。
+
+## 公开下载（2026-10-17）
+
+用户明确授权仓库改为公开后，已核验以下页面与APK无需GitHub登录即可访问（HTTP200），APK响应大小与原始交付一致：
+
+- [直接下载PocketFlow-debug.apk](https://github.com/yuminhang666-oss/PocketFlow/releases/download/mvp-v0.1.0-debug/PocketFlow-debug.apk)
+- [测试版页面](https://github.com/yuminhang666-oss/PocketFlow/releases/tag/mvp-v0.1.0-debug)
+
+测试标签对应原始已验证代码提交 `d8a37aea1ed71f2704539c45aa937836ec499b7d`；本次仅更改可见性和文档，没有重新构建或更换APK。

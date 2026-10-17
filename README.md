@@ -2,7 +2,7 @@
 
 Android离线生活费管理：设置月预算、快速记账、实时查看每天还能花多少；支持明细增删改、分类/每日/预算图表、Markdown月报和JSON完整备份恢复。
 
-统一私有仓库：[yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)。本轮交付分支：`integration/mvp-delivery`；共享合同：v1.0.0。A/B/C/D原始提交保留在集成历史中，main通过PR审阅后集成。
+统一公开仓库：[yuminhang666-oss/PocketFlow](https://github.com/yuminhang666-oss/PocketFlow)。本轮交付分支：`integration/mvp-delivery`；共享合同：v1.0.0。A/B/C/D原始提交保留在集成历史中，main通过PR审阅后集成。
 
 ## 当前验证
 
