@@ -17,9 +17,13 @@ class SettingsPage extends StatelessWidget {
     this.onBackup,
     this.onRestore,
     this.onAbout,
+    this.onUpdates,
+    this.updateVersion,
   });
   final ThemeMode themeMode;
   final bool feedback;
+  final String? updateVersion;
+  final VoidCallback? onUpdates;
   final ValueChanged<ThemeMode>? onThemeChanged;
   final ValueChanged<bool>? onFeedbackChanged;
   final VoidCallback? onBudget,
@@ -116,6 +120,15 @@ class SettingsPage extends StatelessWidget {
                     _item('恢复备份', Icons.restore_rounded, onRestore),
                   ]),
                   _group(context, '关于', [
+                    ListTile(
+                      leading: const Icon(Icons.system_update_outlined),
+                      title: const Text('检查更新'),
+                      subtitle: updateVersion == null
+                          ? null
+                          : Text('发现新版本 $updateVersion'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: onUpdates,
+                    ),
                     _item('关于 PocketFlow', Icons.info_outline_rounded, onAbout),
                   ]),
                   Padding(

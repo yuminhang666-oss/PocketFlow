@@ -23,6 +23,10 @@ import '../../features/settings/presentation/settings_page.dart';
 import '../../features/statistics/domain/ledger_query_service.dart';
 import '../../features/statistics/domain/monthly_report_service.dart';
 import '../../features/statistics/presentation/statistics_page.dart';
+import '../../features/updates/application/app_update_controller.dart';
+import '../../features/updates/data/android_app_update_port.dart';
+import '../../features/updates/data/github_app_release_source.dart';
+import '../../features/updates/presentation/app_updates_page.dart';
 import '../../shared/widgets/presentation_errors.dart';
 import '../../shared/widgets/status_panel.dart';
 import '../pocketflow_app.dart';
@@ -35,6 +39,14 @@ final backupStoreProvider = Provider<BackupStore>(
   (ref) => throw StateError('Production backup store must be injected'),
 );
 final clockProvider = Provider<Clock>((ref) => const SystemClock());
+final appUpdateProvider = Provider<AppUpdateController>((ref) {
+  final controller = AppUpdateController(
+    platform: const AndroidAppUpdatePort(),
+    source: GithubAppReleaseSource(),
+  );
+  ref.onDispose(controller.dispose);
+  return controller;
+});
 final fileTransferProvider = Provider<FileTransferPort>(
   (ref) => const AndroidFileTransferPort(),
 );
@@ -64,16 +76,28 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
   CalendarMonth? _selectedMonth;
   Timer? _midnight;
   bool _fileBusy = false;
+  late final AppUpdateController _updates;
 
   @override
   void initState() {
     super.initState();
+    _updates = ref.read(appUpdateProvider)..addListener(_updatesChanged);
+    unawaited(_updates.initialize());
     WidgetsBinding.instance.addObserver(this);
     _scheduleMidnight();
   }
 
   CalendarMonth get _month =>
       _selectedMonth ?? CalendarMonth.fromDate(ref.read(clockProvider).now());
+
+  void _updatesChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _showUpdates(BuildContext context) =>
+      Navigator.of(context).push<void>(
+        MaterialPageRoute(builder: (_) => AppUpdatesPage(controller: _updates)),
+      );
 
   void _scheduleMidnight() {
     _midnight?.cancel();
@@ -101,6 +125,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
   @override
   void dispose() {
     _midnight?.cancel();
+    _updates.removeListener(_updatesChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -570,6 +595,8 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                   onChooseMonth: () => _chooseMonth(context),
                 ),
                 settings: SettingsPage(
+                  onUpdates: () => _showUpdates(context),
+                  updateVersion: _updates.update?.versionName,
                   themeMode: themeMode,
                   onThemeChanged: (theme) =>
                       _preferences(context, theme: theme),
@@ -592,7 +619,8 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                   onAbout: () => showAboutDialog(
                     context: context,
                     applicationName: 'PocketFlow',
-                    applicationVersion: '0.2.0 · 个人测试版',
+                    applicationVersion:
+                        '${_updates.installed?.versionName ?? '0.2.1'} · 个人测试版',
                     children: [
                       const Text('离线管理生活费。Markdown 用于分析，JSON 用于完整备份。'),
                     ],

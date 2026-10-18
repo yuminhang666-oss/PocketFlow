@@ -22,6 +22,9 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        val updates = AppUpdateBridge(this)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "pocketflow/app_updates/v1")
+            .setMethodCallHandler { call, result -> updates.handle(call, result) }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "pocketflow/file_transfer/v1")
             .setMethodCallHandler { call, result -> handle(call, result) }
     }
