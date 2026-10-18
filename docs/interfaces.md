@@ -43,3 +43,8 @@ A 页面接收合同模型和回调，不导入 Drift 表、不直接 SQL。主�
 ## 错误与变更
 
 PocketFlowException 错误码沿用 v1。I/O 失败不能返回空列表；错误提示不得包含 SQL、账单备注或凭据。写入不自动重试。数据模型仅有 core/domain 一份，模块 DTO 不得复制 Money/Entry/Report。
+
+
+## 手动更新端口 v1（0.2.1候选）
+
+独立接口lib/contracts/app_update_port.dart：AppUpdatePort只读取本机安装信息和打开固定下载链接；AppReleaseSource读取公开版本清单。启动不调用版本源，只有用户点击“检查更新”才请求网络。AppUpdateController负责单次检查、失败和下载状态，不访问LedgerRepository或BackupStore。财务接口候选2.0.0保持不变。

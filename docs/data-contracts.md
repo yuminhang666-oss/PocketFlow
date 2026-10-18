@@ -60,3 +60,8 @@ schemaVersion=3；从 2 增加 categories.category_kind、categories.parent_id �
 读取 v1 保留原记录、金额、收入、预算及旧分类，并使用默认个人设置；v2 严格检查字段类型、引用、枚举、日期、金额、重复 ID 和分类图关系；未知更高版本拒绝。旧 v1 示例保留用于兼容验证。
 
 完整恢复会替换账本、目标、模板及偏好。预检后显示数量和替换范围，经用户确认，在同一事务先保存原账本与 profile 的恢复点，再替换；任何失败必须回滚。私有 RecoveryCodec 新编码为 2，继续读取编码 1。恢复点不混入公开 JSON 备份。
+
+
+## 更新元数据 v1（独立于财务备份）
+
+每次测试发布附带PocketFlow-update.json：schemaVersion=1、applicationId=cn.pocketflow、versionName、正整数versionCode、certificateSha256、apkName、apkSha256、整数apkSizeBytes、字符串数组releaseNotes。DTO唯一来源core/domain/app_update.dart。候选必须匹配发布标签、原签名和实际服务器APK大小/摘要，下载URL仅来自指定GitHub仓库。更新信息不写入schema3/JSON2，不上传账本。

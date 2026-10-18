@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$ApkPath,
     [string]$ToolRoot = 'D:\Codex\PocketFlowTools',
-    [int]$MinimumVersionCode = 3
+    [int]$MinimumVersionCode = 4
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'enter-android.ps1') -ToolRoot $ToolRoot
