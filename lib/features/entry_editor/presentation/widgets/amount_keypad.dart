@@ -37,13 +37,13 @@ class AmountKeypad extends StatelessWidget {
                           context,
                         ).colorScheme.onSurface,
                         backgroundColor: Theme.of(context).colorScheme.surface,
-                        minimumSize: const Size(48, 56),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        minimumSize: const Size(48, 48),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         textStyle: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

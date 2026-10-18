@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/domain/ledger_entry.dart';
 import '../../../core/domain/ledger_models.dart';
+import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/amount_text.dart';
 
 class EntryDetailsPage extends StatelessWidget {
@@ -42,11 +43,15 @@ class EntryDetailsPage extends StatelessWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('分类'),
-                    subtitle: Text(names.isEmpty ? '未识别分类' : names.first.name),
+                    subtitle: Text(
+                      names.isEmpty
+                          ? '未识别分类'
+                          : categoryPath(names.first, categories),
+                    ),
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('消费日期'),
+                    title: const Text('发生日期'),
                     subtitle: Text(entry.localDate),
                   ),
                   const SizedBox(height: 16),

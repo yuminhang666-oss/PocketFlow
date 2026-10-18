@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
-import '../../../../app/theme/pocketflow_theme.dart';
 import '../../../../core/domain/budget_snapshot.dart';
 import '../../../../core/domain/money.dart';
 import '../../../../shared/widgets/amount_text.dart';
-import 'budget_progress.dart';
 
 class DailyAllowancePanel extends StatelessWidget {
   const DailyAllowancePanel({
@@ -12,174 +9,134 @@ class DailyAllowancePanel extends StatelessWidget {
     required this.snapshot,
     this.onSetBudget,
   });
-
   final BudgetSnapshot snapshot;
   final VoidCallback? onSetBudget;
-
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
     final past = snapshot.period == MonthPeriod.past;
     final future = snapshot.period == MonthPeriod.future;
-    final title = past
-        ? (snapshot.isOverspent ? '本月已超支' : '本月结余')
-        : future
-        ? '计划日均'
-        : '从今天起 · 每日可支配';
-    final featured = past ? snapshot.remaining : snapshot.dailyAllowance;
-    final mainAmount = past && featured != null && featured.fen < 0
-        ? Money.fromFen(featured.fen.abs())
-        : featured;
+    final amount = past ? snapshot.remaining : snapshot.dailyAllowance;
+    final used = snapshot.budget == null || snapshot.budget!.fen == 0
+        ? null
+        : snapshot.spent.fen / snapshot.budget!.fen;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? PocketFlowTheme.heroDark
-            : PocketFlowTheme.heroLight,
-        borderRadius: BorderRadius.circular(24),
+        color: scheme.primaryContainer,
+        borderRadius: BorderRadius.circular(22),
       ),
-      child: DefaultTextStyle.merge(
-        style: const TextStyle(color: PocketFlowTheme.onHero),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              title,
-              style: text.bodyMedium?.copyWith(color: PocketFlowTheme.onHero),
-            ),
-            const SizedBox(height: 12),
-            if (mainAmount == null)
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
               Text(
-                '待设置预算',
-                style: text.headlineSmall?.copyWith(
-                  color: PocketFlowTheme.onHero,
-                ),
-              )
-            else
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.end,
-                spacing: 8,
-                children: [
-                  AmountText(
-                    mainAmount,
-                    style: text.headlineLarge?.copyWith(
-                      color: PocketFlowTheme.onHero,
-                    ),
-                  ),
-                  if (!past)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: Text('/ 天'),
-                    ),
-                ],
+                past
+                    ? '本月结余'
+                    : future
+                    ? '计划日均'
+                    : '今起日均参考',
+                style: TextStyle(color: scheme.onPrimaryContainer),
               ),
-            const SizedBox(height: 8),
-            Text(
-              past
-                  ? '历史月份 · 全月消费汇总'
-                  : future
-                  ? '按整月 ${snapshot.remainingDays} 天规划'
-                  : '包含今天，距离月底还有 ${snapshot.remainingDays} 天',
-            ),
-            if (snapshot.budget == null) ...[
-              const SizedBox(height: 12),
-              const Text('设置生活费预算后，即可查看每日参考额度'),
-              if (onSetBudget != null) ...[
-                const SizedBox(height: 12),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: PocketFlowTheme.onHero,
-                    foregroundColor: PocketFlowTheme.heroLight,
+              if (!past)
+                Text(
+                  future
+                      ? '整月 ${snapshot.remainingDays} 天'
+                      : '含今天 · 还剩 ${snapshot.remainingDays} 天',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: scheme.onPrimaryContainer,
                   ),
-                  onPressed: onSetBudget,
-                  child: const Text('设置本月预算'),
                 ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (amount == null)
+            Text('待设置预算', style: Theme.of(context).textTheme.headlineSmall)
+          else
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 6,
+              children: [
+                AmountText(
+                  amount,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineLarge?.copyWith(color: scheme.primary),
+                ),
+                if (!past) Text('/ 天', style: TextStyle(color: scheme.primary)),
               ],
-            ],
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Divider(color: Color(0xFF4C6F60)),
             ),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final stacked =
-                    constraints.maxWidth < 290 ||
-                    MediaQuery.textScalerOf(context).scale(14) > 18;
-                final metrics = [
-                  _Metric(label: '本月预算', amount: snapshot.budget),
-                  _Metric(label: '本月已支出', amount: snapshot.spent),
-                  _Metric(
-                    label: snapshot.isOverspent ? '已超支' : '剩余预算',
-                    amount: snapshot.isOverspent
-                        ? Money.fromFen(snapshot.remaining!.fen.abs())
-                        : snapshot.remaining,
-                  ),
-                ];
-                if (stacked) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (final metric in metrics)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: metric,
-                        ),
-                    ],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final metric in metrics) Expanded(child: metric),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            BudgetProgress(snapshot: snapshot),
-            if (snapshot.isOverspent) ...[
-              const SizedBox(height: 12),
-              const Wrap(
-                spacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 20,
-                    color: PocketFlowTheme.onHero,
-                  ),
-                  Text('本月已超支，仍可如实记录消费'),
-                ],
+          const SizedBox(height: 4),
+          Text(
+            past
+                ? '历史月份 · 全月消费汇总'
+                : future
+                ? '仅用于预算规划'
+                : '按剩余预算均分，每次记账后更新',
+            style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              Text(
+                snapshot.isOverspent ? '本月已超支' : '预算余额',
+                style: TextStyle(color: scheme.onPrimaryContainer),
               ),
+              if (snapshot.remaining != null)
+                AmountText(
+                  snapshot.isOverspent
+                      ? Money.fromFen(snapshot.remaining!.fen.abs())
+                      : snapshot.remaining!,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: snapshot.isOverspent
+                        ? scheme.error
+                        : scheme.onPrimaryContainer,
+                  ),
+                ),
             ],
+          ),
+          if (used != null) ...[
+            const SizedBox(height: 10),
+            LinearProgressIndicator(
+              value: used.clamp(0.0, 1.0),
+              minHeight: 6,
+              borderRadius: BorderRadius.circular(8),
+              color: snapshot.isOverspent ? scheme.error : scheme.primary,
+              backgroundColor: scheme.outlineVariant,
+            ),
           ],
-        ),
+          const SizedBox(height: 8),
+          Text(
+            snapshot.budget == null
+                ? '设置预算后查看日均参考'
+                : '预算 ${snapshot.budget!.yuan} · ${snapshot.budget!.fen == 0 ? '本月预算为零' : '已用 ${(used! * 100).toStringAsFixed(0)}%'}',
+            style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer),
+          ),
+          if (snapshot.budget == null && onSetBudget != null) ...[
+            const SizedBox(height: 10),
+            FilledButton(onPressed: onSetBudget, child: const Text('设置本月预算')),
+          ],
+          if (snapshot.budget != null && onSetBudget != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: onSetBudget,
+                child: const Text('调整预算'),
+              ),
+            ),
+        ],
       ),
     );
   }
-}
-
-class _Metric extends StatelessWidget {
-  const _Metric({required this.label, required this.amount});
-  final String label;
-  final Money? amount;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label),
-      const SizedBox(height: 6),
-      if (amount == null)
-        const Text('待设置')
-      else
-        AmountText(
-          amount!,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: PocketFlowTheme.onHero,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-    ],
-  );
 }

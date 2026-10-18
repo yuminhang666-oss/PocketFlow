@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocketflow/core/database/app_database.dart';
+import 'package:pocketflow/core/domain/category_catalog.dart';
 
 Future<void> insertExpense(
   AppDatabase db,
@@ -31,16 +32,22 @@ void main() {
       'fresh schema seeds categories and enables foreign keys and index',
       () async {
         final categories = await db.select(db.categories).get();
-        expect(categories.map((c) => c.id).toSet(), {
-          'food',
-          'drinks',
-          'shopping',
-          'transport',
-          'study',
-          'fun',
-          'health',
-          'other',
-        });
+        expect(
+          categories.map((c) => c.id).toSet(),
+          recommendedCategories().map((c) => c.id).toSet(),
+        );
+        expect(
+          categories.where(
+            (c) => c.parentId == null && c.categoryKind == 'expense',
+          ),
+          hasLength(16),
+        );
+        expect(
+          categories.where(
+            (c) => c.parentId == null && c.categoryKind == 'income',
+          ),
+          hasLength(8),
+        );
         final foreignKeys = await db
             .customSelect('PRAGMA foreign_keys')
             .getSingle();
@@ -114,7 +121,10 @@ void main() {
           final entries = await second.select(second.ledgerEntries).get();
           expect(entries.single.id, 'persistent');
           expect(entries.single.amountFen, 12345);
-          expect(await second.select(second.categories).get(), hasLength(8));
+          expect(
+            await second.select(second.categories).get(),
+            hasLength(recommendedCategories().length),
+          );
         } finally {
           await second.close();
         }

@@ -1,5 +1,6 @@
 import 'ledger_entry.dart';
 import 'ledger_models.dart';
+import 'personal_profile.dart';
 
 final class BackupDocument {
   BackupDocument({
@@ -7,16 +8,19 @@ final class BackupDocument {
     required Iterable<MonthlyBudget> budgets,
     required Iterable<Category> categories,
     required Iterable<LedgerEntry> entries,
+    PersonalProfile? profile,
   }) : budgets = List.unmodifiable(budgets),
        categories = List.unmodifiable(categories),
-       entries = List.unmodifiable(entries);
+       entries = List.unmodifiable(entries),
+       profile = profile ?? PersonalProfile();
   static const appId = 'pocketflow';
-  static const formatVersion = 1;
+  static const formatVersion = 2;
   static const currency = 'CNY';
   final int exportedAtUtcMs;
   final List<MonthlyBudget> budgets;
   final List<Category> categories;
   final List<LedgerEntry> entries;
+  final PersonalProfile profile;
 }
 
 final class RestoreResult {

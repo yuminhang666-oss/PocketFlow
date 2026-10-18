@@ -50,6 +50,8 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
       ..writeln('| --- | ---: |')
       ..writeln('| 月预算 | ${report.budget?.decimal ?? '未设置'} |')
       ..writeln('| 截止日累计支出 | ${report.totalExpense.decimal} |')
+      ..writeln('| 截止日累计收入 | ${report.totalIncome.decimal} |')
+      ..writeln('| 收支差额（非账户余额） | ${report.netFlow.decimal} |')
       ..writeln('| 剩余预算 | ${report.remaining?.decimal ?? '未设置预算'} |')
       ..writeln('| 预算使用率 | ${report.budgetUsagePercent ?? '不适用（预算未设置或为零）'} |')
       ..writeln()
@@ -99,6 +101,26 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
     }
     if (report.entries.isEmpty) {
       out.writeln('| — | — | — | — | — | — | 暂无交易记录 |');
+    }
+    out
+      ..writeln()
+      ..writeln('## 收入分类汇总')
+      ..writeln()
+      ..writeln('| 分类 | 收入（元） |')
+      ..writeln('| --- | ---: |');
+    for (final c in report.incomeCategoryTotals.where(
+      (c) => c.amount.fen > 0,
+    )) {
+      out.writeln('| ${markdownCell(c.categoryName)} | ${c.amount.decimal} |');
+    }
+    out
+      ..writeln()
+      ..writeln('## 每日收入汇总')
+      ..writeln()
+      ..writeln('| 归属日期 | 收入（元） |')
+      ..writeln('| --- | ---: |');
+    for (final d in report.dailyIncome) {
+      out.writeln('| ${d.localDate} | ${d.amount.decimal} |');
     }
     final peaks = report.highestExpenseDays.map((d) => d.localDate).join('、');
     out

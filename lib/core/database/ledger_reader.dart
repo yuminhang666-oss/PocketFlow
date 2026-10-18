@@ -1,8 +1,10 @@
 import 'package:drift/drift.dart';
+import 'dart:convert';
 
 import '../../contracts/contracts.dart';
 import 'app_database.dart' show AppDatabase;
 import 'ledger_validation.dart';
+import '../domain/category_catalog.dart';
 
 /// One SELECT means one SQLite read snapshot, including the empty-month case.
 /// Filter comments are replaced only by constant clauses below, never by input.
@@ -10,16 +12,21 @@ const ledgerSnapshotQuery = '''
 SELECT 'category' AS record_type, id, name, sort_order, is_archived,
        NULL AS month, NULL AS amount_fen, NULL AS occurred_local,
        NULL AS occurred_at_utc_ms, NULL AS category_id, NULL AS note,
-       NULL AS created_at_utc_ms, NULL AS updated_at_utc_ms, NULL AS kind
+       NULL AS created_at_utc_ms, NULL AS updated_at_utc_ms, NULL AS kind,
+       category_kind, parent_id
 FROM categories
 UNION ALL
 SELECT 'budget', NULL, NULL, NULL, NULL, month, amount_fen,
-       NULL, NULL, NULL, NULL, NULL, updated_at_utc_ms, NULL
+       NULL, NULL, NULL, NULL, NULL, updated_at_utc_ms, NULL, NULL, NULL
 FROM monthly_budgets /* BUDGET_FILTER */
 UNION ALL
 SELECT 'entry', id, NULL, NULL, NULL, NULL, amount_fen, occurred_local,
-       occurred_at_utc_ms, category_id, note, created_at_utc_ms, updated_at_utc_ms, kind
+       occurred_at_utc_ms, category_id, note, created_at_utc_ms, updated_at_utc_ms, kind, NULL, NULL
 FROM ledger_entries /* ENTRY_FILTER */
+UNION ALL
+SELECT 'profile', NULL, value_json, NULL, NULL, NULL, NULL, NULL,
+       NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+FROM personal_state WHERE key = 'profile'
 ''';
 
 class LedgerReader {
@@ -51,6 +58,7 @@ class LedgerReader {
         database.categories,
         database.monthlyBudgets,
         database.ledgerEntries,
+        database.personalState,
       },
     );
   }
@@ -64,6 +72,7 @@ class LedgerReader {
           budget: contents.budgets.isEmpty ? null : contents.budgets.single,
           entries: contents.entries,
           categories: contents.categories,
+          profile: contents.profile,
         );
       })
       .handleError((Object error, StackTrace stack) {
@@ -77,6 +86,7 @@ class LedgerReader {
       budgets: contents.budgets,
       categories: contents.categories,
       entries: contents.entries,
+      profile: contents.profile,
     );
   }
 
@@ -84,12 +94,14 @@ class LedgerReader {
     List<MonthlyBudget> budgets,
     List<Category> categories,
     List<LedgerEntry> entries,
+    PersonalProfile profile,
   })
   _decode(List<QueryRow> rows) {
     try {
       final budgets = <MonthlyBudget>[];
       final categories = <Category>[];
       final entries = <LedgerEntry>[];
+      var profile = PersonalProfile();
       for (final row in rows) {
         switch (row.read<String>('record_type')) {
           case 'category':
@@ -102,6 +114,10 @@ class LedgerReader {
               name: row.read<String>('name'),
               sortOrder: readStoredInt(row, 'sort_order'),
               isArchived: archived == 1,
+              kind: row.data['category_kind'] == null
+                  ? null
+                  : EntryKind.values.byName(row.read<String>('category_kind')),
+              parentId: row.data['parent_id'] as String?,
             );
             validateCategory(category);
             categories.add(category);
@@ -115,11 +131,16 @@ class LedgerReader {
             budgets.add(budget);
           case 'entry':
             entries.add(decodeEntryRow(row));
+          case 'profile':
+            profile = PersonalProfile.fromJson(
+              jsonDecode(row.read<String>('name')) as Map<String, dynamic>,
+            );
           default:
             throw ArgumentError('Invalid snapshot row');
         }
       }
       final categoryIds = categories.map((category) => category.id).toSet();
+      validateCategoryGraph(categories);
       if (entries.any((entry) => !categoryIds.contains(entry.categoryId))) {
         throw ArgumentError('Missing entry category');
       }
@@ -132,7 +153,12 @@ class LedgerReader {
         final time = b.occurredAtUtcMs.compareTo(a.occurredAtUtcMs);
         return time != 0 ? time : a.id.compareTo(b.id);
       });
-      return (budgets: budgets, categories: categories, entries: entries);
+      return (
+        budgets: budgets,
+        categories: categories,
+        entries: entries,
+        profile: profile,
+      );
     } catch (error) {
       throw PocketFlowException(
         PocketFlowErrorCode.dataCorrupted,

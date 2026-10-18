@@ -34,7 +34,7 @@ class _V1Database extends GeneratedDatabase {
 
 void main() {
   test(
-    'actual Drift v1 to v2 migration preserves fields, budget and foreign keys',
+    'actual Drift v1 to v3 migration preserves fields, budget and foreign keys',
     () async {
       final dir = await Directory.systemTemp.createTemp('pocketflow-migrate-');
       final file = File('${dir.path}/ledger.sqlite');
@@ -62,7 +62,7 @@ void main() {
           (await db.customSelect('PRAGMA user_version').getSingle()).read<int>(
             'user_version',
           ),
-          2,
+          3,
         );
         expect(
           await db.customSelect('PRAGMA foreign_key_check').get(),

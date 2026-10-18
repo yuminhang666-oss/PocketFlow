@@ -5,13 +5,15 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocketflow/contracts/contracts.dart';
 import 'package:pocketflow/core/database/app_database.dart';
+import 'package:pocketflow/core/domain/category_catalog.dart';
 import 'package:pocketflow/features/backup/domain/json_backup_codec.dart';
 import 'package:pocketflow/features/budget/domain/budget_calculator.dart';
 import 'package:pocketflow/features/export/domain/markdown_exporter.dart';
 import 'package:pocketflow/features/statistics/domain/monthly_report_service.dart';
 import 'package:pocketflow/features/transactions/data/drift_backup_store.dart';
 import 'package:pocketflow/features/transactions/data/drift_ledger_repository.dart';
-import 'package:pocketflow/features/export/verification/c_contract_checks.dart' as c_checks;
+import 'package:pocketflow/features/export/verification/c_contract_checks.dart'
+    as c_checks;
 
 class FixedClock implements Clock {
   const FixedClock();
@@ -43,7 +45,10 @@ void main() {
       Future<LedgerMonthData> snapshot() => repository.watchMonth(month).first;
       try {
         expect((await snapshot()).entries, isEmpty);
-        expect((await snapshot()).categories.length, 8);
+        expect(
+          (await snapshot()).categories.length,
+          recommendedCategories().length,
+        );
         await repository.saveBudget(month, const Money.fromFen(150000));
         final first = await repository.createExpense(
           draft(3000, note: '午餐 | 中文\n备注'),

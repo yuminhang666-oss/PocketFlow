@@ -42,7 +42,7 @@ void main() {
     expect(find.text('统计暂不可用'), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
 
-    await tester.tap(find.text('首页'));
+    await tester.tap(find.text('总览'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('重试'));
     await tester.pump();

@@ -46,3 +46,8 @@ APK默认输出：`build/app/outputs/flutter-apk/app-debug.apk`。实际安装�
 项目开源许可证尚未确定；参考项目业务代码没有复制，研究来源见docs/01-research.md。第三方依赖沿用各自许可证。
 
 构建测试更新需保留原本机签名文件 `D:\Codex\PocketFlowTools\signing\pocketflow-test.keystore`；构建脚本会检查证书指纹与递增版本，不能使用另一台机器新生成的调试密钥交付覆盖更新。私钥不上传。生成Android平台后必须重新执行依赖解析，使原生插件被注册和打包。
+
+
+## 0.2 本地更新候选
+
+本分支加入收入、细分类、账单筛选、统计改版、目标、模板和日历，并替换原深绿色主题。数据和升级策略见 [0.2 更新记录](docs/v0.2-update.md)；合并前不改变 main 的0.1.1发布基线。

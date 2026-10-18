@@ -6,6 +6,8 @@ class Categories extends Table {
   TextColumn get name => text().withLength(min: 1, max: 30)();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+  TextColumn get categoryKind => text().nullable()();
+  TextColumn get parentId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -17,6 +19,13 @@ class Categories extends Table {
     "CHECK (typeof(sort_order) = 'integer')",
     "CHECK (typeof(is_archived) = 'integer' AND is_archived IN (0, 1))",
   ];
+}
+
+class PersonalState extends Table {
+  TextColumn get key => text()();
+  TextColumn get valueJson => text()();
+  @override
+  Set<Column> get primaryKey => {key};
 }
 
 class MonthlyBudgets extends Table {
