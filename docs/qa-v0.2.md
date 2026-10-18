@@ -8,7 +8,8 @@
 - 编辑器布局覆盖320×568、360×640、390×844、412×915，字体1.0/1.3/2.0；0、小数点和保存按钮实际可点击。
 - 9项SQL设计测试、9项独立报表参考测试通过；实际Dart报表/JSON/Markdown合同场景通过。
 - Dart静态分析0问题，git diff --check通过。Flutter LSP在中文路径下失败，直接Dart分析已真实执行；续接后的沙箱工具错误另留日志，最终在已授权SDK环境重验通过。
-- 69项最终测试命令：flutter test --no-pub --reporter expanded。静态检查：dart analyze lib test。生成：dart run build_runner build --force-jit。
+- 69项最终测试命令：flutter test --no-pub --reporter expanded。静态检查：dart analyze（完整项目，包含design）。生成：dart run build_runner build --force-jit。
+- 开发预览同时适配新账单查询接口和底部记账入口，纳入完整项目静态分析范围。
 - 未升级或添加依赖，pubspec.lock保持基线。SDK为项目固定Flutter3.47.7/Dart3.13.5；Android API36。
 
 ## 实际 Android 验收
