@@ -31,10 +31,15 @@ final class MonthlyReport {
     required Iterable<DailyExpense> daily,
     required Iterable<CategoryExpense> categoryTotals,
     required Iterable<LedgerEntry> entries,
+    this.totalIncome = const Money.fromFen(0),
+    Iterable<DailyExpense> dailyIncome = const [],
+    Iterable<CategoryExpense> incomeCategoryTotals = const [],
   }) : asOf = parseCalendarDay(asOfLocalDate),
        daily = List.unmodifiable(daily),
        categoryTotals = List.unmodifiable(categoryTotals),
-       entries = List.unmodifiable(entries);
+       entries = List.unmodifiable(entries),
+       dailyIncome = List.unmodifiable(dailyIncome),
+       incomeCategoryTotals = List.unmodifiable(incomeCategoryTotals);
   final CalendarMonth month;
   final DateTime asOf;
   final Money? budget;
@@ -43,5 +48,9 @@ final class MonthlyReport {
   final List<DailyExpense> daily;
   final List<CategoryExpense> categoryTotals;
   final List<LedgerEntry> entries;
+  final Money totalIncome;
+  final List<DailyExpense> dailyIncome;
+  final List<CategoryExpense> incomeCategoryTotals;
+  Money get netFlow => totalIncome - totalExpense;
   String get asOfLocalDate => calendarDayKey(asOf);
 }

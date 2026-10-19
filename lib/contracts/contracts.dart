@@ -11,5 +11,7 @@ export '../core/domain/ledger_entry.dart';
 export '../core/domain/ledger_models.dart';
 export '../core/domain/money.dart';
 export '../core/domain/report_models.dart';
+export '../core/domain/personal_profile.dart';
+export '../core/domain/ledger_filter.dart';
 
-const pocketFlowContractVersion = '1.0.0';
+const pocketFlowContractVersion = '2.0.0';

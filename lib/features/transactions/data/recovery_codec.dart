@@ -9,11 +9,12 @@ class RecoveryCodec {
   const RecoveryCodec();
 
   String encode(BackupDocument document) => jsonEncode({
-    'recoveryVersion': 1,
+    'recoveryVersion': 2,
+    'profile': document.profile.toJson(),
     'exportedAtUtcMs': document.exportedAtUtcMs,
     'categories': [
       for (final c in document.categories)
-        [c.id, c.name, c.sortOrder, c.isArchived],
+        [c.id, c.name, c.sortOrder, c.isArchived, c.kind?.name, c.parentId],
     ],
     'budgets': [
       for (final b in document.budgets)
@@ -37,11 +38,15 @@ class RecoveryCodec {
 
   BackupDocument decode(String payload) {
     final root = jsonDecode(payload) as Map<String, dynamic>;
-    if (root['recoveryVersion'] is! int || root['recoveryVersion'] != 1) {
+    if (root['recoveryVersion'] is! int ||
+        ![1, 2].contains(root['recoveryVersion'])) {
       throw const FormatException('Unknown private recovery version');
     }
     final document = BackupDocument(
       exportedAtUtcMs: root['exportedAtUtcMs'] as int,
+      profile: root['recoveryVersion'] == 1
+          ? PersonalProfile()
+          : PersonalProfile.fromJson(root['profile'] as Map<String, dynamic>),
       categories: [
         for (final value in root['categories'] as List<dynamic>)
           _category(value as List<dynamic>),
@@ -60,12 +65,18 @@ class RecoveryCodec {
   }
 
   Category _category(List<dynamic> row) {
-    if (row.length != 4) throw const FormatException('Invalid category row');
+    if (row.length != 4 && row.length != 6) {
+      throw const FormatException('Invalid category row');
+    }
     return Category(
       id: row[0] as String,
       name: row[1] as String,
       sortOrder: row[2] as int,
       isArchived: row[3] as bool,
+      kind: row.length == 4 || row[4] == null
+          ? null
+          : EntryKind.values.byName(row[4] as String),
+      parentId: row.length == 4 ? null : row[5] as String?,
     );
   }
 

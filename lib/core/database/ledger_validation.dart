@@ -1,4 +1,5 @@
 import '../../contracts/contracts.dart';
+import '../domain/category_catalog.dart';
 
 /// Shared by persisted-row mapping, repository writes, and restore validation.
 /// This validates existing values; it never repairs or normalizes stored money.
@@ -11,7 +12,7 @@ void validateTimestamp(int value) {
 void validateCategory(Category category) {
   if (category.id.isEmpty ||
       category.id.length > 64 ||
-      category.name.isEmpty ||
+      category.name.trim().isEmpty ||
       category.name.length > 30) {
     throw ArgumentError('Invalid category');
   }
@@ -54,6 +55,17 @@ void validateBackup(BackupDocument document) {
     validateCategory(category);
     if (!categories.add(category.id)) {
       throw ArgumentError('Duplicate category');
+    }
+  }
+  validateCategoryGraph(document.categories);
+  validateCategoryAssignments(
+    categories: document.categories,
+    entries: document.entries,
+    templates: document.profile.templates,
+  );
+  for (final template in document.profile.templates) {
+    if (!categories.contains(template.categoryId)) {
+      throw ArgumentError('Template category missing');
     }
   }
   for (final budget in document.budgets) {

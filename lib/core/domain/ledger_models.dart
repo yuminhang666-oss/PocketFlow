@@ -1,6 +1,7 @@
 import 'calendar_month.dart';
 import 'ledger_entry.dart';
 import 'money.dart';
+import 'personal_profile.dart';
 
 final class Category {
   Category({
@@ -8,8 +9,13 @@ final class Category {
     required this.name,
     required this.sortOrder,
     this.isArchived = false,
+    this.kind,
+    this.parentId,
   }) {
-    if (id.isEmpty || id.length > 64 || name.isEmpty || name.length > 30) {
+    if (id.isEmpty ||
+        id.length > 64 ||
+        name.trim().isEmpty ||
+        name.length > 30) {
       throw ArgumentError('分类 ID 或名称无效');
     }
   }
@@ -17,6 +23,12 @@ final class Category {
   final String name;
   final int sortOrder;
   final bool isArchived;
+
+  /// Null preserves legacy categories used by either kind of historical entry.
+  final EntryKind? kind;
+  final String? parentId;
+
+  bool accepts(EntryKind value) => kind == null || kind == value;
 }
 
 final class MonthlyBudget {
@@ -63,8 +75,10 @@ final class LedgerMonthData {
     required this.budget,
     required Iterable<LedgerEntry> entries,
     required Iterable<Category> categories,
+    PersonalProfile? profile,
   }) : entries = List.unmodifiable(entries),
-       categories = List.unmodifiable(categories) {
+       categories = List.unmodifiable(categories),
+       profile = profile ?? PersonalProfile() {
     if (budget != null && budget!.month != month) {
       throw ArgumentError('预算月份与快照月份不同');
     }
@@ -76,4 +90,5 @@ final class LedgerMonthData {
   final MonthlyBudget? budget;
   final List<LedgerEntry> entries;
   final List<Category> categories;
+  final PersonalProfile profile;
 }

@@ -1,4 +1,5 @@
 import '../../../contracts/contracts.dart';
+import '../../../core/domain/category_catalog.dart';
 import 'report_arithmetic.dart';
 
 /// Pure aggregation of one repository snapshot. Never caches running totals.
@@ -61,8 +62,19 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
       });
     final dailyFen = List<BigInt>.filled(cutoff.day, BigInt.zero);
     final categoryFen = <String, BigInt>{};
+    final incomeDailyFen = List<BigInt>.filled(cutoff.day, BigInt.zero);
+    final incomeCategoryFen = <String, BigInt>{};
     for (final entry in entries) {
-      if (entry.kind != EntryKind.expense) continue;
+      if (entry.kind == EntryKind.income) {
+        final fen = BigInt.from(entry.amount.fen);
+        incomeDailyFen[entry.date.day - 1] += fen;
+        incomeCategoryFen.update(
+          entry.categoryId,
+          (v) => v + fen,
+          ifAbsent: () => fen,
+        );
+        continue;
+      }
       final fen = BigInt.from(entry.amount.fen);
       dailyFen[entry.date.day - 1] += fen;
       categoryFen.update(
@@ -89,7 +101,7 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
       for (final category in sortedCategories)
         CategoryExpense(
           categoryId: category.id,
-          categoryName: category.name,
+          categoryName: categoryPath(category, data.categories),
           amount: Money.fromFen(
             checkedReportInt(categoryFen[category.id] ?? BigInt.zero),
           ),
@@ -110,6 +122,28 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
       daily: daily,
       categoryTotals: totals,
       entries: entries,
+      totalIncome: Money.fromFen(
+        checkedReportInt(incomeDailyFen.fold(BigInt.zero, (a, b) => a + b)),
+      ),
+      dailyIncome: [
+        for (var i = 0; i < incomeDailyFen.length; i++)
+          DailyExpense(
+            localDate: calendarDayKey(
+              DateTime.utc(data.month.year, data.month.month, i + 1),
+            ),
+            amount: Money.fromFen(checkedReportInt(incomeDailyFen[i])),
+          ),
+      ],
+      incomeCategoryTotals: [
+        for (final c in sortedCategories)
+          CategoryExpense(
+            categoryId: c.id,
+            categoryName: categoryPath(c, data.categories),
+            amount: Money.fromFen(
+              checkedReportInt(incomeCategoryFen[c.id] ?? BigInt.zero),
+            ),
+          ),
+      ],
     );
   }
 

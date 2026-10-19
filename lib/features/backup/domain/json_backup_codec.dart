@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import '../../../contracts/contracts.dart';
+import '../../../core/domain/category_catalog.dart';
 
-/// External backup v1. No database writes, repair, merging or type coercion.
+/// Read external backup v1/v2 and write v2. No database writes or type coercion.
 final class JsonBackupCodec implements BackupCodec {
   const JsonBackupCodec();
 
@@ -14,13 +15,17 @@ final class JsonBackupCodec implements BackupCodec {
           _string(root, 'currency') != BackupDocument.currency) {
         throw const FormatException('Wrong application or currency');
       }
-      if (_integer(root, 'formatVersion') != BackupDocument.formatVersion) {
+      final version = _integer(root, 'formatVersion');
+      if (version < 1 || version > BackupDocument.formatVersion) {
         throw const PocketFlowException(
           PocketFlowErrorCode.unsupportedBackupVersion,
         );
       }
       final document = BackupDocument(
         exportedAtUtcMs: _timestamp(root, 'exportedAtUtcMs'),
+        profile: version == 1
+            ? PersonalProfile()
+            : PersonalProfile.fromJson(_object(root['profile'])),
         categories: _array(root, 'categories').map((value) {
           final row = _object(value);
           final archived = row['isArchived'];
@@ -30,6 +35,10 @@ final class JsonBackupCodec implements BackupCodec {
             name: _string(row, 'name'),
             sortOrder: _integer(row, 'sortOrder'),
             isArchived: archived,
+            kind: version == 1 || row['kind'] == null
+                ? null
+                : EntryKind.values.byName(_string(row, 'kind')),
+            parentId: version == 1 ? null : row['parentId'] as String?,
           );
         }),
         budgets: _array(root, 'budgets').map((value) {
@@ -79,11 +88,12 @@ final class JsonBackupCodec implements BackupCodec {
         'formatVersion': BackupDocument.formatVersion,
         'exportedAtUtcMs': document.exportedAtUtcMs,
         'currency': BackupDocument.currency,
+        'profile': document.profile.toJson(),
         'budgets': [
           for (final b in document.budgets) {'month': b.month.key, 'amountFen': b.amount.fen, 'updatedAtUtcMs': b.updatedAtUtcMs},
         ],
         'categories': [
-          for (final c in document.categories) {'id': c.id, 'name': c.name, 'sortOrder': c.sortOrder, 'isArchived': c.isArchived},
+          for (final c in document.categories) {'id': c.id, 'name': c.name, 'sortOrder': c.sortOrder, 'isArchived': c.isArchived, 'kind': c.kind?.name, 'parentId': c.parentId},
         ],
         'entries': [
           for (final e in document.entries) {'id': e.id, 'amountFen': e.amount.fen, 'kind': e.kind.name, 'localDate': e.localDate, 'occurredAtUtcMs': e.occurredAtUtcMs, 'categoryId': e.categoryId, 'note': e.note, 'createdAtUtcMs': e.createdAtUtcMs, 'updatedAtUtcMs': e.updatedAtUtcMs},
@@ -140,7 +150,7 @@ final class JsonBackupCodec implements BackupCodec {
       if (!categories.add(c.id) ||
           c.id.isEmpty ||
           c.id.length > 64 ||
-          c.name.isEmpty ||
+          c.name.trim().isEmpty ||
           c.name.length > 30) {
         throw const FormatException('Invalid or duplicate category');
       }
@@ -152,6 +162,17 @@ final class JsonBackupCodec implements BackupCodec {
         throw const FormatException('Invalid or duplicate budget');
       }
       _checkTimestamp(b.updatedAtUtcMs);
+    }
+    validateCategoryGraph(document.categories);
+    validateCategoryAssignments(
+      categories: document.categories,
+      entries: document.entries,
+      templates: document.profile.templates,
+    );
+    for (final t in document.profile.templates) {
+      if (!categories.contains(t.categoryId)) {
+        throw const FormatException('Missing template category');
+      }
     }
     for (final e in document.entries) {
       if (!entries.add(e.id) ||

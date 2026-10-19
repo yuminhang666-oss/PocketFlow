@@ -18,6 +18,7 @@ import 'package:pocketflow/features/ledger_list/presentation/entry_details_page.
 import 'package:pocketflow/features/ledger_list/presentation/ledger_list_page.dart';
 import 'package:pocketflow/features/settings/presentation/budget_editor_sheet.dart';
 import 'package:pocketflow/features/settings/presentation/settings_page.dart';
+import 'package:pocketflow/features/statistics/domain/ledger_query_service.dart';
 import 'package:pocketflow/shared/widgets/status_panel.dart';
 
 void main() => runApp(const ProviderScope(child: _PreviewApp()));
@@ -232,7 +233,12 @@ class _PreviewHostState extends State<_PreviewHost> {
 
   void _list() => Navigator.of(context).push(
     MaterialPageRoute<void>(
-      builder: (context) => LedgerListPage(data: _ledger, onEntryTap: _detail),
+      builder: (context) => LedgerListPage(
+        data: _ledger,
+        query: const DefaultLedgerQueryService(),
+        asOfLocalDate: calendarDayKey(_clock.now()),
+        onEntryTap: _detail,
+      ),
     ),
   );
 
@@ -285,6 +291,13 @@ class _PreviewHostState extends State<_PreviewHost> {
       ),
       Expanded(
         child: PocketFlowShell(
+          onAdd: _add,
+          ledger: LedgerListPage(
+            data: _ledger,
+            query: const DefaultLedgerQueryService(),
+            asOfLocalDate: calendarDayKey(_clock.now()),
+            onEntryTap: _detail,
+          ),
           home: HomePage(
             month: _month,
             state: _state,

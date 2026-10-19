@@ -89,7 +89,7 @@ void main() {
         await hit(find.text('保存预算'));
         await tester.pumpAndSettle();
         expect((await read()).budget?.amount.fen, 150000);
-        await hit(find.text('记一笔'));
+        await hit(find.text('＋记账'));
         await tester.pumpAndSettle();
         await hit(find.widgetWithText(TextButton, '3'));
         await hit(find.widgetWithText(TextButton, '0'));
@@ -98,7 +98,7 @@ void main() {
         await tester.pumpAndSettle();
         var data = await read();
         expect(data.entries.single.amount.fen, 3000);
-        expect(find.textContaining('1,470.00'), findsOneWidget);
+        expect(find.textContaining('1,470.00'), findsWidgets);
         await hit(find.text('餐饮').last);
         await tester.pumpAndSettle();
         expect(find.text('编辑账单'), findsOneWidget);
@@ -118,8 +118,9 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('钱花在哪里'), findsOneWidget);
         expect(tester.takeException(), isNull);
-        await hit(find.text('设置').last);
+        await hit(find.text('我的').last);
         await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('导出月报'));
         await hit(find.text('导出月报'));
         await tester.pumpAndSettle();
         await hit(find.text('Markdown 月报 · 保存文件'));
@@ -137,7 +138,7 @@ void main() {
         expect(find.text('恢复完成'), findsOneWidget);
         await hit(find.text('完成'));
         await tester.pumpAndSettle();
-        await hit(find.text('首页').last);
+        await hit(find.text('总览').last);
         await tester.pumpAndSettle();
         await hit(find.text('餐饮').last);
         await tester.pumpAndSettle();

@@ -2,7 +2,7 @@ name: Architecture and SQL design checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, 'integration/**', 'codex/v030-control-*', 'codex/v030-s0-*']
 
 permissions:
   contents: read
@@ -25,5 +25,7 @@ jobs:
         run: node tools/check_ownership.mjs "$HEAD_BRANCH" "$BASE_SHA" "$HEAD_SHA"
       - name: Check SQL design prototype
         run: node --test tools/schema.test.mjs
+      - name: Check ownership boundaries and PR target coverage
+        run: node --test tools/coordination.test.mjs
       # D adds real Flutter generation/analyze/test/build jobs after M1.
       # This job deliberately does not claim Flutter or Android validation.

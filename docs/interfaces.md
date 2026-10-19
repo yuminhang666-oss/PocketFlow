@@ -1,48 +1,50 @@
-# 模块接口 v1.0.0
+# 模块接口 v2.0.0（0.2 集成候选）
 
-接口源代码：`lib/contracts/`。共享模型：`lib/core/domain/`。此版本已固定协作口径，但尚未通过 Dart 编译；M0 工具链完成后第一项检查是静态分析与合同测试。任何不兼容变化由负责人统一修改。
+唯一签名见 lib/contracts/；基线与兼容策略见 [数据合同](data-contracts.md) 和 [ADR 0005](decisions/0005-living-income-experience.md)。新增抽象方法影响旧实现者，所以提升主要合同版本；合并前不得当作 main 的已发布接口。
 
-## B 向 A/C 提供
+## B 提供的账本与规划接口
 
-`LedgerRepository`：
+LedgerRepository：
 
-- `watchMonth(CalendarMonth)` → `Stream<LedgerMonthData>`，先发初始快照，之后在该月预算/记录/相关分类变化时发出一致快照。
-- `saveBudget(CalendarMonth, Money)` → `Future<MonthlyBudget>`；预算不能为负；同月份 upsert。
-- `createExpense(EntryDraft)` → `Future<LedgerEntry>`；B 分配ID与审计时间，拒绝未来日期；新增仅支出。
-- `updateExpense(String id, EntryDraft)` → `Future<LedgerEntry>`；保留ID、kind和创建时间；移动日期后刷新两个相关月份。
-- `deleteEntry(String id)` → `Future<void>`；不存在抛 notFound；UI 删除前确认，B 不显示对话框。
+- watchMonth(CalendarMonth) → Stream<LedgerMonthData>，初始及后续预算、交易、分类、profile 变化发出原子快照。
+- saveBudget(CalendarMonth, Money) → Future<MonthlyBudget>。
+- createExpense/createIncome(EntryDraft) → Future<LedgerEntry>，生成 ID/审计时间，检查分类类型、归档和未来日期。
+- updateExpense/updateIncome(id, EntryDraft) → Future<LedgerEntry>，保留 ID、类型、创建时间，不能通过另一类型接口改变交易类型。
+- deleteEntry(id) → Future<void>，不存在抛 notFound；UI 确认后调用。
+- saveCategory(Category) → Future<void>；新增或改名称/归档/排序，已有类型和父类不可变，历史关联保留。
+- reorderCategories(List<String>) → Future<void>，事务排序；重复或不存在 ID 失败回滚。
+- addRecommendedCategories() → Future<void>，只添加缺项。
+- savePreferences({String? theme, bool? feedback}) → Future<void>，theme 为 system/light/dark。
+- saveGoal/deleteGoal、saveTemplate/deleteTemplate → Future<void>，profile 中原子更新；模板必须引用有效同类分类。
+- markZeroExpenseDay(localDate, value) → Future<void>，主动确认零支出，拒绝未来日期和已有支出的日期。
 
-`BudgetCalculator.calculate` 输入 month、today、budget、entries → `BudgetSnapshot`；纯同步计算，不访问设备时钟/数据库。已有领域算法是启动版本，B 负责完善，D 负责验收。日期作为显式参数注入便于测试。
+BudgetCalculator.calculate 仍为纯同步计算，输入月份、today、budget、entries；收入、目标和模板均不参与支出扣减。
 
-`BackupStore`：
+BackupStore：readAll() 原子全量读取；replaceAll(BackupDocument) 事务保存恢复点并替换；readRecovery(id) 读取私有旧/新恢复点。v1/v2 JSON 的语法预检由 C 负责，B 重做关系与事务验证。
 
-- `readAll()` → `Future<BackupDocument>`；原子全量读取，包含所有月份。
-- `replaceAll(BackupDocument)` → `Future<RestoreResult>`；在排他写入范围保留恢复前备份，验证并以事务全量替换；返回替换条数与本地恢复点标识。输入不是当前v1合法文档时，不得写库。
+## C 提供的查询、报表与文件接口
 
-B 实现两个接口，构造时注入时钟。C 负责JSON语法/版本预检和确认流程，B 再负责最终关系与事务校验；两边职责互补。
+MonthlyReportService.build(LedgerMonthData,{required asOfLocalDate}) → MonthlyReport，支出/收入各自聚合；当前月默认今天，历史月末，未来实际报表拒绝。
 
-## C 向 A 提供
+LedgerQueryService.filter(LedgerMonthData,LedgerFilter,{required asOfLocalDate}) → LedgerView。对输入快照按备注/分类、类型、父类、日期和金额筛选，返回一致的明细、支出/收入/差额、按日合计。UI 不自行拼凑另一份总额。
 
-`MonthlyReportService.build(LedgerMonthData, {required asOfLocalDate})` → `MonthlyReport`；同步、可单测。图表部件由 C 维护，金额合计不得在 widget 内重复实现。
+MarkdownExporter.render(MonthlyReport) → String，不访问数据库/网络；包含预算、支出、收入、净收支、逐日/分类/全部明细，转义备注中的表格符号和 HTML。
 
-`MarkdownExporter.render(MonthlyReport)` → `String`；不读数据库或写文件、不发网络请求。包含统计月份/截止日、预算、总支出/余额、逐日/分类及完整支出明细，备注转义为有效 Markdown。
+BackupCodec.encode 写 v2；decode 读 v1/v2，拒绝未知更高版本和损坏数据。不得把解析错误变成空数组。
 
-`BackupCodec.encode(BackupDocument)` → JSON String；`decode(String)` → `BackupDocument`，严格预检，不修改数据库。C 实现序列化，禁止把JSON解析器强制转换异常吞成空数组。
+FileTransferPort 的 saveText/shareTextFile/pickJsonText 保持原接口。取消正常返回 false/null，真实失败抛 exportFailed/importFailed。系统文件保存与分享只在用户主动选择后调用。
 
-`FileTransferPort`：`saveText({suggestedName, mimeType, content})`、`shareTextFile(...)`、`pickJsonText()`。这是平台适配端口；取消用 null/false 正常返回，真实失败抛 exportFailed/importFailed。C 实现文件选择与系统分享，A 调用；UI 不默认选择外部云盘。JSON 与 Markdown 的扩展名、MIME和用途必须区分。
+## A 与主控装配
 
-## A 的状态与空态
+A 页面接收合同模型和回调，不导入 Drift 表、不直接 SQL。主控在 composition 中注入真实存储、查询与导出实现。编辑页独立于底栏；四个目的地与中间“记账”按钮共用一个新增入口。
 
-A 可在自己的分支内用 `LedgerRepository`/`BackupStore` 的内存替身开发；替身必须标为演示环境、不得成为正式 composition 默认实现。A 不从其他聊天推测实际provider名字。负责人在 `lib/app/composition/` 创建并注入真实接口实现，A 不修改接线目录。
+保存忙碌期间禁用重复提交，失败保留表单；保存并继续仅清空已保存表单。主题持久化以存储成功后的快照为准；失败提示而非显示虚假成功。目标、模板和分类页面订阅真实 profile/类别变化。
 
-建议组件构造接收 `BudgetSnapshot`、`LedgerMonthData` 或接口；显示 loading/error/empty/success 四种状态。所有金额保存成功前保留表单；错误码由 A 映射为中文提示。
+## 错误与变更
 
-## 错误码与操作语义
+PocketFlowException 错误码沿用 v1。I/O 失败不能返回空列表；错误提示不得包含 SQL、账单备注或凭据。写入不自动重试。数据模型仅有 core/domain 一份，模块 DTO 不得复制 Money/Entry/Report。
 
-`invalidAmount / invalidDate / invalidCategory / notFound / storageFailure / dataCorrupted / unsupportedBackupVersion / invalidBackup / backupFailed / restoreFailed / exportFailed / importFailed`。细节只进入本地可脱敏诊断，不能包含账单备注或凭据；public message 不提供 SQL 堆栈。原始异常可保留到 cause 用于测试/诊断，但不得自动上传。
 
-跨模块不得以 bool 返回“未知原因失败”，不得以空集合代表I/O失败。用户取消文件选择/分享不算失败。对写入没有默认重试，防止重复账单；按钮保存期间禁用。
+## 手动更新端口 v1（0.2.1候选）
 
-## 合同变更申请
-
-PR 描述具体缺口、拟改字段/签名、受影响模块、迁移与兼容策略；在负责人更新合同前使用现有接口，不能把自己分支新增的接口当作主分支事实。破坏性变更先独立 contract PR，合并后模块 rebase/merge main，再开实现 PR。
+独立接口lib/contracts/app_update_port.dart：AppUpdatePort只读取本机安装信息和打开固定下载链接；AppReleaseSource读取公开版本清单。启动不调用版本源，只有用户点击“检查更新”才请求网络。AppUpdateController负责单次检查、失败和下载状态，不访问LedgerRepository或BackupStore。财务接口候选2.0.0保持不变。

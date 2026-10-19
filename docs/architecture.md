@@ -1,6 +1,6 @@
 # PocketFlow 架构与协作规范
 
-状态：合同 v1.0.0，2026-10-17；MVP 已完成正式装配和自动测试。实际 Android 构建及设备验收状态见 docs/status.md 与 docs/apk-delivery.md。
+状态：合同 v2.0.0 集成候选，2026-10-17；本分支 0.2 收支体验更新见 ADR 0005，合并前 main 仍为 v1.0.0。MVP 已完成正式装配和自动测试。实际 Android 构建及设备验收状态见 docs/status.md 与 docs/apk-delivery.md。
 
 ## 1. 唯一权威来源
 
@@ -63,7 +63,7 @@ tools/                              # D：可重复验证工具
 
 ## 5. 数据一致性
 
-一个 `LedgerMonthData` 包含同一个事务快照读取出的预算、当月完整记录和分类。一次查询流通知不得把旧预算与新交易拼成一个快照。B 可用 Drift 自定义聚合/事务读取实现；不能用两个独立订阅简单 combine 后声称原子一致。A 的界面、B 的 BudgetCalculator、C 的 MonthlyReport 都使用同一个快照。
+一个 `LedgerMonthData` 包含同一个事务快照读取出的预算、当月完整记录、分类和个人设置 profile。一次查询流通知不得把旧预算与新交易拼成一个快照。B 可用 Drift 自定义聚合/事务读取实现；不能用两个独立订阅简单 combine 后声称原子一致。A 的界面、B 的 BudgetCalculator、C 的 MonthlyReport 都使用同一个快照。
 
 月数据包含该月全部已保存记录；预算和月报按 `asOfLocalDate` 过滤已发生消费，首版写入拒绝未来日期。当前月默认截止今天，历史月截止月末，未来月只用于预算规划。未来收入不计入可支出预算。
 

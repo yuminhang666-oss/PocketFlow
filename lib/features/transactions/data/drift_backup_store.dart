@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'dart:convert';
 
 import '../../../contracts/contracts.dart';
 import '../../../core/database/app_database.dart' show AppDatabase;
@@ -33,8 +34,8 @@ class DriftBackupStore implements BackupStore {
 
   @override
   Future<RestoreResult> replaceAll(BackupDocument document) async {
-    // The shared typed document has a fixed v1 schema. C must reject unsupported
-    // external file versions before constructing it; B checks values/relations.
+    // C rejects unsupported public file versions. B independently checks the
+    // typed values, category assignments and relations before any write.
     try {
       validateBackup(document);
     } catch (error) {
@@ -71,15 +72,25 @@ class DriftBackupStore implements BackupStore {
         await database.delete(database.ledgerEntries).go();
         await database.delete(database.monthlyBudgets).go();
         await database.delete(database.categories).go();
+        await database.delete(database.personalState).go();
+        await database.customInsert(
+          "INSERT INTO personal_state(key,value_json) VALUES ('profile',?)",
+          variables: [
+            Variable.withString(jsonEncode(document.profile.toJson())),
+          ],
+          updates: {database.personalState},
+        );
         for (final category in document.categories) {
           await database.customInsert(
-            'INSERT INTO categories(id, name, sort_order, is_archived) '
-            'VALUES (?, ?, ?, ?)',
+            'INSERT INTO categories(id, name, sort_order, is_archived, category_kind, parent_id) '
+            'VALUES (?, ?, ?, ?, ?, ?)',
             variables: [
               Variable.withString(category.id),
               Variable.withString(category.name),
               Variable.withInt(category.sortOrder),
               Variable.withInt(category.isArchived ? 1 : 0),
+              Variable<String>(category.kind?.name),
+              Variable<String>(category.parentId),
             ],
             updates: {database.categories},
           );

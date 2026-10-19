@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart';
+import 'dart:convert';
 
 import '../../../contracts/contracts.dart';
 import '../../../core/database/app_database.dart' show AppDatabase;
 import '../../../core/database/ledger_reader.dart';
 import '../../../core/database/ledger_validation.dart';
+import '../../../core/domain/category_catalog.dart';
 import 'entry_id.dart';
 
 class DriftLedgerRepository implements LedgerRepository {
@@ -60,83 +62,128 @@ class DriftLedgerRepository implements LedgerRepository {
       });
 
   @override
-  Future<LedgerEntry> createExpense(EntryDraft draft) => _guard(() async {
-    final now = _clock.now();
-    _validateDraft(draft, now);
-    return database.transaction(() async {
-      await _requireCategory(draft.categoryId);
-      final entry = LedgerEntry(
-        id: _newId(),
-        amount: draft.amount,
-        localDate: draft.localDate,
-        categoryId: draft.categoryId,
-        note: draft.note,
-        occurredAtUtcMs: draft.occurredAtUtcMs,
-        createdAtUtcMs: now.millisecondsSinceEpoch,
-        updatedAtUtcMs: now.millisecondsSinceEpoch,
-      );
-      validateEntry(entry);
-      await insertEntry(database, entry);
-      return entry;
-    });
-  });
+  Future<LedgerEntry> createExpense(EntryDraft draft) =>
+      _create(draft, EntryKind.expense);
 
   @override
-  Future<LedgerEntry> updateExpense(String id, EntryDraft draft) => _guard(
-    () async {
-      final now = _clock.now();
-      _validateDraft(draft, now);
-      return database.transaction(() async {
-        final row = await database
-            .customSelect(
-              "SELECT * FROM ledger_entries WHERE id = ? AND kind = 'expense'",
-              variables: [Variable.withString(id)],
-            )
-            .getSingleOrNull();
-        if (row == null) {
-          throw const PocketFlowException(PocketFlowErrorCode.notFound);
-        }
-        final old = decodeEntryRow(row);
-        await _requireCategory(
-          draft.categoryId,
-          allowArchived: old.categoryId == draft.categoryId,
-        );
-        final nowMs = now.millisecondsSinceEpoch;
-        final updated = nowMs < old.updatedAtUtcMs ? old.updatedAtUtcMs : nowMs;
-        final entry = LedgerEntry(
-          id: old.id,
-          amount: draft.amount,
-          localDate: draft.localDate,
-          categoryId: draft.categoryId,
-          kind: old.kind,
-          note: draft.note,
-          occurredAtUtcMs: draft.occurredAtUtcMs,
-          createdAtUtcMs: old.createdAtUtcMs,
-          updatedAtUtcMs: updated,
-        );
-        validateEntry(entry);
-        final changed = await database.customUpdate(
-          'UPDATE ledger_entries SET amount_fen = ?, occurred_local = ?, '
-          'occurred_at_utc_ms = ?, category_id = ?, note = ?, '
-          'updated_at_utc_ms = ? WHERE id = ?',
-          variables: [
-            Variable.withInt(entry.amount.fen),
-            Variable.withString(entry.localDate),
-            Variable.withInt(entry.occurredAtUtcMs),
-            Variable.withString(entry.categoryId),
-            Variable.withString(entry.note),
-            Variable.withInt(entry.updatedAtUtcMs),
-            Variable.withString(entry.id),
-          ],
-          updates: {database.ledgerEntries},
-        );
-        if (changed != 1) {
-          throw const PocketFlowException(PocketFlowErrorCode.notFound);
-        }
-        return entry;
+  Future<LedgerEntry> createIncome(EntryDraft draft) =>
+      _create(draft, EntryKind.income);
+
+  Future<LedgerEntry> _create(EntryDraft draft, EntryKind kind) =>
+      _guard(() async {
+        final now = _clock.now();
+        _validateDraft(draft, now);
+        return database.transaction(() async {
+          await _requireCategory(draft.categoryId, kind: kind);
+          final entry = LedgerEntry(
+            id: _newId(),
+            kind: kind,
+            amount: draft.amount,
+            localDate: draft.localDate,
+            categoryId: draft.categoryId,
+            note: draft.note,
+            occurredAtUtcMs: draft.occurredAtUtcMs,
+            createdAtUtcMs: now.millisecondsSinceEpoch,
+            updatedAtUtcMs: now.millisecondsSinceEpoch,
+          );
+          validateEntry(entry);
+          await insertEntry(database, entry);
+          final profile = await _readProfile();
+          await _writeProfile(
+            profile.copyWith(
+              lastExpenseCategoryId: kind == EntryKind.expense
+                  ? draft.categoryId
+                  : null,
+              lastIncomeCategoryId: kind == EntryKind.income
+                  ? draft.categoryId
+                  : null,
+              zeroExpenseDays: kind == EntryKind.expense
+                  ? profile.zeroExpenseDays.where((d) => d != draft.localDate)
+                  : null,
+            ),
+          );
+          return entry;
+        });
       });
-    },
-  );
+
+  @override
+  Future<LedgerEntry> updateExpense(String id, EntryDraft draft) =>
+      _update(id, draft, EntryKind.expense);
+
+  @override
+  Future<LedgerEntry> updateIncome(String id, EntryDraft draft) =>
+      _update(id, draft, EntryKind.income);
+
+  Future<LedgerEntry> _update(String id, EntryDraft draft, EntryKind kind) =>
+      _guard(() async {
+        final now = _clock.now();
+        _validateDraft(draft, now);
+        return database.transaction(() async {
+          final row = await database
+              .customSelect(
+                'SELECT * FROM ledger_entries WHERE id = ? AND kind = ?',
+                variables: [
+                  Variable.withString(id),
+                  Variable.withString(kind.name),
+                ],
+              )
+              .getSingleOrNull();
+          if (row == null) {
+            throw const PocketFlowException(PocketFlowErrorCode.notFound);
+          }
+          final old = decodeEntryRow(row);
+          await _requireCategory(
+            draft.categoryId,
+            kind: kind,
+            allowArchived: old.categoryId == draft.categoryId,
+          );
+          final nowMs = now.millisecondsSinceEpoch;
+          final updated = nowMs < old.updatedAtUtcMs
+              ? old.updatedAtUtcMs
+              : nowMs;
+          final entry = LedgerEntry(
+            id: old.id,
+            amount: draft.amount,
+            localDate: draft.localDate,
+            categoryId: draft.categoryId,
+            kind: old.kind,
+            note: draft.note,
+            occurredAtUtcMs: draft.occurredAtUtcMs,
+            createdAtUtcMs: old.createdAtUtcMs,
+            updatedAtUtcMs: updated,
+          );
+          validateEntry(entry);
+          final changed = await database.customUpdate(
+            'UPDATE ledger_entries SET amount_fen = ?, occurred_local = ?, '
+            'occurred_at_utc_ms = ?, category_id = ?, note = ?, '
+            'updated_at_utc_ms = ? WHERE id = ?',
+            variables: [
+              Variable.withInt(entry.amount.fen),
+              Variable.withString(entry.localDate),
+              Variable.withInt(entry.occurredAtUtcMs),
+              Variable.withString(entry.categoryId),
+              Variable.withString(entry.note),
+              Variable.withInt(entry.updatedAtUtcMs),
+              Variable.withString(entry.id),
+            ],
+            updates: {database.ledgerEntries},
+          );
+          if (changed != 1) {
+            throw const PocketFlowException(PocketFlowErrorCode.notFound);
+          }
+          if (kind == EntryKind.expense) {
+            final profile = await _readProfile();
+            await _writeProfile(
+              profile.copyWith(
+                zeroExpenseDays: profile.zeroExpenseDays.where(
+                  (d) => d != draft.localDate,
+                ),
+              ),
+            );
+          }
+          return entry;
+        });
+      });
 
   @override
   Future<void> deleteEntry(String id) => _guard(() async {
@@ -151,10 +198,18 @@ class DriftLedgerRepository implements LedgerRepository {
     }
   });
 
-  Future<void> _requireCategory(String id, {bool allowArchived = false}) async {
+  Future<void> _requireCategory(
+    String id, {
+    EntryKind? kind,
+    bool allowArchived = false,
+    int depth = 0,
+  }) async {
+    if (depth > 1) {
+      throw const PocketFlowException(PocketFlowErrorCode.dataCorrupted);
+    }
     final row = await database
         .customSelect(
-          'SELECT is_archived FROM categories WHERE id = ?',
+          'SELECT is_archived, category_kind, parent_id FROM categories WHERE id = ?',
           variables: [Variable.withString(id)],
         )
         .getSingleOrNull();
@@ -166,7 +221,168 @@ class DriftLedgerRepository implements LedgerRepository {
         readStoredInt(row, 'is_archived') != 1) {
       throw const PocketFlowException(PocketFlowErrorCode.dataCorrupted);
     }
+    final storedKind = row.data['category_kind'];
+    if (storedKind != null &&
+        storedKind != 'expense' &&
+        storedKind != 'income') {
+      throw const PocketFlowException(PocketFlowErrorCode.dataCorrupted);
+    }
+    if (!allowArchived &&
+        kind != null &&
+        storedKind != null &&
+        storedKind != kind.name) {
+      throw const PocketFlowException(PocketFlowErrorCode.invalidCategory);
+    }
+    if (!allowArchived && row.data['parent_id'] != null) {
+      await _requireCategory(
+        row.read<String>('parent_id'),
+        kind: kind,
+        depth: depth + 1,
+      );
+    }
   }
+
+  @override
+  Future<void> addRecommendedCategories() =>
+      _guard(() => database.transaction(database.addDefaultCategories));
+
+  @override
+  Future<void> saveCategory(Category category) => _guard(
+    () => database.transaction(() async {
+      validateCategory(category);
+      final data = await _reader.readAll(_clock.now().millisecondsSinceEpoch);
+      validateCategoryGraph([
+        ...data.categories.where((c) => c.id != category.id),
+        category,
+      ]);
+      final old = data.categories.where((c) => c.id == category.id).firstOrNull;
+      if (old != null &&
+          (old.kind != category.kind || old.parentId != category.parentId)) {
+        throw const PocketFlowException(PocketFlowErrorCode.invalidCategory);
+      }
+      await database.customInsert(
+        'INSERT INTO categories '
+        '(id,name,sort_order,is_archived,category_kind,parent_id) VALUES (?,?,?,?,?,?) '
+        'ON CONFLICT(id) DO UPDATE SET name=excluded.name, sort_order=excluded.sort_order, is_archived=excluded.is_archived',
+        variables: [
+          Variable.withString(category.id),
+          Variable.withString(category.name),
+          Variable.withInt(category.sortOrder),
+          Variable.withInt(category.isArchived ? 1 : 0),
+          Variable<String>(category.kind?.name),
+          Variable<String>(category.parentId),
+        ],
+        updates: {database.categories},
+      );
+    }),
+  );
+
+  Future<PersonalProfile> _readProfile() async {
+    final row = await database
+        .customSelect(
+          "SELECT value_json FROM personal_state WHERE key='profile'",
+        )
+        .getSingleOrNull();
+    return row == null
+        ? PersonalProfile()
+        : PersonalProfile.fromJson(
+            jsonDecode(row.read<String>('value_json')) as Map<String, dynamic>,
+          );
+  }
+
+  @override
+  Future<void> reorderCategories(List<String> ids) => _guard(
+    () => database.transaction(() async {
+      if (ids.toSet().length != ids.length) {
+        throw const PocketFlowException(PocketFlowErrorCode.invalidCategory);
+      }
+      for (var i = 0; i < ids.length; i++) {
+        final changed = await database.customUpdate(
+          'UPDATE categories SET sort_order=? WHERE id=?',
+          variables: [Variable.withInt(i * 10), Variable.withString(ids[i])],
+          updates: {database.categories},
+        );
+        if (changed != 1) {
+          throw const PocketFlowException(PocketFlowErrorCode.notFound);
+        }
+      }
+    }),
+  );
+
+  Future<void> _writeProfile(PersonalProfile profile) async {
+    await database.customInsert(
+      "INSERT INTO personal_state(key,value_json) VALUES ('profile',?) "
+      'ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json',
+      variables: [Variable.withString(jsonEncode(profile.toJson()))],
+      updates: {database.personalState},
+    );
+  }
+
+  Future<void> _changeProfile(
+    PersonalProfile Function(PersonalProfile) change,
+  ) => _guard(
+    () => database.transaction(() async {
+      await _writeProfile(change(await _readProfile()));
+    }),
+  );
+
+  @override
+  Future<void> savePreferences({String? theme, bool? feedback}) =>
+      _changeProfile((p) => p.copyWith(theme: theme, feedback: feedback));
+  @override
+  Future<void> saveGoal(SavingsGoal goal) => _changeProfile(
+    (p) => p.copyWith(goals: [...p.goals.where((g) => g.id != goal.id), goal]),
+  );
+  @override
+  Future<void> deleteGoal(String id) => _changeProfile(
+    (p) => p.copyWith(goals: p.goals.where((g) => g.id != id)),
+  );
+  @override
+  Future<void> saveTemplate(EntryTemplate template) => _guard(
+    () => database.transaction(() async {
+      await _requireCategory(template.categoryId, kind: template.kind);
+      final p = await _readProfile();
+      await _writeProfile(
+        p.copyWith(
+          templates: [
+            ...p.templates.where((t) => t.id != template.id),
+            template,
+          ],
+        ),
+      );
+    }),
+  );
+  @override
+  Future<void> deleteTemplate(String id) => _changeProfile(
+    (p) => p.copyWith(templates: p.templates.where((t) => t.id != id)),
+  );
+  @override
+  Future<void> markZeroExpenseDay(String localDate, bool value) => _guard(
+    () => database.transaction(() async {
+      final date = parseCalendarDay(localDate);
+      if (date.isAfter(calendarDay(_clock.now()))) {
+        throw const PocketFlowException(PocketFlowErrorCode.invalidDate);
+      }
+      final count = await database
+          .customSelect(
+            "SELECT count(*) AS n FROM ledger_entries WHERE occurred_local=? AND kind='expense'",
+            variables: [Variable.withString(localDate)],
+          )
+          .getSingle();
+      if (value && count.read<int>('n') != 0) {
+        throw const FormatException('当天已有支出，不能标为零消费');
+      }
+      final p = await _readProfile();
+      await _writeProfile(
+        p.copyWith(
+          zeroExpenseDays: [
+            ...p.zeroExpenseDays.where((d) => d != localDate),
+            if (value) localDate,
+          ],
+        ),
+      );
+    }),
+  );
 
   void _validateDraft(EntryDraft draft, DateTime now) {
     if (draft.amount.fen <= 0 || draft.amount.fen > Money.maxInputFen) {

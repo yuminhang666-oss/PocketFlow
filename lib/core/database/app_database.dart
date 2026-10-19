@@ -3,11 +3,18 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../contracts/pocketflow_exception.dart';
 import 'tables.dart';
+import '../domain/category_catalog.dart';
 
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Categories, MonthlyBudgets, LedgerEntries, RecoverySnapshots],
+  tables: [
+    Categories,
+    MonthlyBudgets,
+    LedgerEntries,
+    RecoverySnapshots,
+    PersonalState,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -15,51 +22,44 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.local() : super(driftDatabase(name: 'pocketflow'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) => transaction(() async {
       await migrator.createAll();
       await _createLedgerIndex();
-      const names = {
-        'food': '餐饮',
-        'drinks': '饮品',
-        'shopping': '购物',
-        'transport': '交通',
-        'study': '学习',
-        'fun': '娱乐',
-        'health': '医疗',
-        'other': '其他',
-      };
-      var order = 0;
-      for (final entry in names.entries) {
-        await into(categories).insert(
-          CategoriesCompanion.insert(
-            id: entry.key,
-            name: entry.value,
-            sortOrder: Value(order++),
-          ),
-        );
-      }
+      await addDefaultCategories();
     }),
     onUpgrade: (migrator, from, to) async {
-      if (from != 1 || to != 2) {
+      if (from < 1 || from >= 3 || to != 3) {
         throw const PocketFlowException(PocketFlowErrorCode.storageFailure);
       }
       // SQLite cannot change foreign_keys inside a transaction.
       await customStatement('PRAGMA foreign_keys = OFF');
       try {
         await transaction(() async {
-          await customStatement(
-            'DROP INDEX IF EXISTS ledger_entries_local_date',
-          );
-          // Copy without coercion or repair: invalid v1 rows abort the upgrade.
-          await migrator.alterTable(TableMigration(categories));
-          await migrator.alterTable(TableMigration(monthlyBudgets));
-          await migrator.alterTable(TableMigration(ledgerEntries));
-          await migrator.createTable(recoverySnapshots);
-          await _createLedgerIndex();
+          if (from == 1) {
+            await customStatement(
+              'DROP INDEX IF EXISTS ledger_entries_local_date',
+            );
+            // Copy without coercion or repair: invalid v1 rows abort the upgrade.
+            await migrator.alterTable(
+              TableMigration(
+                categories,
+                newColumns: [categories.categoryKind, categories.parentId],
+              ),
+            );
+            await migrator.alterTable(TableMigration(monthlyBudgets));
+            await migrator.alterTable(TableMigration(ledgerEntries));
+            await migrator.createTable(recoverySnapshots);
+            await _createLedgerIndex();
+          } else {
+            await migrator.addColumn(categories, categories.categoryKind);
+            await migrator.addColumn(categories, categories.parentId);
+          }
+          await migrator.createTable(personalState);
+          await addDefaultCategories();
           await _checkForeignKeys();
         });
       } catch (error) {
@@ -80,6 +80,24 @@ class AppDatabase extends _$AppDatabase {
       await _checkForeignKeys();
     },
   );
+
+  Future<void> addDefaultCategories() async {
+    for (final c in recommendedCategories()) {
+      await customInsert(
+        'INSERT OR IGNORE INTO categories '
+        '(id, name, sort_order, is_archived, category_kind, parent_id) VALUES (?, ?, ?, ?, ?, ?)',
+        variables: [
+          Variable.withString(c.id),
+          Variable.withString(c.name),
+          Variable.withInt(c.sortOrder),
+          Variable.withInt(0),
+          Variable<String>(c.kind?.name),
+          Variable<String>(c.parentId),
+        ],
+        updates: {categories},
+      );
+    }
+  }
 
   Future<void> _createLedgerIndex() => customStatement(
     'CREATE INDEX ledger_entries_local_date '

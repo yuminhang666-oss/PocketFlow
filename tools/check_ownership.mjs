@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process';
 
 export function checkOwnership(branch, paths) {
-  const root = /^(integration|contract)\//.test(branch);
+  const root = /^(integration|contract)\//.test(branch)
+    || /^codex\/v030-(s0|control|contract)-/.test(branch);
   const role = branch.startsWith('feat/a-') ? 'A'
     : branch.startsWith('feat/b-') ? 'B'
     : branch.startsWith('feat/c-') ? 'C'
