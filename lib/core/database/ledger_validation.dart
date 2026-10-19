@@ -12,7 +12,7 @@ void validateTimestamp(int value) {
 void validateCategory(Category category) {
   if (category.id.isEmpty ||
       category.id.length > 64 ||
-      category.name.isEmpty ||
+      category.name.trim().isEmpty ||
       category.name.length > 30) {
     throw ArgumentError('Invalid category');
   }
@@ -58,6 +58,11 @@ void validateBackup(BackupDocument document) {
     }
   }
   validateCategoryGraph(document.categories);
+  validateCategoryAssignments(
+    categories: document.categories,
+    entries: document.entries,
+    templates: document.profile.templates,
+  );
   for (final template in document.profile.templates) {
     if (!categories.contains(template.categoryId)) {
       throw ArgumentError('Template category missing');

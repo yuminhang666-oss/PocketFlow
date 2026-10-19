@@ -150,7 +150,7 @@ final class JsonBackupCodec implements BackupCodec {
       if (!categories.add(c.id) ||
           c.id.isEmpty ||
           c.id.length > 64 ||
-          c.name.isEmpty ||
+          c.name.trim().isEmpty ||
           c.name.length > 30) {
         throw const FormatException('Invalid or duplicate category');
       }
@@ -164,6 +164,11 @@ final class JsonBackupCodec implements BackupCodec {
       _checkTimestamp(b.updatedAtUtcMs);
     }
     validateCategoryGraph(document.categories);
+    validateCategoryAssignments(
+      categories: document.categories,
+      entries: document.entries,
+      templates: document.profile.templates,
+    );
     for (final t in document.profile.templates) {
       if (!categories.contains(t.categoryId)) {
         throw const FormatException('Missing template category');

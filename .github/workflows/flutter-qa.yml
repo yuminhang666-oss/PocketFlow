@@ -2,7 +2,7 @@ name: Flutter contract and MVP checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, 'integration/**', 'codex/v030-control-*', 'codex/v030-s0-*']
   workflow_dispatch:
 
 permissions:

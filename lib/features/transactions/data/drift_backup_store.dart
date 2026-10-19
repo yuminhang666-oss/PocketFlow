@@ -34,8 +34,8 @@ class DriftBackupStore implements BackupStore {
 
   @override
   Future<RestoreResult> replaceAll(BackupDocument document) async {
-    // The shared typed document has a fixed v1 schema. C must reject unsupported
-    // external file versions before constructing it; B checks values/relations.
+    // C rejects unsupported public file versions. B independently checks the
+    // typed values, category assignments and relations before any write.
     try {
       validateBackup(document);
     } catch (error) {

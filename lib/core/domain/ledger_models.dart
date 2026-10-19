@@ -12,7 +12,10 @@ final class Category {
     this.kind,
     this.parentId,
   }) {
-    if (id.isEmpty || id.length > 64 || name.isEmpty || name.length > 30) {
+    if (id.isEmpty ||
+        id.length > 64 ||
+        name.trim().isEmpty ||
+        name.length > 30) {
       throw ArgumentError('分类 ID 或名称无效');
     }
   }

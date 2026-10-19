@@ -141,6 +141,11 @@ class LedgerReader {
       }
       final categoryIds = categories.map((category) => category.id).toSet();
       validateCategoryGraph(categories);
+      validateCategoryAssignments(
+        categories: categories,
+        entries: entries,
+        templates: profile.templates,
+      );
       if (entries.any((entry) => !categoryIds.contains(entry.categoryId))) {
         throw ArgumentError('Missing entry category');
       }

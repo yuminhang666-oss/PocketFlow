@@ -1,5 +1,6 @@
 import 'ledger_entry.dart';
 import 'ledger_models.dart';
+import 'personal_profile.dart';
 
 /// Stable IDs preserve the eight original categories and their historical data.
 List<Category> recommendedCategories() {
@@ -152,6 +153,28 @@ bool categoryAvailable(Category c, List<Category> all, EntryKind kind) =>
     c.accepts(kind) &&
     (c.parentId == null ||
         all.any((p) => p.id == c.parentId && !p.isArchived && p.accepts(kind)));
+
+/// Historical archived categories remain valid. A null kind is a legacy
+/// category accepting either entry kind; explicit kinds must always match.
+void validateCategoryAssignments({
+  required Iterable<Category> categories,
+  required Iterable<LedgerEntry> entries,
+  required Iterable<EntryTemplate> templates,
+}) {
+  final byId = {for (final c in categories) c.id: c};
+  for (final entry in entries) {
+    final category = byId[entry.categoryId];
+    if (category == null || !category.accepts(entry.kind)) {
+      throw const FormatException('账目分类缺失或收支类型不相容');
+    }
+  }
+  for (final template in templates) {
+    final category = byId[template.categoryId];
+    if (category == null || !category.accepts(template.kind)) {
+      throw const FormatException('模板分类缺失或收支类型不相容');
+    }
+  }
+}
 
 String categoryPath(Category c, List<Category> all) {
   final parent = all.where((p) => p.id == c.parentId).firstOrNull;

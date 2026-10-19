@@ -1,5 +1,11 @@
 # 项目状态
 
+## 当前执行状态（2026-10-19，S0 本地审查候选）
+
+远程 main 仍为 8b224deabadf042ee901e2bfdf5deaa1d97e2c51（0.1.1）；PR #6/#7 均 open/draft，未合并。本次独立 codex/v030-s0-review 分支基于 #7 head f384ecfe7a2b4fec5bfcc3d77bbae73762a10145，完整包含 #6 head 081d6b4d0d872939ce48a8614784dad80533489d。候选版本 0.2.1+4 / 合同 2.0.0 / schema 3 / JSON 2 / recovery 2，尚未进入 0.3 功能开发。
+
+S0 收口：恢复与模板收支相容校验、分类空白名拒绝、README 版本漂移和 CI 目标分支覆盖。实际验证及待授权动作见 deliverables/v0.3.0/qa-report.md。旧发布 tag/资产、已有工作树和真实账本未修改。以下各节保留为历史记录，不作为本轮测试结果。
+
 更新：2026-10-17（Asia/Shanghai）。公共合同v1.0.0；数据库schema v2。
 
 - 公开仓库：https://github.com/yuminhang666-oss/PocketFlow。M0基线26d8e4b47eef5d17fe2ca8385da3ddb58adce95e；集成经PR #5交付。
