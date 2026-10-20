@@ -6,6 +6,8 @@ import 'package:pocketflow/contracts/contracts.dart';
 import 'package:pocketflow/core/domain/catalog_upgrade.dart';
 import 'package:pocketflow/features/planning/presentation/planning_pages_v3.dart';
 import 'package:pocketflow/features/statistics/presentation/statistics_page.dart';
+import 'package:pocketflow/shared/widgets/metric_grid.dart';
+import 'package:pocketflow/app/theme/frosted_glass.dart';
 
 class _Clock implements Clock {
   @override
@@ -18,6 +20,34 @@ class _NoActions implements PlanningPort {
 }
 
 void main() {
+  testWidgets('English metric cards share height with mixed label lengths', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      PocketFlowApp(
+        language: 'en',
+        home: Scaffold(
+          body: SizedBox(
+            width: 360,
+            child: MetricGrid(
+              values: const [
+                ('Monthly expenses', Money.fromFen(2480)),
+                ('Monthly income', Money.fromFen(0)),
+                ("Today's expenses", Money.fromFen(2480)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final heights = tester
+        .widgetList<FrostedSurface>(find.byType(FrostedSurface))
+        .map((widget) => tester.getSize(find.byWidget(widget)).height)
+        .toSet();
+    expect(heights.length, 1);
+    expect(tester.takeException(), isNull);
+  });
   final month = CalendarMonth(2026, 10),
       categories = generalRecommendedCategories();
   final data = LedgerMonthData(

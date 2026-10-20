@@ -126,7 +126,13 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
-          child: FrostedSurface(radius: 28, child: navigation),
+          child: FrostedSurface(
+            radius: 28,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: navigation,
+            ),
+          ),
         ),
       ),
     );
