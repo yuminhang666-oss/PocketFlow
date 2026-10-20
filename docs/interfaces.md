@@ -1,4 +1,6 @@
-# 模块接口 v3.0.0（0.3 本地候选，未合并）
+# 模块接口 v3.1.0（0.3.1 集成候选）
+
+2026-10-20：基于已经合并的0.3.0 main cce2a22。`savePreferences` 新增可选 surfaceStyle、locale 参数，兼容策略见 data-contracts.md。更新能力新增独立可选 `AppPackageUpdatePort`：流式下载、进度、取消及系统安装交接；旧 AppUpdatePort 与浏览器发布页入口保留。下载/安装只在用户主动点击后执行，不读写账目。接口保持业务与平台分离；UI 改造不增加其他业务合同。以下0.3候选基线描述为历史记录。
 
 唯一签名见 lib/contracts/；基线与兼容策略见 [数据合同](data-contracts.md) 和 [ADR 0005](decisions/0005-living-income-experience.md)。新增抽象方法影响旧实现者，所以提升主要合同版本；合并前不得当作 main 的已发布接口。
 
@@ -14,7 +16,7 @@ LedgerRepository：
 - saveCategory(Category) → Future<void>；新增或改名称/归档/排序，已有类型和父类不可变，历史关联保留。
 - reorderCategories(List<String>) → Future<void>，事务排序；重复或不存在 ID 失败回滚。
 - addRecommendedCategories() → Future<void>，只添加缺项。
-- savePreferences({String? theme, bool? feedback}) → Future<void>，theme 为 system/light/dark。
+- savePreferences({String? theme, String? surfaceStyle, String? locale, bool? feedback}) → Future<void>；theme 为 system/light/dark，surfaceStyle 为 classic/glass，locale 为 zh_Hans/zh_Hant/en。
 - saveGoal/deleteGoal、saveTemplate/deleteTemplate → Future<void>，profile 中原子更新；模板必须引用有效同类分类。
 - markZeroExpenseDay(localDate, value) → Future<void>，主动确认零支出，拒绝未来日期和已有支出的日期。
 

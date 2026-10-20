@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/budget_snapshot.dart';
@@ -12,8 +13,8 @@ class BudgetProgress extends StatelessWidget {
     final budget = snapshot.budget;
     if (budget == null) return const SizedBox.shrink();
     if (budget.fen == 0) {
-      return const Text(
-        '本月预算为零',
+      return Text(
+        tr(context, "本月预算为零"),
         style: TextStyle(color: PocketFlowTheme.onHero),
       );
     }
@@ -24,7 +25,7 @@ class BudgetProgress extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Semantics(
-          label: '预算已用百分之$percent',
+          label: tr(context, "预算已用百分之{0}", [percent]),
           child: LinearProgressIndicator(
             value: ratio.clamp(0.0, 1.0).toDouble(),
             minHeight: 5,
@@ -35,7 +36,7 @@ class BudgetProgress extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          '预算已用 $percent%',
+          tr(context, "预算已用 {0}%", [percent]),
           style: const TextStyle(color: PocketFlowTheme.onHero),
         ),
       ],

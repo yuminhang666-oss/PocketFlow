@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contracts/contracts.dart';
@@ -35,17 +36,19 @@ class _StatisticsPageState extends State<StatisticsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('统计'),
+      title: Text(tr(context, "统计")),
       actions: [
         if (widget.onReports != null)
           IconButton(
-            tooltip: '本周至今与历史报告',
+            tooltip: tr(context, "本周至今与历史报告"),
             onPressed: widget.onReports,
             icon: const Icon(Icons.summarize_outlined),
           ),
         TextButton(
           onPressed: widget.onChooseMonth,
-          child: Text('${widget.month.year}年${widget.month.month}月 ▾'),
+          child: Text(
+            tr(context, "{0}年{1}月 ▾", [widget.month.year, widget.month.month]),
+          ),
         ),
       ],
     ),
@@ -53,16 +56,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
       top: false,
       child: widget.state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) =>
-            StatusPanel(title: '统计暂不可用', message: presentationError(e)),
+        error: (e, _) => StatusPanel(
+          title: tr(context, "统计暂不可用"),
+          message: tr(context, presentationError(e)),
+        ),
         data: (data) {
           if (widget.month.compareTo(
                 CalendarMonth.fromDate(widget.clock.now()),
               ) >
               0) {
-            return const StatusPanel(
-              title: '未来月份尚无实际统计',
-              message: '可以先在首页设置预算',
+            return StatusPanel(
+              title: tr(context, "未来月份尚无实际统计"),
+              message: tr(context, "可以先在首页设置预算"),
             );
           }
           final service = DefaultMonthlyReportService(clock: widget.clock);
@@ -96,63 +101,85 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     children: [
                       MetricGrid(
                         values: [
-                          ('本月支出', report.totalExpense),
-                          ('本月收入', report.totalIncome),
-                          ('本月净收支', report.netFlow),
+                          (tr(context, "本月支出"), report.totalExpense),
+                          (tr(context, "本月收入"), report.totalIncome),
+                          (tr(context, "本月净收支"), report.netFlow),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '统计至 ${report.asOfLocalDate} · 净收支为收入减支出',
+                        tr(context, "统计至 {0} · 净收支为收入减支出", [
+                          report.asOfLocalDate,
+                        ]),
                         style: TextStyle(
                           fontSize: 12,
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 18),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (var i = 0; i < 3; i++)
-                            ChoiceChip(
-                              label: Text(['支出分析', '收入分析', '预算趋势'][i]),
-                              selected: _section == i,
-                              onSelected: (_) => setState(() {
-                                _section = i;
-                                _all = false;
-                              }),
-                            ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: scheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (var i = 0; i < 3; i++)
+                              ChoiceChip(
+                                label: Text(
+                                  [
+                                    tr(context, "支出分析"),
+                                    tr(context, "收入分析"),
+                                    tr(context, "预算趋势"),
+                                  ][i],
+                                ),
+                                selected: _section == i,
+                                onSelected: (_) => setState(() {
+                                  _section = i;
+                                  _all = false;
+                                }),
+                              ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 18),
                       if (_section == 2) ...[
                         if (report.budget == null)
-                          const StatusPanel(
-                            title: '还没有设置月预算',
-                            message: '在总览或“我的”中设置后，可以查看剩余预算的变化。',
+                          StatusPanel(
+                            title: tr(context, "还没有设置月预算"),
+                            message: tr(context, "在总览或“我的”中设置后，可以查看剩余预算的变化。"),
                           )
                         else ...[
                           MetricGrid(
                             values: [
-                              ('本月预算', report.budget),
-                              ('已支出', report.totalExpense),
-                              ('剩余预算', report.remaining),
+                              (tr(context, "本月预算"), report.budget),
+                              (tr(context, "已支出"), report.totalExpense),
+                              (tr(context, "剩余预算"), report.remaining),
                             ],
                           ),
                           const SizedBox(height: 18),
-                          RemainingBudgetLines(report: report),
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: RemainingBudgetLines(report: report),
+                            ),
+                          ),
                           const SizedBox(height: 12),
-                          const Text('收入独立统计，不会自动增加预算。'),
+                          Text(tr(context, "收入独立统计，不会自动增加预算。")),
                         ],
                       ] else if (total.fen == 0)
                         StatusPanel(
-                          title: income ? '这个月还没有收入记录' : '这个月还没有支出记录',
-                          message: '点击底部“记账”，记录第一笔。',
+                          title: income
+                              ? tr(context, "这个月还没有收入记录")
+                              : tr(context, "这个月还没有支出记录"),
+                          message: tr(context, "点击底部“记账”，记录第一笔。"),
                         )
                       else ...[
                         Text(
-                          income ? '收入从哪里来' : '钱花在哪里',
+                          income ? tr(context, "收入从哪里来") : tr(context, "钱花在哪里"),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 12),
@@ -162,9 +189,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Material(
                               color: scheme.surface,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(18),
                               child: InkWell(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(18),
                                 onTap: widget.onOpenCategory == null
                                     ? null
                                     : () => widget.onOpenCategory!(
@@ -195,7 +222,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                             ),
                                           ),
                                           Text(
-                                            c.categoryName,
+                                            localizedCategoryLabel(
+                                              context,
+                                              c.categoryId,
+                                              c.categoryName,
+                                            ),
                                             style: Theme.of(
                                               context,
                                             ).textTheme.titleSmall,
@@ -227,12 +258,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           TextButton(
                             onPressed: () => setState(() => _all = !_all),
                             child: Text(
-                              _all ? '收起排行' : '查看全部 ${categories.length} 个分类',
+                              _all
+                                  ? tr(context, "收起排行")
+                                  : tr(context, "查看全部 {0} 个分类", [
+                                      categories.length,
+                                    ]),
                             ),
                           ),
                         ExpansionTile(
                           tilePadding: EdgeInsets.zero,
-                          title: const Text('查看分类环形图'),
+                          title: Text(tr(context, "查看分类环形图")),
                           children: [
                             CategoryExpenseDonut(
                               report: report,
@@ -243,20 +278,30 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          '每日${income ? '收入' : '支出'}',
+                          tr(context, "每日{0}", [
+                            income ? tr(context, "收入") : tr(context, "支出"),
+                          ]),
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const SizedBox(height: 10),
-                        DailyExpenseBars(
-                          report: report,
-                          income: income,
-                          onOpenDay: widget.onOpenDate == null
-                              ? null
-                              : (date) => widget.onOpenDate!(date, kind),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                            child: DailyExpenseBars(
+                              report: report,
+                              income: income,
+                              onOpenDay: widget.onOpenDate == null
+                                  ? null
+                                  : (date) => widget.onOpenDate!(date, kind),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          '共 $count 笔 · 单日最高 ${Money.fromFen(peak).yuan}',
+                          tr(context, "共 {0} 笔 · 单日最高 {1}", [
+                            count,
+                            Money.fromFen(peak).yuan,
+                          ]),
                           style: TextStyle(color: scheme.onSurfaceVariant),
                         ),
                       ],

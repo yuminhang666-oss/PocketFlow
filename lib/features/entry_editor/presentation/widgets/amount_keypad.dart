@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 
 class AmountKeypad extends StatelessWidget {
@@ -23,9 +24,9 @@ class AmountKeypad extends StatelessWidget {
                   padding: const EdgeInsets.all(3),
                   child: Semantics(
                     label: key == 'backspace'
-                        ? '删除一位'
+                        ? tr(context, "删除一位")
                         : key == '.'
-                        ? '小数点'
+                        ? tr(context, "小数点")
                         : key,
                     button: true,
                     enabled: enabled,
@@ -40,7 +41,7 @@ class AmountKeypad extends StatelessWidget {
                         minimumSize: const Size(48, 48),
                         padding: const EdgeInsets.symmetric(vertical: 7),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         textStyle: const TextStyle(
                           fontSize: 22,

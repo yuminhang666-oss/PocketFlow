@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -90,7 +91,146 @@ class FakeSource implements AppReleaseSource {
   }
 }
 
+class NativePlatform extends FakePlatform implements AppPackageUpdatePort {
+  Completer<void>? transfer;
+  int downloads = 0, installs = 0;
+  bool allowed = false;
+  UpdateFailure? installFailure;
+  @override
+  Future<void> downloadUpdate(AppUpdate update) async {
+    downloads++;
+    if (transfer != null) await transfer!.future;
+  }
+
+  @override
+  Future<int> downloadedBytes() async => 4000;
+  @override
+  Future<void> cancelDownload() async =>
+      transfer?.completeError(const UpdateUnavailable(UpdateFailure.cancelled));
+  @override
+  Future<bool> installUpdate() async {
+    installs++;
+    if (installFailure != null) throw UpdateUnavailable(installFailure!);
+    return allowed;
+  }
+}
+
 void main() {
+  test(
+    'API rate limit falls back to official latest manifest without API',
+    () async {
+      final urls = <Uri>[];
+      final remote = GithubAppReleaseSource(
+        load: (url) async {
+          urls.add(url);
+          if (url.host == 'api.github.com') {
+            throw const UpdateUnavailable(UpdateFailure.rateLimited);
+          }
+          return jsonEncode({
+            ...manifest(),
+            'schemaVersion': 2,
+            'buildKind': 'release',
+            'assetName': 'PocketFlow-0.3.0-release.apk',
+          });
+        },
+      );
+      final update = await remote.latestFor(installed);
+      expect(
+        update!.downloadUrl.toString(),
+        'https://github.com/yuminhang666-oss/PocketFlow/releases/latest/download/PocketFlow-0.3.0-release.apk',
+      );
+      expect(urls.length, 2);
+    },
+  );
+  test('fallback rejects damaged manifest and incompatible signer', () async {
+    for (final change in [
+      {...manifest(), 'apkSha256': 'bad'},
+      {...manifest(), 'certificateSha256': 'other'},
+    ]) {
+      final remote = GithubAppReleaseSource(
+        load: (url) async {
+          if (url.host == 'api.github.com') {
+            throw const UpdateUnavailable(UpdateFailure.timeout);
+          }
+          if (url.path.endsWith('v2.json')) {
+            throw const UpdateUnavailable(UpdateFailure.network);
+          }
+          return jsonEncode(change);
+        },
+      );
+      await expectLater(
+        remote.latestFor(installed),
+        throwsA(isA<UpdateUnavailable>()),
+      );
+    }
+  });
+  test(
+    'native download requests install permission then retries without redownload',
+    () async {
+      final platform = NativePlatform();
+      final controller = AppUpdateController(
+        platform: platform,
+        source: FakeSource(),
+      );
+      addTearDown(controller.dispose);
+      await controller.initialize();
+      await controller.check();
+      await controller.download();
+      expect(platform.opened, isNull);
+      expect(controller.phase, AppUpdatePhase.ready);
+      expect(controller.installNotice, contains('允许'));
+      platform.allowed = true;
+      await controller.install();
+      expect(platform.downloads, 1);
+      expect(platform.installs, 2);
+      expect(controller.installNotice, contains('已打开系统安装界面'));
+    },
+  );
+  test(
+    'cancel and corrupt download never open installer, allow retry',
+    () async {
+      final platform = NativePlatform()..transfer = Completer<void>();
+      final controller = AppUpdateController(
+        platform: platform,
+        source: FakeSource(),
+      );
+      addTearDown(controller.dispose);
+      await controller.initialize();
+      await controller.check();
+      final first = controller.download();
+      await controller.download(); // duplicate tap
+      await controller.cancel();
+      await first;
+      expect(platform.downloads, 1);
+      expect(platform.installs, 0);
+      expect(controller.phase, AppUpdatePhase.available);
+      expect(controller.failure, isNull);
+      platform.transfer = Completer<void>();
+      final second = controller.download();
+      platform.transfer!.completeError(
+        const UpdateUnavailable(UpdateFailure.integrity),
+      );
+      await second;
+      expect(platform.installs, 0);
+      expect(controller.failure, UpdateFailure.integrity);
+    },
+  );
+  testWidgets('update failure page gives a specific retryable reason', (
+    tester,
+  ) async {
+    final controller = AppUpdateController(
+      platform: FakePlatform(),
+      source: FakeSource()..fail = true,
+    );
+    addTearDown(controller.dispose);
+    await controller.initialize();
+    await controller.check();
+    await tester.pumpWidget(
+      MaterialApp(home: AppUpdatesPage(controller: controller)),
+    );
+    expect(find.textContaining('更新信息校验失败'), findsOneWidget);
+    expect(find.text('已经是最新版本'), findsNothing);
+  });
   test('v2 selects Release asset while retaining v1 compatibility', () async {
     final release = feed();
     release[0]['assets'].add({

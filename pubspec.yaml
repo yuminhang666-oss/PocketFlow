@@ -1,7 +1,7 @@
 name: pocketflow
 description: Offline living-expense budgeting for university students.
 publish_to: none
-version: 0.3.0+5
+version: 0.3.1+6
 
 environment:
   sdk: '>=3.12.0 <4.0.0'
@@ -25,3 +25,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - lib/l10n/app_zh_Hans.arb
+    - lib/l10n/app_zh_Hant.arb
+    - lib/l10n/app_en.arb

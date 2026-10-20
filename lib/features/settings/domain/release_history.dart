@@ -20,6 +20,18 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.3.1',
+    title: '毛玻璃主题与应用内更新',
+    publishedOn: '2026-10-20',
+    additions: [
+      '统一浅色、深色和毛玻璃主题，优化首页、记账、预算和统计的布局与无障碍。',
+      '增加简体中文、繁體中文和English选择，界面立即切换并保存，用户自定义内容保持原文。',
+      '增加独立的毛玻璃浅色主题，选择后固定为浅色并跨重启保留。',
+      '在应用内下载更新，显示进度并校验安装包，再由系统确认覆盖安装。',
+    ],
+    fixes: ['保存后的撤销提示在3秒后自动消失。', '检查更新增加官方备用入口，区分网络、超时和校验错误并支持重试。'],
+  ),
+  AppVersionNotes(
     version: '0.3.0',
     title: '计划、提醒与回顾',
     additions: [

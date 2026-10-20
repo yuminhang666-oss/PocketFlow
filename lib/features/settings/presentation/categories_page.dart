@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
 import '../../../contracts/contracts.dart';
@@ -36,7 +37,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     try {
       await action();
     } catch (e) {
-      if (mounted) setState(() => _error = presentationError(e));
+      if (mounted) setState(() => _error = tr(context, presentationError(e)));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -57,7 +58,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
         builder: (dialog, setDialog) => PopScope(
           canPop: !saving,
           child: AlertDialog(
-            title: Text(initial == null ? '新增分类' : '编辑分类'),
+            title: Text(
+              initial == null ? tr(context, "新增分类") : tr(context, "编辑分类"),
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -66,26 +69,31 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     controller: name,
                     enabled: !saving,
                     maxLength: 30,
-                    decoration: const InputDecoration(labelText: '分类名称'),
+                    decoration: InputDecoration(labelText: tr(context, "分类名称")),
                   ),
                   if (initial == null)
                     DropdownButtonFormField<String>(
                       initialValue: '',
                       isExpanded: true,
-                      decoration: const InputDecoration(labelText: '放在哪一组'),
+                      decoration: InputDecoration(
+                        labelText: tr(context, "放在哪一组"),
+                      ),
                       items: [
-                        const DropdownMenuItem(
+                        DropdownMenuItem(
                           value: '',
-                          child: Text('新建一级分类'),
+                          child: Text(tr(context, "新建一级分类")),
                         ),
                         for (final c in roots)
-                          DropdownMenuItem(value: c.id, child: Text(c.name)),
+                          DropdownMenuItem(
+                            value: c.id,
+                            child: Text(localizedCategoryName(context, c)),
+                          ),
                       ],
                       onChanged: (v) => parentId = v == '' ? null : v,
                     ),
                   if (error != null)
                     Text(
-                      error!,
+                      tr(context, error!),
                       style: TextStyle(
                         color: Theme.of(dialog).colorScheme.error,
                       ),
@@ -96,7 +104,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
             actions: [
               TextButton(
                 onPressed: saving ? null : () => Navigator.pop(dialog),
-                child: const Text('取消'),
+                child: Text(tr(context, "取消")),
               ),
               FilledButton(
                 onPressed: saving
@@ -105,7 +113,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         try {
                           final title = name.text.trim();
                           if (title.isEmpty) {
-                            throw const FormatException('请输入分类名称');
+                            throw FormatException(tr(context, "请输入分类名称"));
                           }
                           final category = Category(
                             id:
@@ -135,12 +143,12 @@ class _CategoriesPageState extends State<CategoriesPage> {
                               saving = false;
                               error = e is FormatException
                                   ? e.message
-                                  : presentationError(e);
+                                  : tr(context, presentationError(e));
                             });
                           }
                         }
                       },
-                child: Text(saving ? '保存中…' : '保存分类'),
+                child: Text(saving ? tr(context, "保存中…") : tr(context, "保存分类")),
               ),
             ],
           ),
@@ -168,8 +176,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
         categoryIcon(c.id, widget.categories),
         color: categoryColor(c.id, widget.categories),
       ),
-      title: Text(c.name),
-      subtitle: c.isArchived ? const Text('已归档，历史账单仍保留') : null,
+      title: Text(localizedCategoryName(context, c)),
+      subtitle: c.isArchived ? Text(tr(context, "已归档，历史账单仍保留")) : null,
       onTap: _busy ? null : () => _edit(c),
       trailing: PopupMenuButton<String>(
         enabled: !_busy,
@@ -203,24 +211,26 @@ class _CategoriesPageState extends State<CategoriesPage> {
           }
         },
         itemBuilder: (_) => [
-          const PopupMenuItem(value: 'edit', child: Text('修改名称')),
+          PopupMenuItem(value: 'edit', child: Text(tr(context, "修改名称"))),
           PopupMenuItem(
             value: 'archive',
-            child: Text(c.isArchived ? '恢复显示' : '归档分类'),
+            child: Text(
+              c.isArchived ? tr(context, "恢复显示") : tr(context, "归档分类"),
+            ),
           ),
           if (root && index != null && index > 0)
-            const PopupMenuItem(value: 'up', child: Text('向上移动')),
+            PopupMenuItem(value: 'up', child: Text(tr(context, "向上移动"))),
           if (root && index != null && index < roots.length - 1)
-            const PopupMenuItem(value: 'down', child: Text('向下移动')),
+            PopupMenuItem(value: 'down', child: Text(tr(context, "向下移动"))),
         ],
       ),
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text('分类管理'),
+        title: Text(tr(context, "分类管理")),
         actions: [
           IconButton(
-            tooltip: '新增分类',
+            tooltip: tr(context, "新增分类"),
             onPressed: _busy ? null : () => _edit(),
             icon: const Icon(Icons.add),
           ),
@@ -232,23 +242,29 @@ class _CategoriesPageState extends State<CategoriesPage> {
           padding: const EdgeInsets.all(16),
           children: [
             SegmentedButton<EntryKind>(
-              segments: const [
-                ButtonSegment(value: EntryKind.expense, label: Text('支出分类')),
-                ButtonSegment(value: EntryKind.income, label: Text('收入分类')),
+              segments: [
+                ButtonSegment(
+                  value: EntryKind.expense,
+                  label: Text(tr(context, "支出分类")),
+                ),
+                ButtonSegment(
+                  value: EntryKind.income,
+                  label: Text(tr(context, "收入分类")),
+                ),
               ],
               selected: {_kind},
               onSelectionChanged: (v) => setState(() => _kind = v.first),
             ),
             const SizedBox(height: 8),
-            const Text('一级分类下可以展开细分类。归档会隐藏新增入口，保留历史记录。'),
+            Text(tr(context, "一级分类下可以展开细分类。归档会隐藏新增入口，保留历史记录。")),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('显示已归档分类'),
+              title: Text(tr(context, "显示已归档分类")),
               value: _archived,
               onChanged: (v) => setState(() => _archived = v),
             ),
             if (_error != null)
-              Text(_error!, style: TextStyle(color: scheme.error)),
+              Text(tr(context, _error!), style: TextStyle(color: scheme.error)),
             if (_busy) const LinearProgressIndicator(),
             for (var i = 0; i < roots.length; i++)
               Card(
@@ -256,7 +272,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                 elevation: 0,
                 child: ExpansionTile(
                   key: ValueKey(roots[i].id),
-                  title: Text(roots[i].name),
+                  title: Text(localizedCategoryName(context, roots[i])),
                   leading: Icon(
                     categoryIcon(roots[i].id, widget.categories),
                     color: categoryColor(roots[i].id, widget.categories),
@@ -275,11 +291,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
             OutlinedButton.icon(
               onPressed: _busy ? null : () => _action(widget.onRecommended),
               icon: const Icon(Icons.add_circle_outline),
-              label: const Text('补全推荐分类'),
+              label: Text(tr(context, "补全推荐分类")),
             ),
             const SizedBox(height: 6),
             Text(
-              '只添加缺少的分类，不覆盖你修改的名称和归档状态。',
+              tr(context, "只添加缺少的分类，不覆盖你修改的名称和归档状态。"),
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
           ],

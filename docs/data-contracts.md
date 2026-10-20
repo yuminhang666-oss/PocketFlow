@@ -1,4 +1,6 @@
-# 数据合同 v3.0.0（0.3 本地候选，未合并）
+# 数据合同 v3.1.0（0.3.1 集成候选）
+
+2026-10-20：0.3.0 已经 PR #9 合入 main cce2a22。0.3.1 在其上增加两个可选呈现偏好：`PersonalProfile.surfaceStyle` 为 classic/glass，缺省 classic；`locale` 为 zh_Hans/zh_Hant/en，缺省 zh_Hans。默认值不额外写入 JSON。`theme` 仍为 system/light/dark，glass 独立且固定浅色；语言只改变界面，用户原文、人民币金额和日期归属不变。旧客户端忽略新增字段，新客户端读取旧档案回退默认值；普通 profile 编辑须保留新增字段。数据库schema4、JSON3、recovery3及财务模型不变。接口和唯一类型以 lib/core/domain、lib/contracts 为准。以下0.3合同细节保留，旧候选的基线描述仅作历史。
 
 唯一 Dart 定义位于 `lib/core/domain/`，接口位于 `lib/contracts/`。本候选基于已合并 PR #8 的真实 main b4f7aa6，main 公共合同为 v2.0.0。0.3 未合并，不将候选接口当作公共事实。变更见 [ADR 0008](decisions/0008-planning-reviews-contract.md)。
 

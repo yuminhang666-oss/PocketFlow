@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -207,7 +208,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Text(tr(context, message)),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
           margin: const EdgeInsets.all(16),
@@ -237,7 +238,9 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
       onSave: (amount) =>
           ref.read(ledgerRepositoryProvider).saveBudget(month, amount),
     );
-    if (saved == true && context.mounted) _message(context, '预算已保存');
+    if (saved == true && context.mounted) {
+      _message(context, tr(context, "预算已保存"));
+    }
   }
 
   Future<void> _edit(
@@ -291,33 +294,45 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     );
     if (entry != null && context.mounted) {
       final port = ref.read(planningPortProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 5),
-          content: Text(
-            '${initial == null ? '已保存' : '已更新'} ${entry.amount.yuan} · ${data.categories.where((c) => c.id == entry.categoryId).firstOrNull?.name ?? entry.categoryId} · ${entry.localDate}',
-          ),
-          action:
-              initial != null ||
-                  port == null ||
-                  ref.read(clockProvider).now().millisecondsSinceEpoch -
-                          entry.createdAtUtcMs >
-                      5000
-              ? null
-              : SnackBarAction(
-                  label: '撤销',
-                  onPressed: () async {
-                    try {
-                      await port.undoCreate(entry);
-                    } catch (e) {
-                      if (context.mounted) {
-                        _message(context, presentationError(e));
-                      }
-                    }
-                  },
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 3),
+            persist: false,
+            content: Text(
+              tr(context, "{0} {1} · {2} · {3}", [
+                initial == null ? tr(context, "已保存") : tr(context, "已更新"),
+                entry.amount.yuan,
+                localizedCategoryById(
+                  context,
+                  entry.categoryId,
+                  data.categories,
                 ),
-        ),
-      );
+                entry.localDate,
+              ]),
+            ),
+            action:
+                initial != null ||
+                    port == null ||
+                    ref.read(clockProvider).now().millisecondsSinceEpoch -
+                            entry.createdAtUtcMs >
+                        5000
+                ? null
+                : SnackBarAction(
+                    label: tr(context, "撤销"),
+                    onPressed: () async {
+                      try {
+                        await port.undoCreate(entry);
+                      } catch (e) {
+                        if (context.mounted) {
+                          _message(context, tr(context, presentationError(e)));
+                        }
+                      }
+                    },
+                  ),
+          ),
+        );
     }
   }
 
@@ -343,18 +358,21 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('删除这笔账单？'),
+        title: Text(tr(context, "删除这笔账单？")),
         content: Text(
-          '${entry.amount.yuan} · ${entry.localDate}\n删除后将重新计算统计。如来自周期待办，该期会改为已跳过，不会自动重新入账。',
+          tr(context, "{0} · {1}\n删除后将重新计算统计。如来自周期待办，该期会改为已跳过，不会自动重新入账。", [
+            entry.amount.yuan,
+            entry.localDate,
+          ]),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('取消'),
+            child: Text(tr(context, "取消")),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('删除'),
+            child: Text(tr(context, "删除")),
           ),
         ],
       ),
@@ -364,7 +382,9 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
       await ref.read(ledgerRepositoryProvider).deleteEntry(entry.id);
       if (context.mounted) Navigator.pop(context);
     } catch (error) {
-      if (context.mounted) _message(context, presentationError(error));
+      if (context.mounted) {
+        _message(context, tr(context, presentationError(error)));
+      }
     }
   }
 
@@ -379,11 +399,11 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           loading: () =>
               const Scaffold(body: Center(child: CircularProgressIndicator())),
           error: (error, _) => Scaffold(
-            appBar: AppBar(title: const Text('账本')),
+            appBar: AppBar(title: Text(tr(context, "账本"))),
             body: StatusPanel(
-              title: '无法读取账本',
-              message: presentationError(error),
-              actionLabel: '重试',
+              title: tr(context, "无法读取账本"),
+              message: tr(context, presentationError(error)),
+              actionLabel: tr(context, "重试"),
               onAction: () => ref.invalidate(monthDataProvider(month)),
             ),
           ),
@@ -501,14 +521,23 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
   Future<void> _preferences(
     BuildContext context, {
     ThemeMode? theme,
+    String? surfaceStyle,
+    String? locale,
     bool? feedback,
   }) async {
     try {
       await ref
           .read(ledgerRepositoryProvider)
-          .savePreferences(theme: theme?.name, feedback: feedback);
+          .savePreferences(
+            theme: theme?.name,
+            surfaceStyle: surfaceStyle,
+            locale: locale,
+            feedback: feedback,
+          );
     } catch (error) {
-      if (context.mounted) _message(context, presentationError(error));
+      if (context.mounted) {
+        _message(context, tr(context, presentationError(error)));
+      }
     }
   }
 
@@ -520,12 +549,12 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: Text('$title · 保存文件'),
+              title: Text(tr(context, "{0} · 保存文件", [title])),
               leading: const Icon(Icons.save_alt),
               onTap: () => Navigator.pop(sheet, false),
             ),
             ListTile(
-              title: Text('$title · 系统分享'),
+              title: Text(tr(context, "{0} · 系统分享", [title])),
               leading: const Icon(Icons.share_outlined),
               onTap: () => Navigator.pop(sheet, true),
             ),
@@ -542,7 +571,9 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     try {
       await action();
     } catch (error) {
-      if (context.mounted) _message(context, presentationError(error));
+      if (context.mounted) {
+        _message(context, tr(context, presentationError(error)));
+      }
     } finally {
       if (mounted) setState(() => _fileBusy = false);
     }
@@ -550,7 +581,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
 
   Future<void> _export(BuildContext context, LedgerMonthData data) =>
       _files(context, () async {
-        final share = await _fileAction(context, 'Markdown 月报');
+        final share = await _fileAction(context, tr(context, "Markdown 月报"));
         if (share == null) return;
         final clock = ref.read(clockProvider);
         final reports = DefaultMonthlyReportService(clock: clock);
@@ -566,16 +597,21 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
             ? await service.share(report)
             : await service.save(report);
         if (done && context.mounted) {
-          _message(context, share ? '已打开系统分享' : '月报已保存');
+          _message(
+            context,
+            share ? tr(context, "已打开系统分享") : tr(context, "月报已保存"),
+          );
         }
       });
 
   Future<void> _backup(BuildContext context) => _files(context, () async {
-    final share = await _fileAction(context, 'JSON 完整备份');
+    final share = await _fileAction(context, tr(context, "JSON 完整备份"));
     if (share == null) return;
     final service = ref.read(backupTransferProvider);
     final done = share ? await service.share() : await service.save();
-    if (done && context.mounted) _message(context, share ? '已打开系统分享' : '备份已保存');
+    if (done && context.mounted) {
+      _message(context, share ? tr(context, "已打开系统分享") : tr(context, "备份已保存"));
+    }
     if (done && !share) {
       await ref.read(planningPortProvider)?.recordSuccessfulExport();
       if (mounted) {
@@ -598,23 +634,37 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
             return await showDialog<bool>(
                   context: context,
                   builder: (dialog) => AlertDialog(
-                    title: const Text('恢复并替换现有账本？'),
+                    title: Text(tr(context, "恢复并替换现有账本？")),
                     content: Text(
-                      '备份包含 ${document.entries.length} 笔记录、'
-                      '${document.budgets.length} 个月预算、${document.categories.length} 个分类。\n\n'
-                      '将完整替换现有账本、目标、模板和偏好设置。旧版备份不含的新设置会恢复默认。恢复前会保留本地恢复点。'
-                      '${document.entries.isEmpty ? '\n此备份没有账单，恢复后账单将为空。' : ''}'
-                      '\n导出时间：${DateTime.fromMillisecondsSinceEpoch(document.exportedAtUtcMs)}\n来源格式 v${document.sourceFormatVersion} · ${document.plans.rules.length}条周期规则'
-                      '${document.sourceFormatVersion < 3 ? '\n旧备份不含周期计划/分类预算，确认替换后将为空。' : ''}',
+                      tr(
+                        context,
+                        "备份包含 {0} 笔记录、{1} 个月预算、{2} 个分类。\n\n将完整替换现有账本、目标、模板和偏好设置。旧版备份不含的新设置会恢复默认。恢复前会保留本地恢复点。{3}\n导出时间：{4}\n来源格式 v{5} · {6}条周期规则{7}",
+                        [
+                          document.entries.length,
+                          document.budgets.length,
+                          document.categories.length,
+                          document.entries.isEmpty
+                              ? tr(context, "\n此备份没有账单，恢复后账单将为空。")
+                              : '',
+                          DateTime.fromMillisecondsSinceEpoch(
+                            document.exportedAtUtcMs,
+                          ),
+                          document.sourceFormatVersion,
+                          document.plans.rules.length,
+                          document.sourceFormatVersion < 3
+                              ? tr(context, "\n旧备份不含周期计划/分类预算，确认替换后将为空。")
+                              : '',
+                        ],
+                      ),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialog, false),
-                        child: const Text('取消'),
+                        child: Text(tr(context, "取消")),
                       ),
                       FilledButton(
                         onPressed: () => Navigator.pop(dialog, true),
-                        child: const Text('确认替换'),
+                        child: Text(tr(context, "确认替换")),
                       ),
                     ],
                   ),
@@ -627,15 +677,17 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
       await showDialog<void>(
         context: context,
         builder: (dialog) => AlertDialog(
-          title: const Text('恢复完成'),
+          title: Text(tr(context, "恢复完成")),
           content: SelectableText(
-            '已恢复 ${result.entryCount} 笔账单。\n'
-            '恢复前的本地恢复点：\n${result.recoveryBackupId}',
+            tr(context, "已恢复 {0} 笔账单。\n恢复前的本地恢复点：\n{1}", [
+              result.entryCount,
+              result.recoveryBackupId,
+            ]),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialog),
-              child: const Text('完成'),
+              child: Text(tr(context, "完成")),
             ),
           ],
         ),
@@ -670,6 +722,8 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     );
     return PocketFlowApp(
       themeMode: themeMode,
+      language: current?.profile.locale ?? 'zh_Hans',
+      glass: current?.profile.surfaceStyle == 'glass',
       navigatorObservers: [_promptObserver],
       home: Builder(
         builder: (context) {
@@ -695,9 +749,9 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (error, _) => StatusPanel(
-                      title: '无法读取账单',
-                      message: presentationError(error),
-                      actionLabel: '重试',
+                      title: tr(context, "无法读取账单"),
+                      message: tr(context, presentationError(error)),
+                      actionLabel: tr(context, "重试"),
                       onAction: () => ref.invalidate(monthDataProvider(month)),
                     ),
                   ),
@@ -755,8 +809,17 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     onUpdates: () => _showUpdates(context),
                     updateVersion: _updates.update?.versionName,
                     themeMode: themeMode,
-                    onThemeChanged: (theme) =>
-                        _preferences(context, theme: theme),
+                    language: current?.profile.locale ?? 'zh_Hans',
+                    onLanguageChanged: (value) =>
+                        _preferences(context, locale: value),
+                    glass: current?.profile.surfaceStyle == 'glass',
+                    onGlassSelected: () =>
+                        _preferences(context, surfaceStyle: 'glass'),
+                    onThemeChanged: (theme) => _preferences(
+                      context,
+                      theme: theme,
+                      surfaceStyle: 'classic',
+                    ),
                     feedback: current?.profile.feedback ?? true,
                     onFeedbackChanged: (value) =>
                         _preferences(context, feedback: value),
@@ -952,18 +1015,33 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           final view = await showDialog<bool>(
             context: context,
             builder: (d) => AlertDialog(
-              title: const Text('上周收支回顾已准备好'),
+              title: Text(tr(context, "上周收支回顾已准备好")),
               content: Text(
-                '${range.$1} — ${range.$2}\n支出 ${report.expense.yuan} · 收入 ${report.income.yuan}\n${report.categories.isEmpty ? '暂无支出记录' : '最高支出分类：${report.categories.first.name} ${report.categories.first.amount.yuan}'}',
+                tr(context, "{0} — {1}\n支出 {2} · 收入 {3}\n{4}", [
+                  range.$1,
+                  range.$2,
+                  report.expense.yuan,
+                  report.income.yuan,
+                  report.categories.isEmpty
+                      ? tr(context, "暂无支出记录")
+                      : tr(context, "最高支出分类：{0} {1}", [
+                          localizedCategoryLabel(
+                            context,
+                            report.categories.first.categoryId,
+                            report.categories.first.name,
+                          ),
+                          report.categories.first.amount.yuan,
+                        ]),
+                ]),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(d, false),
-                  child: const Text('稍后再看'),
+                  child: Text(tr(context, "稍后再看")),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(d, true),
-                  child: const Text('查看周报'),
+                  child: Text(tr(context, "查看周报")),
                 ),
               ],
             ),
@@ -1026,19 +1104,25 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
         context: context,
         builder: (d) => StatefulBuilder(
           builder: (d, set) => AlertDialog(
-            title: const Text('预算进度提醒'),
+            title: Text(tr(context, "预算进度提醒")),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     kind == BudgetNoticeKind.zero
-                        ? '本月预算设为0，按已记录账目已支出 ${current.spent.yuan}。'
-                        : '按已记录账目，本月预算已用 ${current.spent.yuan}，还剩 ${current.remaining!.yuan}。最近使用得稍快，可以看看接下来的安排。',
+                        ? tr(context, "本月预算设为0，按已记录账目已支出 {0}。", [
+                            current.spent.yuan,
+                          ])
+                        : tr(
+                            context,
+                            "按已记录账目，本月预算已用 {0}，还剩 {1}。最近使用得稍快，可以看看接下来的安排。",
+                            [current.spent.yuan, current.remaining!.yuan],
+                          ),
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('本月不再提醒'),
+                    title: Text(tr(context, "本月不再提醒")),
                     value: mute,
                     onChanged: (v) => set(() => mute = v ?? false),
                   ),
@@ -1048,11 +1132,11 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(d, false),
-                child: const Text('知道了'),
+                child: Text(tr(context, "知道了")),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(d, true),
-                child: const Text('看看预算'),
+                child: Text(tr(context, "看看预算")),
               ),
             ],
           ),
@@ -1063,9 +1147,13 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
         await _categoryBudgets(context, fresh);
       }
     } catch (error) {
-      if (_promptReady) {
+      final promptContext = _promptContext;
+      if (mounted &&
+          promptContext != null &&
+          promptContext.mounted &&
+          _promptReady) {
         _sessionPromptUsed = true;
-        _message(_promptContext!, '暂时无法读取提醒或报告，可进入报告页重试。');
+        _message(promptContext, tr(promptContext, "暂时无法读取提醒或报告，可进入报告页重试。"));
       }
     } finally {
       _promptChecking = false;

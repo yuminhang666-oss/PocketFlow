@@ -14,7 +14,12 @@ abstract interface class LedgerRepository {
   Future<void> saveCategory(Category category);
   Future<void> reorderCategories(List<String> ids);
   Future<void> addRecommendedCategories();
-  Future<void> savePreferences({String? theme, bool? feedback});
+  Future<void> savePreferences({
+    String? theme,
+    String? surfaceStyle,
+    String? locale,
+    bool? feedback,
+  });
   Future<void> saveGoal(SavingsGoal goal);
   Future<void> deleteGoal(String id);
   Future<void> saveTemplate(EntryTemplate template);

@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
 import 'package:flutter/services.dart';
@@ -88,7 +89,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     if ((preferred ?? stored) != null &&
         !options.any((c) => c.id == (preferred ?? stored))) {
       _categoryId = null;
-      _error = '最近分类已归档或不可用，请重新选择分类';
+      _error = "最近分类已归档或不可用，请重新选择分类";
       return;
     }
     _categoryId =
@@ -126,7 +127,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     _defaultCategory(initial?.categoryId ?? t?.categoryId);
     if (t != null && !_available.any((c) => c.id == t.categoryId)) {
       _categoryId = null;
-      _error = '模板分类已归档或不可用，请重新选择分类';
+      _error = "模板分类已归档或不可用，请重新选择分类";
     }
     final recent = _kind == EntryKind.expense
         ? widget.profile?.lastExpenseCategoryId
@@ -136,7 +137,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
         recent != null &&
         !_available.any((c) => c.id == recent)) {
       _categoryId = null;
-      _error = '最近分类已归档或不可用，请重新选择分类';
+      _error = "最近分类已归档或不可用，请重新选择分类";
     }
     _markClean();
   }
@@ -146,7 +147,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     super.didUpdateWidget(oldWidget);
     if (_categoryId != null && !_available.any((c) => c.id == _categoryId)) {
       _categoryId = null;
-      _error = '原分类已不可用，请重新选择分类';
+      _error = tr(context, "原分类已不可用，请重新选择分类");
     } else if (oldWidget.categories.isEmpty &&
         _available.isNotEmpty &&
         widget.template == null) {
@@ -169,7 +170,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       _selectedByKind[_kind] = _categoryId;
       _kind = kind;
       _defaultCategory(_selectedByKind[kind]);
-      _error = _categoryId == null ? '请选择可用分类' : null;
+      _error = _categoryId == null ? tr(context, "请选择可用分类") : null;
     });
   }
 
@@ -180,9 +181,9 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       initialDate: _date.isAfter(today) ? today : _date,
       firstDate: DateTime(1900),
       lastDate: DateTime(today.year, today.month, today.day),
-      helpText: '选择发生日期',
-      cancelText: '取消',
-      confirmText: '确定',
+      helpText: tr(context, "选择发生日期"),
+      cancelText: tr(context, "取消"),
+      confirmText: tr(context, "确定"),
     );
     if (date != null && mounted) setState(() => _date = calendarDay(date));
   }
@@ -214,16 +215,16 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     final discard = await showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: const Text('放弃这笔记录？'),
-        content: const Text('尚未保存的金额和备注将不会保留。'),
+        title: Text(tr(context, "放弃这笔记录？")),
+        content: Text(tr(context, "尚未保存的金额和备注将不会保留。")),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('继续编辑'),
+            child: Text(tr(context, "继续编辑")),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('放弃'),
+            child: Text(tr(context, "放弃")),
           ),
         ],
       ),
@@ -234,12 +235,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
 
   EntryDraft _draft() {
     final amount = Money.parse(_amount.parseable);
-    if (amount.fen <= 0) throw const FormatException('请输入大于零的金额');
+    if (amount.fen <= 0) throw FormatException(tr(context, "请输入大于零的金额"));
     if (_categoryId == null || !_available.any((c) => c.id == _categoryId)) {
-      throw const FormatException('请选择可用分类');
+      throw FormatException(tr(context, "请选择可用分类"));
     }
     if (_date.isAfter(calendarDay(widget.clock.now()))) {
-      throw const FormatException('日期不能晚于今天');
+      throw FormatException(tr(context, "日期不能晚于今天"));
     }
     final occurred = DateTime(
       _date.year,
@@ -264,7 +265,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     try {
       final draft = _draft();
       if (_kind == EntryKind.income && widget.onSaveIncome == null) {
-        throw const FormatException('收入保存尚不可用');
+        throw FormatException(tr(context, "收入保存尚不可用"));
       }
       setState(() {
         _saving = true;
@@ -283,8 +284,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
           _note = '';
           _time = TimeOfDay.fromDateTime(widget.clock.now());
           _savedCount++;
-          _notice =
-              '已保存 $_savedCount 笔 · ${entry.amount.yuan} · ${widget.categories.where((c) => c.id == entry.categoryId).firstOrNull?.name ?? entry.categoryId} · ${entry.localDate}';
+          _notice = tr(context, "已保存 {0} 笔 · {1} · {2} · {3}", [
+            _savedCount,
+            entry.amount.yuan,
+            localizedCategoryById(context, entry.categoryId, widget.categories),
+            entry.localDate,
+          ]);
           _markClean();
         });
       } else {
@@ -301,7 +306,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = presentationError(e);
+          _error = tr(context, presentationError(e));
         });
       }
     }
@@ -314,20 +319,20 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       final chosen = await showCompletedDialog<String>(
         context: context,
         builder: (dialog) => AlertDialog(
-          title: const Text('保存为常用模板'),
+          title: Text(tr(context, "保存为常用模板")),
           content: TextField(
             controller: name,
             maxLength: 40,
-            decoration: const InputDecoration(hintText: '例如：食堂午餐'),
+            decoration: InputDecoration(hintText: tr(context, "例如：食堂午餐")),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialog),
-              child: const Text('取消'),
+              child: Text(tr(context, "取消")),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(dialog, name.text.trim()),
-              child: const Text('保存模板'),
+              child: Text(tr(context, "保存模板")),
             ),
           ],
         ),
@@ -345,13 +350,14 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
         ),
       );
       if (mounted) {
-        setState(() => _notice = '模板已保存');
+        setState(() => _notice = tr(context, "模板已保存"));
       }
     } catch (e) {
       if (mounted) {
         setState(
-          () =>
-              _error = e is FormatException ? e.message : presentationError(e),
+          () => _error = e is FormatException
+              ? e.message
+              : tr(context, presentationError(e)),
         );
       }
     }
@@ -367,7 +373,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             CalendarMonth.fromDate(_date) !=
                 CalendarMonth.fromDate(widget.clock.now()))
           Text(
-            '补记 ${CalendarMonth.fromDate(_date).key} · ${calendarDayKey(_date)}',
+            tr(context, "补记 {0} · {1}", [
+              CalendarMonth.fromDate(_date).key,
+              calendarDayKey(_date),
+            ]),
             style: Theme.of(context).textTheme.titleMedium,
           ),
         Row(
@@ -377,13 +386,18 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _kind == EntryKind.income ? '收入金额' : '支出金额',
+                    _kind == EntryKind.income
+                        ? tr(context, "收入金额")
+                        : tr(context, "支出金额"),
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                   Semantics(
                     liveRegion: true,
-                    label:
-                        '金额 ${_amount.value.isEmpty ? '未输入' : _amount.value} 元',
+                    label: tr(context, "金额 {0} 元", [
+                      _amount.value.isEmpty
+                          ? tr(context, "未输入")
+                          : _amount.value,
+                    ]),
                     excludeSemantics: true,
                     child: Text(
                       '¥ ${_amount.value.isEmpty ? '0.00' : _amount.value}',
@@ -397,7 +411,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             ),
             if (widget.onSaveTemplate != null)
               IconButton(
-                tooltip: '保存为模板',
+                tooltip: tr(context, "保存为模板"),
                 onPressed: _saving ? null : _saveTemplate,
                 icon: const Icon(Icons.bookmark_add_outlined),
               ),
@@ -408,11 +422,11 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('暂无可用分类'),
+              Text(tr(context, "暂无可用分类")),
               if (widget.onAddRecommended != null)
                 TextButton(
                   onPressed: _saving ? null : widget.onAddRecommended,
-                  child: const Text('补全推荐分类'),
+                  child: Text(tr(context, "补全推荐分类")),
                 ),
             ],
           )
@@ -437,14 +451,16 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               icon: const Icon(Icons.today_outlined, size: 18),
               label: Text(
                 calendarDayKey(_date) == calendarDayKey(widget.clock.now())
-                    ? '今天'
+                    ? tr(context, "今天")
                     : calendarDayKey(_date),
               ),
             ),
             TextButton.icon(
               onPressed: _saving ? null : _editNote,
               icon: const Icon(Icons.edit_note_outlined, size: 18),
-              label: Text(_note.isEmpty ? '备注（选填）' : '已填写备注'),
+              label: Text(
+                _note.isEmpty ? tr(context, "备注（选填）") : tr(context, "已填写备注"),
+              ),
             ),
           ],
         ),
@@ -458,7 +474,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
         if (_error != null)
           Semantics(
             liveRegion: true,
-            child: Text(_error!, style: TextStyle(color: scheme.error)),
+            child: Text(
+              tr(context, _error!),
+              style: TextStyle(color: scheme.error),
+            ),
           ),
         if (_notice != null)
           Semantics(
@@ -485,7 +504,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(48, 50),
                   ),
-                  child: const Text('保存并继续'),
+                  child: Text(tr(context, "保存并继续")),
                 ),
               ),
               const SizedBox(width: 8),
@@ -498,12 +517,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                     : () => _save(),
                 child: Text(
                   _saving
-                      ? '保存中…'
+                      ? tr(context, "保存中…")
                       : widget.initialEntry != null
-                      ? '保存修改'
+                      ? tr(context, "保存修改")
                       : _kind == EntryKind.income
-                      ? '保存收入'
-                      : '保存支出',
+                      ? tr(context, "保存收入")
+                      : tr(context, "保存支出"),
                 ),
               ),
             ),
@@ -519,17 +538,27 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            tooltip: '返回',
+            tooltip: tr(context, "返回"),
             onPressed: _saving ? null : _leave,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
           title: widget.initialEntry != null
-              ? Text(_kind == EntryKind.income ? '编辑收入' : '编辑账单')
+              ? Text(
+                  _kind == EntryKind.income
+                      ? tr(context, "编辑收入")
+                      : tr(context, "编辑账单"),
+                )
               : SegmentedButton<EntryKind>(
                   showSelectedIcon: false,
-                  segments: const [
-                    ButtonSegment(value: EntryKind.expense, label: Text('支出')),
-                    ButtonSegment(value: EntryKind.income, label: Text('收入')),
+                  segments: [
+                    ButtonSegment(
+                      value: EntryKind.expense,
+                      label: Text(tr(context, "支出")),
+                    ),
+                    ButtonSegment(
+                      value: EntryKind.income,
+                      label: Text(tr(context, "收入")),
+                    ),
                   ],
                   selected: {_kind},
                   onSelectionChanged: _saving ? null : (v) => _switch(v.first),

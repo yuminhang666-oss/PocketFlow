@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contracts/contracts.dart';
@@ -53,10 +54,12 @@ class HomePage extends StatelessWidget {
     Widget body;
     if (content == null) {
       body = StatusPanel(
-        title: state.hasError ? '暂时无法读取账本' : '正在读取账本',
-        message: state.hasError ? presentationError(state.error!) : null,
+        title: state.hasError ? tr(context, "暂时无法读取账本") : tr(context, "正在读取账本"),
+        message: state.hasError
+            ? tr(context, presentationError(state.error!))
+            : null,
         loading: !state.hasError,
-        actionLabel: '重试',
+        actionLabel: tr(context, "重试"),
         onAction: onRefresh == null
             ? null
             : () {
@@ -64,7 +67,7 @@ class HomePage extends StatelessWidget {
               },
       );
     } else if (content.$1.month != month || content.$2.month != month) {
-      body = const StatusPanel(title: '月份数据正在更新', loading: true);
+      body = StatusPanel(title: tr(context, "月份数据正在更新"), loading: true);
     } else {
       final data = content.$1, snapshot = content.$2;
       final todayExpense =
@@ -95,18 +98,21 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (state.hasError)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 12),
-              child: Text('更新失败，当前显示上次结果'),
+              child: Text(tr(context, "更新失败，当前显示上次结果")),
             ),
           DailyAllowancePanel(snapshot: snapshot, onSetBudget: onSetBudget),
           const SizedBox(height: 12),
           if (snapshot.period != MonthPeriod.future)
             MetricGrid(
               values: [
-                ('本月支出', snapshot.spent),
-                ('本月收入', report?.totalIncome ?? const Money.fromFen(0)),
-                ('今日支出', todayExpense),
+                (tr(context, "本月支出"), snapshot.spent),
+                (
+                  tr(context, "本月收入"),
+                  report?.totalIncome ?? const Money.fromFen(0),
+                ),
+                (tr(context, "今日支出"), todayExpense),
               ],
             ),
           const SizedBox(height: 12),
@@ -118,31 +124,46 @@ class HomePage extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onReports,
                   icon: const Icon(Icons.summarize_outlined),
-                  label: const Text('周报与月报'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "周报与月报")),
                 ),
               if (onPlans != null)
                 TextButton.icon(
                   onPressed: onPlans,
                   icon: const Icon(Icons.event_repeat_outlined),
-                  label: const Text('未来7天待办'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "未来7天待办")),
                 ),
               if (onCalendar != null)
                 TextButton.icon(
                   onPressed: onCalendar,
                   icon: const Icon(Icons.calendar_month_outlined),
-                  label: const Text('记账日历'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "记账日历")),
                 ),
               if (onGoals != null)
                 TextButton.icon(
                   onPressed: onGoals,
                   icon: const Icon(Icons.savings_outlined),
-                  label: const Text('我的小目标'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "我的小目标")),
                 ),
             ],
           ),
           if (data.profile.templates.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('常用模板', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              tr(context, "常用模板"),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             Wrap(
               spacing: 8,
               children: [
@@ -163,19 +184,22 @@ class HomePage extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '最近记录',
+                  tr(context, "最近记录"),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               if (onOpenLedger != null)
-                TextButton(onPressed: onOpenLedger, child: const Text('查看全部')),
+                TextButton(
+                  onPressed: onOpenLedger,
+                  child: Text(tr(context, "查看全部")),
+                ),
             ],
           ),
           if (entries.isEmpty)
             StatusPanel(
-              title: '还没有消费记录',
-              message: '从一笔支出或收入开始',
-              actionLabel: '记第一笔',
+              title: tr(context, "还没有消费记录"),
+              message: tr(context, "从一笔支出或收入开始"),
+              actionLabel: tr(context, "记第一笔"),
               onAction: onAddExpense,
             )
           else ...[
@@ -192,12 +216,15 @@ class HomePage extends StatelessWidget {
                       children: [
                         Text(
                           entries[i].localDate == todayKey
-                              ? '今天'
+                              ? tr(context, "今天")
                               : entries[i].localDate,
                           style: Theme.of(context).textTheme.titleSmall,
                         ),
                         Text(
-                          '支出 ${totals[entries[i].localDate]!.expense.yuan} · 收入 ${totals[entries[i].localDate]!.income.yuan}',
+                          tr(context, "支出 {0} · 收入 {1}", [
+                            totals[entries[i].localDate]!.expense.yuan,
+                            totals[entries[i].localDate]!.income.yuan,
+                          ]),
                         ),
                         if (totals[entries[i].localDate]!.count >
                             entries
@@ -206,7 +233,14 @@ class HomePage extends StatelessWidget {
                                 )
                                 .length)
                           Text(
-                            '当日共 ${totals[entries[i].localDate]!.count} 笔，已展示 ${entries.where((e) => e.localDate == entries[i].localDate).length} 笔 · 查看当日账单',
+                            tr(context, "当日共 {0} 笔，已展示 {1} 笔 · 查看当日账单", [
+                              totals[entries[i].localDate]!.count,
+                              entries
+                                  .where(
+                                    (e) => e.localDate == entries[i].localDate,
+                                  )
+                                  .length,
+                            ]),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                       ],
@@ -257,12 +291,12 @@ class HomePage extends StatelessWidget {
                           goal.saved,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        Text('/ 目标 ${goal.target.yuan}'),
+                        Text(tr(context, "/ 目标 {0}", [goal.target.yuan])),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '独立登记进度，不扣减生活费预算',
+                      tr(context, "独立登记进度，不扣减生活费预算"),
                       style: TextStyle(
                         fontSize: 12,
                         color: scheme.onSurfaceVariant,
@@ -276,7 +310,10 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 14),
           if (report != null)
             Text(
-              '本月已记录 ${report!.entries.map((e) => e.localDate).toSet().length} 天 · ${report!.entries.length} 笔',
+              tr(context, "本月已记录 {0} 天 · {1} 笔", [
+                report!.entries.map((e) => e.localDate).toSet().length,
+                report!.entries.length,
+              ]),
               style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
             ),
         ],
@@ -299,9 +336,11 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('PocketFlow'),
         actions: [
-          TextButton(
+          TextButton.icon(
             onPressed: onChooseMonth,
-            child: Text('${month.year}年${month.month}月 ▾'),
+            label: Text(tr(context, "{0}年{1}月", [month.year, month.month])),
+            icon: const Icon(Icons.arrow_drop_down, size: 18),
+            iconAlignment: IconAlignment.end,
           ),
         ],
       ),

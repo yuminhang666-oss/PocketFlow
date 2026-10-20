@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/calendar_month.dart';
@@ -31,19 +32,19 @@ class _MonthPickerState extends State<_MonthPicker> {
           Row(
             children: [
               IconButton(
-                tooltip: '上一年',
+                tooltip: tr(context, "上一年"),
                 onPressed: _year <= 1900 ? null : () => setState(() => _year--),
                 icon: const Icon(Icons.chevron_left_rounded),
               ),
               Expanded(
                 child: Text(
-                  '$_year年',
+                  tr(context, "{0}年", [_year]),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               IconButton(
-                tooltip: '下一年',
+                tooltip: tr(context, "下一年"),
                 onPressed: _year >= 9999 ? null : () => setState(() => _year++),
                 icon: const Icon(Icons.chevron_right_rounded),
               ),
@@ -81,7 +82,7 @@ class _MonthPickerState extends State<_MonthPicker> {
                               context,
                               CalendarMonth(_year, month),
                             ),
-                            child: Text('$month月'),
+                            child: Text(tr(context, "{0}月", [month])),
                           ),
                         ),
                     ],

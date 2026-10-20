@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../domain/release_history.dart';
@@ -9,7 +10,7 @@ class AboutPocketFlowPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('关于 PocketFlow')),
+    appBar: AppBar(title: Text(tr(context, "关于 PocketFlow"))),
     body: SafeArea(
       top: false,
       child: ListView(
@@ -35,20 +36,22 @@ class AboutPocketFlowPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '$installedVersion · 个人测试版',
+                    tr(context, "{0} · 个人测试版", [installedVersion]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    '离线管理生活费，记录日常收支，安排预算，回顾每一笔花费。\n'
-                    'Markdown用于分析，JSON用于完整备份。',
+                  Text(
+                    tr(
+                      context,
+                      "离线管理生活费，记录日常收支，安排预算，回顾每一笔花费。\nMarkdown用于分析，JSON用于完整备份。",
+                    ),
                   ),
                   const SizedBox(height: 24),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.history_rounded),
-                    title: const Text('更新记录'),
-                    subtitle: const Text('查看各版本新增功能与问题修复'),
+                    title: Text(tr(context, "更新记录")),
+                    subtitle: Text(tr(context, "查看各版本新增功能与问题修复")),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => Navigator.of(context).push<void>(
                       MaterialPageRoute(
@@ -62,7 +65,7 @@ class AboutPocketFlowPage extends StatelessWidget {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.description_outlined),
-                    title: const Text('开源许可'),
+                    title: Text(tr(context, "开源许可")),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => showLicensePage(
                       context: context,
@@ -87,7 +90,7 @@ class ReleaseHistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('更新记录')),
+    appBar: AppBar(title: Text(tr(context, "更新记录"))),
     body: SafeArea(
       top: false,
       child: ListView(
@@ -99,7 +102,7 @@ class ReleaseHistoryPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('按版本查看新增功能与问题修复，离线可用。'),
+                  Text(tr(context, "按版本查看新增功能与问题修复，离线可用。")),
                   const SizedBox(height: 16),
                   for (final release in pocketFlowVersionHistory)
                     Card(
@@ -119,7 +122,7 @@ class ReleaseHistoryPage extends StatelessWidget {
                             ),
                             if (release.version == installedVersion)
                               Text(
-                                '当前版本',
+                                tr(context, "当前版本"),
                                 style: Theme.of(context).textTheme.labelMedium
                                     ?.copyWith(
                                       color: Theme.of(
@@ -131,8 +134,8 @@ class ReleaseHistoryPage extends StatelessWidget {
                         ),
                         subtitle: Text(
                           release.publishedOn == null
-                              ? release.title
-                              : '${release.publishedOn} · ${release.title}',
+                              ? tr(context, release.title)
+                              : '${release.publishedOn} · ${tr(context, release.title)}',
                         ),
                         expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -141,9 +144,21 @@ class ReleaseHistoryPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _changes(context, '新增功能', release.additions),
-                                _changes(context, '问题修复', release.fixes),
-                                _changes(context, '说明', release.notes),
+                                _changes(
+                                  context,
+                                  tr(context, "新增功能"),
+                                  release.additions,
+                                ),
+                                _changes(
+                                  context,
+                                  tr(context, "问题修复"),
+                                  release.fixes,
+                                ),
+                                _changes(
+                                  context,
+                                  tr(context, "说明"),
+                                  release.notes,
+                                ),
                               ],
                             ),
                           ),
@@ -171,7 +186,7 @@ class ReleaseHistoryPage extends StatelessWidget {
           for (final item in items)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text('• $item'),
+              child: Text('• ${tr(context, item)}'),
             ),
         ],
       ),

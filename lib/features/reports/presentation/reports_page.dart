@@ -1,6 +1,6 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../contracts/contracts.dart';
-import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import '../domain/range_report_service.dart';
 import '../../home/presentation/widgets/month_picker.dart';
@@ -52,7 +52,7 @@ class _ReportsPageState extends State<ReportsPage> {
           )
         : start;
     return Scaffold(
-      appBar: AppBar(title: const Text('周报与月报')),
+      appBar: AppBar(title: Text(tr(context, "周报与月报"))),
       body: Column(
         children: [
           SizedBox(
@@ -70,7 +70,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     if (month == null || !context.mounted) return;
                     if (month.compareTo(CalendarMonth.fromDate(now)) >= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('请选择已结束的自然月')),
+                        SnackBar(content: Text(tr(context, "请选择已结束的自然月"))),
                       );
                       return;
                     }
@@ -81,7 +81,9 @@ class _ReportsPageState extends State<ReportsPage> {
                               DateTime.utc(now.year, now.month - 1),
                             )) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('上月完整月报将于今天08:00后提供')),
+                        SnackBar(
+                          content: Text(tr(context, "上月完整月报将于今天08:00后提供")),
+                        ),
                       );
                       return;
                     }
@@ -92,7 +94,7 @@ class _ReportsPageState extends State<ReportsPage> {
                       ),
                     );
                   },
-                  child: const Text('选择历史月报'),
+                  child: Text(tr(context, "选择历史月报")),
                 ),
                 TextButton(
                   onPressed: () => select(
@@ -100,7 +102,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     calendarDayKey(now),
                     toDate: true,
                   ),
-                  child: const Text('本周至今'),
+                  child: Text(tr(context, "本周至今")),
                 ),
                 for (var i = 1; i <= 5; i++)
                   Builder(
@@ -115,7 +117,12 @@ class _ReportsPageState extends State<ReportsPage> {
                         onPressed: () =>
                             select(calendarDayKey(a), calendarDayKey(b)),
                         child: Text(
-                          '${a.month}/${a.day}—${b.month}/${b.day}周报',
+                          tr(context, "{0}/{1}—{2}/{3}周报", [
+                            a.month,
+                            a.day,
+                            b.month,
+                            b.day,
+                          ]),
                         ),
                       );
                     },
@@ -136,7 +143,7 @@ class _ReportsPageState extends State<ReportsPage> {
                             DateTime.utc(month.year, month.month, month.days),
                           ),
                         ),
-                        child: Text('${month.key}月报'),
+                        child: Text(tr(context, "{0}月报", [month.key])),
                       );
                     },
                   ),
@@ -153,10 +160,10 @@ class _ReportsPageState extends State<ReportsPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(presentationError(s.error!)),
+                        Text(tr(context, presentationError(s.error!))),
                         TextButton(
                           onPressed: () => setState(() => refresh++),
-                          child: const Text('重试'),
+                          child: Text(tr(context, "重试")),
                         ),
                       ],
                     ),
@@ -217,29 +224,40 @@ class _ReportsPageState extends State<ReportsPage> {
                       '$start — $end',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    Text('按已记录账目 · ${data.entries.length}笔'),
+                    Text(tr(context, "按已记录账目 · {0}笔", [data.entries.length])),
                     Text(
-                      '支出 ${report.expense.yuan} · 收入 ${report.income.yuan}',
+                      tr(context, "支出 {0} · 收入 {1}", [
+                        report.expense.yuan,
+                        report.income.yuan,
+                      ]),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Text('净收支 ${report.net.yuan}（收入减支出）'),
+                    Text(tr(context, "净收支 {0}（收入减支出）", [report.net.yuan])),
                     if (data.entries.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Text('此期间暂无记录；没有记录不代表实际没有消费。'),
+                        child: Text(tr(context, "此期间暂无记录；没有记录不代表实际没有消费。")),
                       ),
                     if (data.entries.isNotEmpty && report.expense.fen == 0)
-                      Text('本期记录收入 ${report.income.yuan}，暂无支出记录'),
+                      Text(
+                        tr(context, "本期记录收入 {0}，暂无支出记录", [report.income.yuan]),
+                      ),
                     if (previous != null)
                       Text(
                         previous.expense.fen == 0 ||
                                 previous.data.entries.isEmpty
-                            ? '上周同期暂无可比较支出，不计算变化率'
-                            : '相比上周同等${now.weekday}天，支出变化 ${((report.expense.fen - previous.expense.fen) / previous.expense.fen * 100).toStringAsFixed(1)}%',
+                            ? tr(context, "上周同期暂无可比较支出，不计算变化率")
+                            : tr(context, "相比上周同等{0}天，支出变化 {1}%", [
+                                now.weekday,
+                                ((report.expense.fen - previous.expense.fen) /
+                                        previous.expense.fen *
+                                        100)
+                                    .toStringAsFixed(1),
+                              ]),
                       ),
                     const Divider(),
                     Text(
-                      '每日收支',
+                      tr(context, "每日收支"),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     for (final d in report.daily)
@@ -252,15 +270,15 @@ class _ReportsPageState extends State<ReportsPage> {
                             Text(
                               d.count == 0
                                   ? (data.zeroExpenseDays.contains(d.localDate)
-                                        ? '已确认零支出'
-                                        : '暂无记录')
-                                  : '${d.count}笔',
+                                        ? tr(context, "已确认零支出")
+                                        : tr(context, "暂无记录"))
+                                  : tr(context, "{0}笔", [d.count]),
                             ),
                             Wrap(
                               spacing: 16,
                               children: [
-                                Text('支出 ${d.expense.yuan}'),
-                                Text('收入 ${d.income.yuan}'),
+                                Text(tr(context, "支出 {0}", [d.expense.yuan])),
+                                Text(tr(context, "收入 {0}", [d.income.yuan])),
                               ],
                             ),
                           ],
@@ -268,7 +286,7 @@ class _ReportsPageState extends State<ReportsPage> {
                       ),
                     const Divider(),
                     Text(
-                      '支出根分类',
+                      tr(context, "支出根分类"),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     for (final c in report.categories)
@@ -277,37 +295,57 @@ class _ReportsPageState extends State<ReportsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(c.name),
                             Text(
-                              '占比 ${report.expense.fen == 0 ? '暂无' : '${(c.amount.fen / report.expense.fen * 100).toStringAsFixed(1)}%'}',
+                              localizedCategoryLabel(
+                                context,
+                                c.categoryId,
+                                c.name,
+                              ),
+                            ),
+                            Text(
+                              tr(context, "占比 {0}", [
+                                report.expense.fen == 0
+                                    ? tr(context, "暂无")
+                                    : '${(c.amount.fen / report.expense.fen * 100).toStringAsFixed(1)}%',
+                              ]),
                             ),
                             Text(c.amount.yuan),
                           ],
                         ),
                       ),
                     if (report.categoryTieCount > 1)
-                      Text('消费最高分类并列共 ${report.categoryTieCount} 类'),
+                      Text(
+                        tr(context, "消费最高分类并列共 {0} 类", [
+                          report.categoryTieCount,
+                        ]),
+                      ),
                     const Divider(),
                     Text(
-                      '最大一笔支出',
+                      tr(context, "最大一笔支出"),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (largest == null)
-                      const Text('暂无支出记录')
+                      Text(tr(context, "暂无支出记录"))
                     else ...[
                       Text(
-                        '${largest.amount.yuan} · ${largest.localDate} · ${category == null ? largest.categoryId : categoryPath(category, full.categories)}',
+                        '${largest.amount.yuan} · ${largest.localDate} · ${category == null ? largest.categoryId : localizedCategoryPath(context, category, full.categories)}',
                       ),
                       if (largest.note.isNotEmpty) Text(largest.note),
                       if (report.largestTieCount > 1)
-                        Text('并列最高共 ${report.largestTieCount} 笔'),
+                        Text(
+                          tr(context, "并列最高共 {0} 笔", [report.largestTieCount]),
+                        ),
                     ],
                     const SizedBox(height: 16),
                     Text(
-                      '按当前账目更新于 ${DateTime.fromMillisecondsSinceEpoch(report.updatedAtUtcMs)}',
+                      tr(context, "按当前账目更新于 {0}", [
+                        DateTime.fromMillisecondsSinceEpoch(
+                          report.updatedAtUtcMs,
+                        ),
+                      ]),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const Text('周报按结束日后30个自然日展示。更早记录可从自然月月报重算；账单不会被删除。'),
+                    Text(tr(context, "周报按结束日后30个自然日展示。更早记录可从自然月月报重算；账单不会被删除。")),
                   ],
                 );
               },
