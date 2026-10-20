@@ -22,6 +22,8 @@ class QuickEntryPage extends StatefulWidget {
     this.template,
     this.profile,
     this.initialKind = EntryKind.expense,
+    this.initialDate,
+    this.onUndo,
   });
   final List<Category> categories;
   final Future<LedgerEntry> Function(EntryDraft) onSave;
@@ -33,6 +35,8 @@ class QuickEntryPage extends StatefulWidget {
   final EntryTemplate? template;
   final PersonalProfile? profile;
   final EntryKind initialKind;
+  final String? initialDate;
+  final Future<void> Function(LedgerEntry)? onUndo;
   @override
   State<QuickEntryPage> createState() => _QuickEntryPageState();
 }
@@ -51,6 +55,8 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   String? _cleanCategory;
   late DateTime _cleanDate;
   LedgerEntry? _lastSaved;
+  final _selectedByKind = <EntryKind, String?>{};
+  int _savedCount = 0;
 
   List<Category> get _available => widget.categories
       .where(
@@ -79,6 +85,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
         ? widget.profile?.lastExpenseCategoryId
         : widget.profile?.lastIncomeCategoryId;
     final options = _available;
+    if ((preferred ?? stored) != null &&
+        !options.any((c) => c.id == (preferred ?? stored))) {
+      _categoryId = null;
+      _error = '最近分类已归档或不可用，请重新选择分类';
+      return;
+    }
     _categoryId =
         options.where((c) => c.id == (preferred ?? stored)).firstOrNull?.id ??
         options
@@ -101,7 +113,11 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     _kind = initial?.kind ?? t?.kind ?? widget.initialKind;
     _amount.value = initial?.amount.decimal ?? t?.amount.decimal ?? '';
     _note = initial?.note ?? t?.note ?? '';
-    _date = initial?.date ?? calendarDay(now);
+    _date =
+        initial?.date ??
+        (widget.initialDate == null
+            ? calendarDay(now)
+            : parseCalendarDay(widget.initialDate!));
     _time = TimeOfDay.fromDateTime(
       initial == null
           ? now
@@ -111,6 +127,16 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     if (t != null && !_available.any((c) => c.id == t.categoryId)) {
       _categoryId = null;
       _error = '模板分类已归档或不可用，请重新选择分类';
+    }
+    final recent = _kind == EntryKind.expense
+        ? widget.profile?.lastExpenseCategoryId
+        : widget.profile?.lastIncomeCategoryId;
+    if (initial == null &&
+        t == null &&
+        recent != null &&
+        !_available.any((c) => c.id == recent)) {
+      _categoryId = null;
+      _error = '最近分类已归档或不可用，请重新选择分类';
     }
     _markClean();
   }
@@ -140,9 +166,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   void _switch(EntryKind kind) {
     if (_saving || widget.initialEntry != null) return;
     setState(() {
+      _selectedByKind[_kind] = _categoryId;
       _kind = kind;
-      _defaultCategory();
-      _error = null;
+      _defaultCategory(_selectedByKind[kind]);
+      _error = _categoryId == null ? '请选择可用分类' : null;
     });
   }
 
@@ -254,9 +281,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
           _saving = false;
           _amount.value = '';
           _note = '';
-          _date = calendarDay(widget.clock.now());
           _time = TimeOfDay.fromDateTime(widget.clock.now());
-          _notice = '已保存，可以继续记下一笔';
+          _savedCount++;
+          _notice =
+              '已保存 $_savedCount 笔 · ${entry.amount.yuan} · ${widget.categories.where((c) => c.id == entry.categoryId).firstOrNull?.name ?? entry.categoryId} · ${entry.localDate}';
           _markClean();
         });
       } else {
@@ -335,9 +363,38 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     final fields = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.initialEntry == null &&
+            CalendarMonth.fromDate(_date) !=
+                CalendarMonth.fromDate(widget.clock.now()))
+          Text(
+            '补记 ${CalendarMonth.fromDate(_date).key} · ${calendarDayKey(_date)}',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         Row(
           children: [
-            Expanded(child: Text(_kind == EntryKind.income ? '收入金额' : '支出金额')),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _kind == EntryKind.income ? '收入金额' : '支出金额',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                  Semantics(
+                    liveRegion: true,
+                    label:
+                        '金额 ${_amount.value.isEmpty ? '未输入' : _amount.value} 元',
+                    excludeSemantics: true,
+                    child: Text(
+                      '¥ ${_amount.value.isEmpty ? '0.00' : _amount.value}',
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(color: scheme.primary, fontSize: 36),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             if (widget.onSaveTemplate != null)
               IconButton(
                 tooltip: '保存为模板',
@@ -346,19 +403,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               ),
           ],
         ),
-        Semantics(
-          liveRegion: true,
-          label: '金额 ${_amount.value.isEmpty ? '未输入' : _amount.value} 元',
-          excludeSemantics: true,
-          child: Text(
-            '¥ ${_amount.value.isEmpty ? '0.00' : _amount.value}',
-            softWrap: true,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge?.copyWith(color: scheme.primary),
-          ),
-        ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 6),
         if (_available.isEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

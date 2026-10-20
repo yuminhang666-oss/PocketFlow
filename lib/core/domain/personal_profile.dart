@@ -124,14 +124,20 @@ final class PersonalProfile {
     bool? feedback,
     String? lastExpenseCategoryId,
     String? lastIncomeCategoryId,
+    bool clearExpenseCategory = false,
+    bool clearIncomeCategory = false,
     Iterable<SavingsGoal>? goals,
     Iterable<EntryTemplate>? templates,
     Iterable<String>? zeroExpenseDays,
   }) => PersonalProfile(
     theme: theme ?? this.theme,
     feedback: feedback ?? this.feedback,
-    lastExpenseCategoryId: lastExpenseCategoryId ?? this.lastExpenseCategoryId,
-    lastIncomeCategoryId: lastIncomeCategoryId ?? this.lastIncomeCategoryId,
+    lastExpenseCategoryId: clearExpenseCategory
+        ? null
+        : lastExpenseCategoryId ?? this.lastExpenseCategoryId,
+    lastIncomeCategoryId: clearIncomeCategory
+        ? null
+        : lastIncomeCategoryId ?? this.lastIncomeCategoryId,
     goals: goals ?? this.goals,
     templates: templates ?? this.templates,
     zeroExpenseDays: zeroExpenseDays ?? this.zeroExpenseDays,

@@ -21,6 +21,8 @@ exports/
 android/key.properties
 .env
 .env.*
+!server/feedback/.env.example
+deliverables/
 
 # Editors
 .idea/

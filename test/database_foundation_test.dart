@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocketflow/core/database/app_database.dart';
-import 'package:pocketflow/core/domain/category_catalog.dart';
+import 'package:pocketflow/core/domain/catalog_upgrade.dart';
 
 Future<void> insertExpense(
   AppDatabase db,
@@ -34,19 +34,19 @@ void main() {
         final categories = await db.select(db.categories).get();
         expect(
           categories.map((c) => c.id).toSet(),
-          recommendedCategories().map((c) => c.id).toSet(),
+          generalRecommendedCategories().map((c) => c.id).toSet(),
         );
         expect(
           categories.where(
             (c) => c.parentId == null && c.categoryKind == 'expense',
           ),
-          hasLength(16),
+          hasLength(15),
         );
         expect(
           categories.where(
             (c) => c.parentId == null && c.categoryKind == 'income',
           ),
-          hasLength(8),
+          hasLength(7),
         );
         final foreignKeys = await db
             .customSelect('PRAGMA foreign_keys')
@@ -123,7 +123,7 @@ void main() {
           expect(entries.single.amountFen, 12345);
           expect(
             await second.select(second.categories).get(),
-            hasLength(recommendedCategories().length),
+            hasLength(generalRecommendedCategories().length),
           );
         } finally {
           await second.close();

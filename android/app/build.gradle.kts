@@ -40,7 +40,12 @@ android {
     }
     buildTypes {
         release {
-            // Release signing must be configured explicitly before release delivery.
+            // Personal-test upgrade identity, explicitly distinct from production signing.
+            if (existingTestKeystore != null) {
+                signingConfig = signingConfigs.getByName("debug")
+            }
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }

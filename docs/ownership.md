@@ -24,6 +24,14 @@ A/B/C 不直接改 test/；在模块交付说明列测试场景，D 按公共合
 
 ## 检查与执行力度
 
+2026-10-20用户将反馈改为邮箱，按ADR0009增加 core/domain 的邮件正文构造、FeedbackMailPort、feedback/data/android_feedback_mail_port.dart及Android FeedbackMailBridge。归属分别为主控、C与D，主控统一接线。原server/feedback/仅保留历史备选，不再是本版部署目标。
+
+### 0.3.0 新增路径（主控本地合同候选）
+
+基线 main b4f7aa6edea3bcc90d563015252c4e1fcd900649，主控独立 codex/v030-control-implementation。本轮由主控统一实现跨模块集成，不启动其他执行对话。新增 lib/core/domain/planning_models.dart、range_models.dart、feedback_models.dart 和 lib/contracts/planning_ports.dart 由主控唯一维护。lib/features/planning/data/、reminders/domain/ 与恢复点实现归B；reports/ 和 feedback/data/ 归C；planning/presentation/、feedback/presentation/、reports/presentation/ 归A（报表内容C与主控接线）；server/feedback/ 源码与部署合同由主控负责，server/feedback/*.test.mjs 和 test/、tools/ 由D负责。只有主控可跨上述范围整合；A–D 仍须原有独立分支/PR，不得据此任意跨模块改动。
+
+新目录不授予部署、创建私有库/App、安装依赖或公开发布权限。优先复用 Dart/Node 标准库与既有 Flutter 依赖。
+
 ### 0.3 S0 主控审查候选（2026-10-19）
 
 主控独立分支可使用 `codex/v030-s0-*`、`codex/v030-control-*`、`codex/v030-contract-*`，权限等同上表主控的审查集成范围。其他 `codex/v030-*` 分支不会自动获得全仓权限；A–D 仍使用已记录的模块前缀与路径。S0 仅收口既有 0.2/0.2.1、数据完整性、文档与验证，不把未合并 head 当作 main，不提前冻结 0.3 公共接口。

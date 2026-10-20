@@ -35,8 +35,8 @@ class BudgetService {
     return watch.stream;
   }
 
-  /// Call on app foregrounding or system clock/timezone change. Midnight is
-  /// handled internally; no database write is needed to refresh the denominator.
+  /// The composition's single date source calls this on midnight/foreground.
+  /// This service never creates a second autonomous calendar timer.
   void refreshDate() {
     if (!_disposed) _refreshes.add(null);
   }
@@ -77,7 +77,6 @@ class _BudgetWatch {
   CalendarMonth? _month;
   LedgerMonthData? _data;
   DateTime? _today;
-  Timer? _midnight;
   bool _closed = false;
   int _generation = 0;
   Future<void>? _closing;
@@ -98,11 +97,6 @@ class _BudgetWatch {
       // Validate the injected clock even while a fixed historical month is open.
       CalendarMonth.fromDate(now);
       _today = now;
-      _midnight?.cancel();
-      final next = now.isUtc
-          ? DateTime.utc(now.year, now.month, now.day + 1)
-          : DateTime(now.year, now.month, now.day + 1);
-      _midnight = Timer(next.difference(now), _refreshDate);
       if (_month != month || _data == null) {
         _month = month;
         _data = null;
@@ -186,7 +180,6 @@ class _BudgetWatch {
   Future<void> _close() async {
     _closed = true;
     ++_generation;
-    _midnight?.cancel();
     onClosed();
     try {
       await Future.wait([

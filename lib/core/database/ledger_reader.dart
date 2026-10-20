@@ -5,6 +5,8 @@ import '../../contracts/contracts.dart';
 import 'app_database.dart' show AppDatabase;
 import 'ledger_validation.dart';
 import '../domain/category_catalog.dart';
+import 'planning_storage.dart';
+import '../../features/transactions/data/entry_id.dart';
 
 /// One SELECT means one SQLite read snapshot, including the empty-month case.
 /// Filter comments are replaced only by constant clauses below, never by input.
@@ -33,6 +35,45 @@ class LedgerReader {
   LedgerReader(this.database);
   final AppDatabase database;
 
+  Selectable<QueryRow> _rangeQuery(String start, String end) {
+    parseCalendarDay(start);
+    parseCalendarDay(end);
+    if (start.compareTo(end) > 0) {
+      throw const PocketFlowException(PocketFlowErrorCode.invalidDate);
+    }
+    return database.customSelect(
+      ledgerSnapshotQuery
+          .replaceAll('/* BUDGET_FILTER */', 'WHERE 0')
+          .replaceAll(
+            '/* ENTRY_FILTER */',
+            'WHERE occurred_local >= ? AND occurred_local <= ?',
+          ),
+      variables: [Variable.withString(start), Variable.withString(end)],
+      readsFrom: {
+        database.categories,
+        database.ledgerEntries,
+        database.personalState,
+      },
+    );
+  }
+
+  Future<LedgerRangeData> readRange(String start, String end) =>
+      database.transaction(() async {
+        final data = _decode(await _rangeQuery(start, end).get());
+        return LedgerRangeData(
+          start: start,
+          end: end,
+          entries: data.entries,
+          categories: data.categories,
+          zeroExpenseDays: data.profile.zeroExpenseDays.where(
+            (d) => d.compareTo(start) >= 0 && d.compareTo(end) <= 0,
+          ),
+          revision: newEntryId(),
+        );
+      });
+  Stream<LedgerRangeData> watchRange(String start, String end) =>
+      _rangeQuery(start, end).watch().asyncMap((_) => readRange(start, end));
+
   Selectable<QueryRow> _query([CalendarMonth? month]) {
     final sql = ledgerSnapshotQuery
         .replaceAll(
@@ -59,36 +100,56 @@ class LedgerReader {
         database.monthlyBudgets,
         database.ledgerEntries,
         database.personalState,
+        database.planBudgets,
+        database.planRules,
+        database.planVersions,
+        database.planOccurrences,
+        database.planSettings,
       },
     );
   }
 
   Stream<LedgerMonthData> watchMonth(CalendarMonth month) => _query(month)
       .watch()
-      .map((rows) {
-        final contents = _decode(rows);
-        return LedgerMonthData(
-          month: month,
-          budget: contents.budgets.isEmpty ? null : contents.budgets.single,
-          entries: contents.entries,
-          categories: contents.categories,
-          profile: contents.profile,
-        );
-      })
+      .asyncMap(
+        (_) => database.transaction(() async {
+          final contents = _decode(await _query(month).get());
+          final plans = await readPlanning(database);
+          return LedgerMonthData(
+            month: month,
+            budget: contents.budgets.isEmpty ? null : contents.budgets.single,
+            entries: contents.entries,
+            categories: contents.categories,
+            profile: contents.profile,
+            categoryBudgets: plans.categoryBudgets.where(
+              (b) => b.month == month,
+            ),
+          );
+        }),
+      )
       .handleError((Object error, StackTrace stack) {
         Error.throwWithStackTrace(storageException(error), stack);
       });
 
-  Future<BackupDocument> readAll(int exportedAtUtcMs) async {
-    final contents = _decode(await _query().get());
-    return BackupDocument(
-      exportedAtUtcMs: exportedAtUtcMs,
-      budgets: contents.budgets,
-      categories: contents.categories,
-      entries: contents.entries,
-      profile: contents.profile,
-    );
-  }
+  Future<BackupDocument> readAll(int exportedAtUtcMs) => database.transaction(
+    () async {
+      final contents = _decode(await _query().get());
+      final document = BackupDocument(
+        exportedAtUtcMs: exportedAtUtcMs,
+        budgets: contents.budgets,
+        categories: contents.categories,
+        entries: contents.entries,
+        profile: contents.profile,
+        plans: await readPlanning(database),
+      );
+      try {
+        validateBackup(document);
+      } catch (e) {
+        throw PocketFlowException(PocketFlowErrorCode.dataCorrupted, cause: e);
+      }
+      return document;
+    },
+  );
 
   ({
     List<MonthlyBudget> budgets,

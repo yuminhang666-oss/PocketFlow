@@ -1,6 +1,7 @@
 import '../../../contracts/contracts.dart';
 import '../../../core/domain/category_catalog.dart';
 import 'report_arithmetic.dart';
+import '../../reports/domain/range_report_service.dart';
 
 /// Pure aggregation of one repository snapshot. Never caches running totals.
 final class DefaultMonthlyReportService implements MonthlyReportService {
@@ -69,7 +70,7 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
         final fen = BigInt.from(entry.amount.fen);
         incomeDailyFen[entry.date.day - 1] += fen;
         incomeCategoryFen.update(
-          entry.categoryId,
+          categories[entry.categoryId]!.parentId ?? entry.categoryId,
           (v) => v + fen,
           ifAbsent: () => fen,
         );
@@ -97,16 +98,6 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
         final order = a.sortOrder.compareTo(b.sortOrder);
         return order == 0 ? a.id.compareTo(b.id) : order;
       });
-    final totals = [
-      for (final category in sortedCategories)
-        CategoryExpense(
-          categoryId: category.id,
-          categoryName: categoryPath(category, data.categories),
-          amount: Money.fromFen(
-            checkedReportInt(categoryFen[category.id] ?? BigInt.zero),
-          ),
-        ),
-    ];
     final spent = sumReportFen(daily.map((d) => d.amount.fen));
     final budget = data.budget?.amount;
     return MonthlyReport(
@@ -120,7 +111,18 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
               checkedReportInt(BigInt.from(budget.fen) - BigInt.from(spent)),
             ),
       daily: daily,
-      categoryTotals: totals,
+      categoryTotals: [
+        for (final c in rootBreakdown(entries, data.categories))
+          CategoryExpense(
+            categoryId: c.categoryId,
+            categoryName: c.name,
+            amount: c.amount,
+          ),
+      ],
+      breakdown: rootBreakdown(entries, data.categories),
+      entryCategoryNames: {
+        for (final c in data.categories) c.id: categoryPath(c, data.categories),
+      },
       entries: entries,
       totalIncome: Money.fromFen(
         checkedReportInt(incomeDailyFen.fold(BigInt.zero, (a, b) => a + b)),
@@ -135,7 +137,11 @@ final class DefaultMonthlyReportService implements MonthlyReportService {
           ),
       ],
       incomeCategoryTotals: [
-        for (final c in sortedCategories)
+        for (final c in sortedCategories.where(
+          (c) =>
+              c.parentId == null &&
+              (incomeCategoryFen[c.id] ?? BigInt.zero) > BigInt.zero,
+        ))
           CategoryExpense(
             categoryId: c.id,
             categoryName: categoryPath(c, data.categories),

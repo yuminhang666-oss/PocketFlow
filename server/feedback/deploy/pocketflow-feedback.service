@@ -1,0 +1,28 @@
+# REVIEW TEMPLATE ONLY. No server/user/software has been installed by this task.
+[Unit]
+Description=PocketFlow private feedback receiver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pocketflow-feedback
+Group=pocketflow-feedback
+WorkingDirectory=/opt/pocketflow-feedback
+ExecStart=/usr/bin/node /opt/pocketflow-feedback/server.mjs
+EnvironmentFile=/etc/pocketflow-feedback/feedback.env
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/pocketflow-feedback
+ReadOnlyPaths=/etc/pocketflow-feedback /run/secrets/github-app.pem
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+StandardOutput=null
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

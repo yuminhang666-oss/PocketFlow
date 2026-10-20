@@ -91,6 +91,74 @@ class FakeSource implements AppReleaseSource {
 }
 
 void main() {
+  test('v2 selects Release asset while retaining v1 compatibility', () async {
+    final release = feed();
+    release[0]['assets'].add({
+      'name': 'PocketFlow-update-v2.json',
+      'browser_download_url': '${prefix}PocketFlow-update-v2.json',
+    });
+    release[0]['assets'].add({
+      'name': 'PocketFlow-0.3.0-release.apk',
+      'browser_download_url': '${prefix}PocketFlow-0.3.0-release.apk',
+      'size': 12345,
+      'digest': 'sha256:$digest',
+    });
+    final v2 = {
+      ...manifest(),
+      'schemaVersion': 2,
+      'buildKind': 'release',
+      'assetName': 'PocketFlow-0.3.0-release.apk',
+    }..remove('apkName');
+    final remote = GithubAppReleaseSource(
+      load: (uri) async => jsonEncode(
+        uri.host == 'api.github.com'
+            ? release
+            : uri.path.endsWith('v2.json')
+            ? v2
+            : manifest(),
+      ),
+    );
+    expect(
+      (await remote.latestFor(installed))!.downloadUrl.path,
+      endsWith('release.apk'),
+    );
+  });
+  test(
+    'invalid latest release does not hide an earlier valid update',
+    () async {
+      final invalid = {
+        'draft': false,
+        'prerelease': true,
+        'tag_name': 'mvp-v0.4.0-debug',
+        'assets': [],
+      };
+      expect(
+        (await source(manifest(), [
+          invalid,
+          ...feed(),
+        ]).latestFor(installed))!.versionCode,
+        5,
+      );
+    },
+  );
+  test(
+    'failed recheck clears stale candidate and prevents opening it',
+    () async {
+      final platform = FakePlatform(), remote = FakeSource();
+      final controller = AppUpdateController(
+        platform: platform,
+        source: remote,
+      );
+      addTearDown(controller.dispose);
+      await controller.initialize();
+      await controller.check();
+      remote.fail = true;
+      await controller.check();
+      expect(controller.update, isNull);
+      await controller.download();
+      expect(platform.opened, isNull);
+    },
+  );
   test('test-channel manifest offers a newer compatible APK', () async {
     final update = await source(manifest()).latestFor(installed);
     expect(update!.versionCode, 5);

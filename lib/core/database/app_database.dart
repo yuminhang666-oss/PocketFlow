@@ -3,7 +3,8 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../contracts/pocketflow_exception.dart';
 import 'tables.dart';
-import '../domain/category_catalog.dart';
+import '../domain/catalog_upgrade.dart';
+import 'catalog_migration.dart';
 
 part 'app_database.g.dart';
 
@@ -14,6 +15,13 @@ part 'app_database.g.dart';
     LedgerEntries,
     RecoverySnapshots,
     PersonalState,
+    PlanBudgets,
+    PlanRules,
+    PlanVersions,
+    PlanOccurrences,
+    PlanSettings,
+    DeviceStates,
+    FeedbackDraftRows,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -22,7 +30,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.local() : super(driftDatabase(name: 'pocketflow'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -30,9 +38,10 @@ class AppDatabase extends _$AppDatabase {
       await migrator.createAll();
       await _createLedgerIndex();
       await addDefaultCategories();
+      await _initializePlanning();
     }),
     onUpgrade: (migrator, from, to) async {
-      if (from < 1 || from >= 3 || to != 3) {
+      if (from < 1 || from >= 4 || to != 4) {
         throw const PocketFlowException(PocketFlowErrorCode.storageFailure);
       }
       // SQLite cannot change foreign_keys inside a transaction.
@@ -54,12 +63,27 @@ class AppDatabase extends _$AppDatabase {
             await migrator.alterTable(TableMigration(ledgerEntries));
             await migrator.createTable(recoverySnapshots);
             await _createLedgerIndex();
-          } else {
+          } else if (from == 2) {
             await migrator.addColumn(categories, categories.categoryKind);
             await migrator.addColumn(categories, categories.parentId);
           }
-          await migrator.createTable(personalState);
-          await addDefaultCategories();
+          if (from < 3) await migrator.createTable(personalState);
+          for (final table in <TableInfo<Table, dynamic>>[
+            planBudgets,
+            planRules,
+            planVersions,
+            planOccurrences,
+            planSettings,
+            deviceStates,
+            feedbackDraftRows,
+          ]) {
+            await migrator.createTable(table);
+          }
+          // User explicitly authorized this exact one-time transaction migration
+          // after reviewing the pure preview and passing synthetic tests.
+          // No ledger fields/IDs are updated. Any failure rolls back all changes.
+          await applyCatalogUpgrade(this);
+          await _initializePlanning();
           await _checkForeignKeys();
         });
       } catch (error) {
@@ -82,7 +106,19 @@ class AppDatabase extends _$AppDatabase {
   );
 
   Future<void> addDefaultCategories() async {
-    for (final c in recommendedCategories()) {
+    for (final c in generalRecommendedCategories()) {
+      if (c.parentId != null) {
+        final parent = await customSelect(
+          'SELECT category_kind,parent_id FROM categories WHERE id=?',
+          variables: [Variable.withString(c.parentId!)],
+        ).getSingleOrNull();
+        if (parent == null ||
+            parent.data['parent_id'] != null ||
+            parent.data['category_kind'] != null &&
+                parent.data['category_kind'] != c.kind?.name) {
+          continue;
+        }
+      }
       await customInsert(
         'INSERT OR IGNORE INTO categories '
         '(id, name, sort_order, is_archived, category_kind, parent_id) VALUES (?, ?, ?, ?, ?, ?)',
@@ -97,6 +133,22 @@ class AppDatabase extends _$AppDatabase {
         updates: {categories},
       );
     }
+  }
+
+  Future<void> markCatalogSupplemented() async {
+    await customInsert(
+      "INSERT INTO plan_settings(key,payload) VALUES ('catalog','1') ON CONFLICT(key) DO UPDATE SET payload=excluded.payload",
+      updates: {planSettings},
+    );
+  }
+
+  Future<void> _initializePlanning() async {
+    await customStatement(
+      "INSERT OR IGNORE INTO plan_settings(key,payload) VALUES ('settings','{\"budget\":true,\"weekly\":true}')",
+    );
+    await customStatement(
+      "INSERT OR IGNORE INTO plan_settings(key,payload) VALUES ('catalog','1')",
+    );
   }
 
   Future<void> _createLedgerIndex() => customStatement(

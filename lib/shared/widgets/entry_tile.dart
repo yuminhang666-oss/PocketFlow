@@ -55,6 +55,8 @@ IconData categoryIcon(String id, [List<Category> categories = const []]) =>
       'fun' => Icons.sports_esports_outlined,
       'health' => Icons.health_and_safety_outlined,
       'income_family' => Icons.account_balance_wallet_outlined,
+      'work' => Icons.work_outline_rounded,
+      'income_labor' => Icons.payments_outlined,
       'income_tutoring' => Icons.school_outlined,
       'income_scholarship' => Icons.workspace_premium_outlined,
       'income_campus' => Icons.apartment_rounded,

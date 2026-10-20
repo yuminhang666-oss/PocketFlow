@@ -24,14 +24,14 @@ class AppUpdateBridge(private val activity: Activity) {
                         .joinToString("") { "%02x".format(it.toInt() and 0xff) }
                     result.success(mapOf("applicationId" to activity.packageName, "versionName" to info.versionName,
                         "versionCode" to if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong(),
-                        "certificateSha256" to digest))
+                        "certificateSha256" to digest, "androidApi" to Build.VERSION.SDK_INT))
                 }
                 "openDownload" -> {
                     val url = Uri.parse(requireNotNull(call.argument<String>("url")))
                     require(url.scheme == "https" && url.host == "github.com" && url.userInfo == null && url.port == -1)
                     require(url.query == null && url.fragment == null)
                     require(url.path == "/yuminhang666-oss/PocketFlow/releases" ||
-                        Regex("^/yuminhang666-oss/PocketFlow/releases/download/(mvp-)?v[0-9]+\\.[0-9]+\\.[0-9]+(-debug)?/PocketFlow-[0-9]+\\.[0-9]+\\.[0-9]+-debug\\.apk$").matches(url.path ?: ""))
+                        Regex("^/yuminhang666-oss/PocketFlow/releases/download/(mvp-)?v[0-9]+\\.[0-9]+\\.[0-9]+(-(debug|release))?/PocketFlow-[0-9]+\\.[0-9]+\\.[0-9]+-(debug|release)\\.apk$").matches(url.path ?: ""))
                     activity.startActivity(Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE))
                     result.success(null)
                 }

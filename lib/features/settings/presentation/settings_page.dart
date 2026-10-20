@@ -19,11 +19,23 @@ class SettingsPage extends StatelessWidget {
     this.onAbout,
     this.onUpdates,
     this.updateVersion,
+    this.onPlans,
+    this.onReports,
+    this.onRecoveryPoints,
+    this.onReminders,
+    this.onFeedback,
+    this.lastExportUtcMs,
   });
   final ThemeMode themeMode;
   final bool feedback;
   final String? updateVersion;
   final VoidCallback? onUpdates;
+  final VoidCallback? onPlans,
+      onReports,
+      onRecoveryPoints,
+      onReminders,
+      onFeedback;
+  final int? lastExportUtcMs;
   final ValueChanged<ThemeMode>? onThemeChanged;
   final ValueChanged<bool>? onFeedbackChanged;
   final VoidCallback? onBudget,
@@ -95,6 +107,13 @@ class SettingsPage extends StatelessWidget {
                     _item('我的小目标', Icons.savings_outlined, onGoals),
                     _item('分类管理', Icons.category_outlined, onCategories),
                     _item('常用模板', Icons.bookmarks_outlined, onTemplates),
+                    _item('周期账单与收入', Icons.event_repeat_outlined, onPlans),
+                    _item('周报与月报', Icons.summarize_outlined, onReports),
+                    _item(
+                      '提醒设置与最近分类',
+                      Icons.notifications_none_outlined,
+                      onReminders,
+                    ),
                   ]),
                   _group(context, '使用偏好', [
                     ListTile(
@@ -118,6 +137,22 @@ class SettingsPage extends StatelessWidget {
                     _item('导出月报', Icons.ios_share_rounded, onExport),
                     _item('备份数据', Icons.save_outlined, onBackup),
                     _item('恢复备份', Icons.restore_rounded, onRestore),
+                    _item('本地恢复点', Icons.history_outlined, onRecoveryPoints),
+                    ListTile(
+                      title: Text(
+                        lastExportUtcMs == null
+                            ? '尚未成功导出外部备份'
+                            : '上次成功导出：${DateTime.fromMillisecondsSinceEpoch(lastExportUtcMs!)}',
+                      ),
+                      subtitle: Text(
+                        lastExportUtcMs == null ||
+                                DateTime.now().millisecondsSinceEpoch -
+                                        lastExportUtcMs! >
+                                    const Duration(days: 30).inMilliseconds
+                            ? '建议保存一份外部JSON备份，本地恢复点不能替代它。'
+                            : '请妥善保管外部JSON备份。',
+                      ),
+                    ),
                   ]),
                   _group(context, '关于', [
                     ListTile(
@@ -130,6 +165,7 @@ class SettingsPage extends StatelessWidget {
                       onTap: onUpdates,
                     ),
                     _item('关于 PocketFlow', Icons.info_outline_rounded, onAbout),
+                    _item('建议与 Bug 反馈', Icons.feedback_outlined, onFeedback),
                   ]),
                   Padding(
                     padding: const EdgeInsets.all(12),

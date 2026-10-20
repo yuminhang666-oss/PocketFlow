@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="cn.pocketflow.testmailsink">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
+    <application android:label="SYNTHETIC Email Test Sink" android:allowBackup="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".MailSinkActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="mailto" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

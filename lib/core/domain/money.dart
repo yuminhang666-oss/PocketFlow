@@ -26,7 +26,7 @@ final class Money {
         '${(absolute % 100).toString().padLeft(2, '0')}';
   }
 
-  String get yuan => '¥$decimal';
+  String get yuan => fen < 0 ? '−¥${decimal.substring(1)}' : '¥$decimal';
 
   Money operator +(Money other) => Money.fromFen(fen + other.fen);
   Money operator -(Money other) => Money.fromFen(fen - other.fen);

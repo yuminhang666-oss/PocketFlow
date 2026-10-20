@@ -9,7 +9,8 @@ class RecoveryCodec {
   const RecoveryCodec();
 
   String encode(BackupDocument document) => jsonEncode({
-    'recoveryVersion': 2,
+    'recoveryVersion': 3,
+    'planning': document.plans.toJson(),
     'profile': document.profile.toJson(),
     'exportedAtUtcMs': document.exportedAtUtcMs,
     'categories': [
@@ -39,10 +40,14 @@ class RecoveryCodec {
   BackupDocument decode(String payload) {
     final root = jsonDecode(payload) as Map<String, dynamic>;
     if (root['recoveryVersion'] is! int ||
-        ![1, 2].contains(root['recoveryVersion'])) {
+        ![1, 2, 3].contains(root['recoveryVersion'])) {
       throw const FormatException('Unknown private recovery version');
     }
     final document = BackupDocument(
+      sourceFormatVersion: root['recoveryVersion'] as int,
+      plans: root['recoveryVersion'] == 3
+          ? PlanningData.fromJson(root['planning'] as Map<String, dynamic>)
+          : PlanningData(),
       exportedAtUtcMs: root['exportedAtUtcMs'] as int,
       profile: root['recoveryVersion'] == 1
           ? PersonalProfile()

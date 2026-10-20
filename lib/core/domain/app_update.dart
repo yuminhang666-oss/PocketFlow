@@ -4,9 +4,11 @@ class InstalledApp {
     required this.versionCode,
     required this.certificateSha256,
     required this.applicationId,
+    this.androidApi,
   });
   final String versionName, certificateSha256, applicationId;
   final int versionCode;
+  final int? androidApi;
 }
 
 class AppUpdate {

@@ -121,15 +121,24 @@ void main() {
         await hit(find.text('我的').last);
         await tester.pumpAndSettle();
         await tester.ensureVisible(find.text('导出月报'));
+        await tester.pumpAndSettle();
         await hit(find.text('导出月报'));
         await tester.pumpAndSettle();
         await hit(find.text('Markdown 月报 · 保存文件'));
         await tester.pumpAndSettle();
-        expect(files.saved, contains('40.00'));
+        expect(
+          files.saved,
+          contains('40.00'),
+          reason: tester
+              .widgetList<Text>(find.byType(Text))
+              .map((t) => t.data)
+              .join(' | '),
+        );
         files.picked = const JsonBackupCodec().encode(
           (await tester.runAsync(() => backup.readAll()))!,
         );
         await tester.ensureVisible(find.text('恢复备份'));
+        await tester.pumpAndSettle();
         await hit(find.text('恢复备份'));
         await tester.pumpAndSettle();
         expect(find.text('恢复并替换现有账本？'), findsOneWidget);
@@ -147,6 +156,19 @@ void main() {
         await hit(find.text('删除'));
         await tester.pumpAndSettle();
         expect((await read()).entries, isEmpty);
+        await hit(find.text('我的').last);
+        await tester.ensureVisible(find.text('关于 PocketFlow'));
+        await tester.pumpAndSettle();
+        await hit(find.text('关于 PocketFlow'));
+        expect(find.text('更新记录'), findsOneWidget);
+        await hit(find.text('更新记录'));
+        expect(find.text('当前版本'), findsOneWidget);
+        expect(find.text('问题修复'), findsOneWidget);
+        await tester.tap(find.byType(BackButton).last);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(BackButton).last);
+        await tester.pumpAndSettle();
+        expect(find.text('我的').last, findsOneWidget);
         expect(tester.takeException(), isNull);
       } finally {
         await tester.pumpWidget(const SizedBox.shrink());
