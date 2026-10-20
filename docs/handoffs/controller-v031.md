@@ -1,5 +1,9 @@
 # 0.3.1 主控交接
 
+## 图标补充续接（2026-10-20，优先于下文历史）
+
+原 0.3.1+6 已发布，PR #10 合并 main `900f3c7a52841662e0cb074bf442d9fca93e7f4c`，169 项 Flutter / 20 项 Node 通过；实际发布和覆盖、原生更新安装证据位于 `deliverables/v0.3.1/`。用户指定新蓝白钱包原图替换图标并继续作为 0.3.1。主控独立分支 `integration/v031-icon`，显示版本不变、versionCode 增为 7，不重写已发布 tag。计划新 `v0.3.1-release` Release；同名版本的旧构建 6 不会自行提示构建 7，需直接下载覆盖一次。图标来源/资源装配及边界见 `docs/v0.3.1-icon-update.md`；本轮实际验收记录在 `deliverables/v0.3.1-icon/qa-report.md`。无财务数据、密钥或缓存上传。
+
 2026-10-20。最新用户授权：完成普通浅色、深色、独立毛玻璃浅色的 UI 优化，与三秒撤销、应用内更新及简/繁/英一起作为 0.3.1 发布。实际平台是 Android，只参考 iOS 的视觉品质，保留 Android 返回、Material 3 弹层、系统权限与安装行为。用户取消内存优化。apple-design Skill 缺失，用户已同意按官方 HIG / Material 3 审查，实施采用已存在的 frontend-design 技能，不安装依赖或插件。
 
 基线 main cce2a22bf07da031c58e07e08a762498f68e1c91，已核对远程；独立 source 为 D:/Codex/记账/updates/v0.3.1/source，分支 integration/v031-control-bugfixes。英文路径构建副本 D:/Codex/PocketFlow-v031-20261020。资源已重新生成并同步，之前资源映射不同步、英文网格溢出及额度阻碍均已解决。旧根目录及其他对话工作树未切换/reset/stash。
