@@ -20,6 +20,8 @@ import '../../features/settings/presentation/budget_editor_sheet.dart';
 import '../../features/settings/presentation/categories_page.dart';
 import '../../features/settings/presentation/planning_pages.dart';
 import '../../features/settings/presentation/settings_page.dart';
+import '../../features/settings/presentation/about_pocketflow_page.dart';
+import '../../features/settings/domain/release_history.dart';
 import '../../features/statistics/domain/ledger_query_service.dart';
 import '../../features/statistics/domain/monthly_report_service.dart';
 import '../../features/statistics/presentation/statistics_page.dart';
@@ -773,14 +775,14 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                         : () => _export(context, current),
                     onBackup: () => _backup(context),
                     onRestore: () => _restore(context),
-                    onAbout: () => showAboutDialog(
-                      context: context,
-                      applicationName: 'PocketFlow',
-                      applicationVersion:
-                          '${_updates.installed?.versionName ?? '0.3.0'} · 个人测试版',
-                      children: [
-                        const Text('离线管理生活费。Markdown 用于分析，JSON 用于完整备份。'),
-                      ],
+                    onAbout: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute(
+                        builder: (_) => AboutPocketFlowPage(
+                          installedVersion:
+                              _updates.installed?.versionName ??
+                              pocketFlowVersionHistory.first.version,
+                        ),
+                      ),
                     ),
                   ),
                 ),

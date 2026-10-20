@@ -156,6 +156,19 @@ void main() {
         await hit(find.text('删除'));
         await tester.pumpAndSettle();
         expect((await read()).entries, isEmpty);
+        await hit(find.text('我的').last);
+        await tester.ensureVisible(find.text('关于 PocketFlow'));
+        await tester.pumpAndSettle();
+        await hit(find.text('关于 PocketFlow'));
+        expect(find.text('更新记录'), findsOneWidget);
+        await hit(find.text('更新记录'));
+        expect(find.text('当前版本'), findsOneWidget);
+        expect(find.text('问题修复'), findsOneWidget);
+        await tester.tap(find.byType(BackButton).last);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(BackButton).last);
+        await tester.pumpAndSettle();
+        expect(find.text('我的').last, findsOneWidget);
         expect(tester.takeException(), isNull);
       } finally {
         await tester.pumpWidget(const SizedBox.shrink());
