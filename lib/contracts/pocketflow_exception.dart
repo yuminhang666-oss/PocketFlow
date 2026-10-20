@@ -11,6 +11,8 @@ enum PocketFlowErrorCode {
   restoreFailed,
   exportFailed,
   importFailed,
+  conflict,
+  feedbackUnavailable,
 }
 
 final class PocketFlowException implements Exception {

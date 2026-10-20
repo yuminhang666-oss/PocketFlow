@@ -32,6 +32,7 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
     final now = _clock.now();
     final names = {
       for (final c in report.categoryTotals) c.categoryId: c.categoryName,
+      ...report.entryCategoryNames,
     };
     final out = StringBuffer()
       ..writeln('# PocketFlow 月度生活费报告')
@@ -59,13 +60,33 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
       ..writeln()
       ..writeln('| 分类 ID | 分类 | 支出（元） | 支出占比 |')
       ..writeln('| --- | --- | ---: | ---: |');
-    for (final c in report.categoryTotals) {
+    for (final c in report.categoryTotals.where((c) => c.amount.fen > 0)) {
       out.writeln(
         '| ${markdownCell(c.categoryId)} | ${markdownCell(c.categoryName)} | '
         '${c.amount.decimal} | ${report.categoryPercent(c) ?? '不适用'} |',
       );
     }
-    if (report.categoryTotals.isEmpty) out.writeln('| — | 无分类 | 0.00 | 不适用 |');
+    if (report.categoryTotals.isEmpty) {
+      out.writeln('| — | 暂无支出记录 | 0.00 | 不适用 |');
+    }
+    for (final root in report.breakdown) {
+      out
+        ..writeln()
+        ..writeln(
+          '### ${markdownCell(root.name)}细分（合计 ${root.amount.decimal} 元）',
+        )
+        ..writeln()
+        ..writeln('| 细类 | 支出（元） |')
+        ..writeln('| --- | ---: |');
+      if (root.directAmount.fen > 0) {
+        out.writeln('| 未细分 | ${root.directAmount.decimal} |');
+      }
+      for (final child in root.children.entries.where((c) => c.value.fen > 0)) {
+        out.writeln(
+          '| ${markdownCell(names[child.key] ?? child.key)} | ${child.value.decimal} |',
+        );
+      }
+    }
     out
       ..writeln()
       ..writeln('占比分母为截止日累计支出；零支出时无比例。显示四舍五入，合计可能存在 0.01% 舍入差。')
@@ -79,7 +100,7 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
     }
     out
       ..writeln()
-      ..writeln('已补齐截止日以内的零消费日期；截止日之后不作为实际消费展示。')
+      ..writeln('无记录日期以 0 汇总，但不表示已确认零支出；截止日之后不作为实际消费展示。')
       ..writeln()
       ..writeln('## 完整逐笔交易记录')
       ..writeln()

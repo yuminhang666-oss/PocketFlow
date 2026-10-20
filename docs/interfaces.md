@@ -1,4 +1,4 @@
-# 模块接口 v2.0.0（0.2 集成候选）
+# 模块接口 v3.0.0（0.3 本地候选，未合并）
 
 唯一签名见 lib/contracts/；基线与兼容策略见 [数据合同](data-contracts.md) 和 [ADR 0005](decisions/0005-living-income-experience.md)。新增抽象方法影响旧实现者，所以提升主要合同版本；合并前不得当作 main 的已发布接口。
 
@@ -20,7 +20,7 @@ LedgerRepository：
 
 BudgetCalculator.calculate 仍为纯同步计算，输入月份、today、budget、entries；收入、目标和模板均不参与支出扣减。
 
-BackupStore：readAll() 原子全量读取；replaceAll(BackupDocument) 事务保存恢复点并替换；readRecovery(id) 读取私有旧/新恢复点。v1/v2 JSON 的语法预检由 C 负责，B 重做关系与事务验证。
+BackupStore：readAll() 原子全量读取；replaceAll(BackupDocument) 事务保存恢复点并替换。v1/v2/v3 JSON 的语法预检由 C 负责，B 重做关系与事务验证。内部 readRecovery 由 PlanningPort.readRecoveryPoint 适配，不允许页面直接读表。
 
 ## C 提供的查询、报表与文件接口
 
@@ -30,7 +30,7 @@ LedgerQueryService.filter(LedgerMonthData,LedgerFilter,{required asOfLocalDate})
 
 MarkdownExporter.render(MonthlyReport) → String，不访问数据库/网络；包含预算、支出、收入、净收支、逐日/分类/全部明细，转义备注中的表格符号和 HTML。
 
-BackupCodec.encode 写 v2；decode 读 v1/v2，拒绝未知更高版本和损坏数据。不得把解析错误变成空数组。
+BackupCodec.encode 写 v3；decode 读 v1/v2/v3，拒绝未知更高版本和损坏数据。不得把解析错误变成空数组。旧格式没有的分类预算/周期计划在确认替换后为空；设备状态和反馈不参与替换。
 
 FileTransferPort 的 saveText/shareTextFile/pickJsonText 保持原接口。取消正常返回 false/null，真实失败抛 exportFailed/importFailed。系统文件保存与分享只在用户主动选择后调用。
 
@@ -42,7 +42,22 @@ A 页面接收合同模型和回调，不导入 Drift 表、不直接 SQL。主�
 
 ## 错误与变更
 
-PocketFlowException 错误码沿用 v1。I/O 失败不能返回空列表；错误提示不得包含 SQL、账单备注或凭据。写入不自动重试。数据模型仅有 core/domain 一份，模块 DTO 不得复制 Money/Entry/Report。
+PocketFlowException 保留旧错误码并新增 conflict、feedbackUnavailable。I/O 失败不能返回空列表；错误提示不得包含 SQL、账单备注或凭据。财务写入不自动重试。数据模型仅有 core/domain 一份，模块 DTO 不得复制 Money/Entry/Report。
+
+## 0.3 新增端口与一致性
+
+唯一签名为 lib/contracts/planning_ports.dart；基于 main b4f7aa6 的本地候选，不代表远程已发布接口。
+
+- PlanningPort.watchPlans/watchRange：计划完整快照与同一读事务内的范围账目、分类和零支出标记。watchMonth 同事务附带本月分类预算。
+- clearBudget 与分类预算 save/clear/copy：null 与 0 区分；仅合法支出根类，可超分配但不改变总额度；复制前由页面确认。
+- saveRuleVersion：所有生成字段不可变；新版本不能覆盖同生效月或已处理期。confirm 在同一事务再次核对版本/状态并写账与 settled 期；重复确认不重复记账。skip/reopen 为显式期操作。删除关联账目原子改 skipped 并解除引用。
+- undoCreate(LedgerEntry expected)：条件删除同时检查 ID、创建/修改时间及无周期关联；修改时间强制单调递增，防同毫秒误删；0 行匹配抛 conflict。
+- clearRecentCategory/saveReminderSettings：偏好与提醒开关；取消/失败不改变最近分类，编辑不影响下次新增默认。
+- reserveBudgetNotice/muteBudgetMonth/reserveReport：持久设备运行状态，事务预留；恢复账本不清零，不导出。总预算各提醒共用每月两次名额，周报优先、每次前台最多一个主动提示由 Root 协调。
+- recoveryPoints/readRecoveryPoint/deleteRecoveryPoints：元数据坏点单独标错；恢复仍通过 BackupStore.replaceAll 原子替换，页面预检确认；删除/清空另行确认。lastExportUtcMs/recordSuccessfulExport 仅在实际文件保存成功后登记。
+- FeedbackDraftStore：独立持久草稿。按用户最新ADR0009，生产使用FeedbackMailPort.openComposer(FeedbackDraft)→Future<bool>，只表示已打开邮件编辑器，不表示发送/投递；固定收件人、预览确认、无客户端时保留草稿/复制内容。状态mailOpened不是回执，用户在外部邮件客户端发送。原FeedbackPort/Receipt仅保留早期候选兼容定义，生产不调用。
+
+反馈页面不读数据库，邮件端口不读财务表；本地草稿实现因需要 Drift 位于反馈 data/，这是主控登记的跨范围适配。原生邮件桥仅ACTION_SENDTO/mailto与固定收件人，新增查询声明而非邮箱/联系人权限；无需后端。早期Node备选保留但不装配，无新增npm/Flutter依赖。
 
 
 ## 手动更新端口 v1（0.2.1候选）

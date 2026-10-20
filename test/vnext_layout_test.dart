@@ -78,7 +78,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('1.5k'), findsOneWidget);
+    expect(find.text('1.5千元'), findsOneWidget);
     expect(find.text('-38'), findsNothing);
     expect(tester.takeException(), isNull);
   });
@@ -108,6 +108,16 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        if (scale == 1 && size.height >= 640) {
+          final grid = find.byKey(const ValueKey('category-grid-expense'));
+          final keypad = find.widgetWithText(TextButton, '1');
+          expect(
+            tester.getRect(grid).bottom,
+            lessThanOrEqualTo(tester.getRect(keypad).top),
+            reason:
+                'Both fixed root rows must fit above the keypad on a normal phone',
+          );
+        }
         final zero = find.widgetWithText(TextButton, '0'),
             dot = find.widgetWithText(TextButton, '.'),
             save = find.text('保存支出');

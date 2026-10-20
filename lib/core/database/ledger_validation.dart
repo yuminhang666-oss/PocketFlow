@@ -1,5 +1,6 @@
 import '../../contracts/contracts.dart';
 import '../domain/category_catalog.dart';
+import '../domain/planning_validation.dart';
 
 /// Shared by persisted-row mapping, repository writes, and restore validation.
 /// This validates existing values; it never repairs or normalizes stored money.
@@ -47,6 +48,7 @@ void validateEntry(LedgerEntry entry) {
 }
 
 void validateBackup(BackupDocument document) {
+  validateFinancialPlans(document);
   validateTimestamp(document.exportedAtUtcMs);
   final categories = <String>{};
   final months = <String>{};

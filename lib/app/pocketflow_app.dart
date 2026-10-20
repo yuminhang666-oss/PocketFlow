@@ -10,9 +10,11 @@ class PocketFlowApp extends StatelessWidget {
     super.key,
     this.home,
     this.themeMode = ThemeMode.system,
+    this.navigatorObservers = const [],
   });
   final Widget? home;
   final ThemeMode themeMode;
+  final List<NavigatorObserver> navigatorObservers;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -24,6 +26,7 @@ class PocketFlowApp extends StatelessWidget {
     theme: PocketFlowTheme.light,
     darkTheme: PocketFlowTheme.dark,
     themeMode: themeMode,
+    navigatorObservers: navigatorObservers,
     home:
         home ??
         const Scaffold(

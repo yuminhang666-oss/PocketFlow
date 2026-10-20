@@ -128,103 +128,142 @@ class CategorySelector extends StatelessWidget {
   final EntryKind kind;
   @override
   Widget build(BuildContext context) {
-    final all = categories
-        .where(
-          (c) =>
-              categoryAvailable(c, categories, kind) &&
-              (kind == EntryKind.expense ||
-                  c.kind == EntryKind.income ||
-                  c.id == selectedId),
-        )
-        .toList();
     final selected = categories.where((c) => c.id == selectedId).firstOrNull;
-    final common = <Category>[];
-    if (selected != null) common.add(selected);
-    for (final c in all.where((c) => c.parentId == null)) {
-      if (common.length >= 3) break;
-      if (!common.any((v) => v.id == c.id)) common.add(c);
-    }
-    return LayoutBuilder(
-      builder: (context, box) {
-        final columns = MediaQuery.textScalerOf(context).scale(12) > 19 ? 2 : 4;
-        final width = (box.maxWidth - (columns - 1) * 6) / columns;
-        Widget item(
-          String label,
-          IconData icon,
-          Color color,
-          bool selected,
-          VoidCallback? tap,
-        ) => SizedBox(
-          width: width,
-          child: OutlinedButton(
-            onPressed: tap,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(48, 56),
-              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 8),
-              backgroundColor: selected
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : null,
-              side: BorderSide(
-                color: selected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outlineVariant,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+    final all =
+        categories.where((c) => categoryAvailable(c, categories, kind)).toList()
+          ..sort((a, b) {
+            final order = a.sortOrder.compareTo(b.sortOrder);
+            return order == 0 ? a.id.compareTo(b.id) : order;
+          });
+    final roots = all.where((c) => c.parentId == null).toList();
+    final rootId = selected?.parentId ?? selected?.id;
+    final children = all.where((c) => c.parentId == rootId).toList();
+    final large = MediaQuery.textScalerOf(context).scale(14) > 19;
+    final medium = MediaQuery.textScalerOf(context).scale(14) > 16.5;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          selected == null
+              ? '请选择分类'
+              : '已选：${categoryPath(selected, categories)}',
+          key: const ValueKey('selected-category-path'),
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: large
+              ? 230
+              : medium
+              ? 198
+              : 158,
+          child: GridView.builder(
+            key: ValueKey('category-grid-${kind.name}'),
+            itemCount: roots.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: large
+                  ? 2
+                  : medium
+                  ? 3
+                  : 4,
+              mainAxisExtent: large
+                  ? 112
+                  : medium
+                  ? 96
+                  : 76,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 6,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            itemBuilder: (context, index) {
+              final c = roots[index], active = c.id == rootId;
+              return Semantics(
+                selected: active,
+                button: true,
+                label: '${c.name}${active ? '，已选' : ''}',
+                child: OutlinedButton(
+                  onPressed: enabled ? () => onSelected(c.id) : null,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.all(4),
+                    backgroundColor: active
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : null,
+                    side: BorderSide(
+                      color: active
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outlineVariant,
+                      width: active ? 2 : 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(categoryIcon(c.id, categories), size: 22),
+                          const SizedBox(height: 4),
+                          Text(
+                            c.name,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                          ),
+                        ],
+                      ),
+                      if (active)
+                        const Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Icon(Icons.check_circle, size: 13),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        if (children.isNotEmpty)
+          SizedBox(
+            height: large ? 70 : 52,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
               children: [
-                Icon(
-                  selected ? Icons.check_circle_outline : icon,
-                  size: 19,
-                  color: color,
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12),
-                ),
+                for (final c in children)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ChoiceChip(
+                      showCheckmark: false,
+                      avatar: Icon(categoryIcon(c.id, categories), size: 18),
+                      selected: c.id == selectedId,
+                      label: Text(c.name),
+                      onSelected: enabled ? (_) => onSelected(c.id) : null,
+                    ),
+                  ),
               ],
             ),
           ),
-        );
-        return Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final c in common)
-              item(
-                c.name,
-                categoryIcon(c.id, categories),
-                Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).colorScheme.primary
-                    : categoryColor(c.id, categories),
-                selectedId == c.id,
-                enabled ? () => onSelected(c.id) : null,
-              ),
-            item(
-              '更多分类',
-              Icons.grid_view_rounded,
-              Theme.of(context).colorScheme.primary,
-              false,
-              !enabled
-                  ? null
-                  : () async {
-                      final id = await showCategoryPicker(
-                        context,
-                        categories,
-                        kind,
-                        selectedId,
-                      );
-                      if (id != null) onSelected(id);
-                    },
-            ),
-          ],
-        );
-      },
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            icon: const Icon(Icons.search, size: 18),
+            label: const Text('搜索全部分类'),
+            onPressed: !enabled
+                ? null
+                : () async {
+                    final id = await showCategoryPicker(
+                      context,
+                      categories,
+                      kind,
+                      selectedId,
+                    );
+                    if (id != null) onSelected(id);
+                  },
+          ),
+        ),
+      ],
     );
   }
 }

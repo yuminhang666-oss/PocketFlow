@@ -15,6 +15,7 @@ class AndroidAppUpdatePort implements AppUpdatePort {
       versionCode: data['versionCode'] as int,
       certificateSha256: data['certificateSha256'] as String,
       applicationId: data['applicationId'] as String,
+      androidApi: data['androidApi'] as int?,
     );
   }
 

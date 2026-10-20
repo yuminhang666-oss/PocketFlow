@@ -5,7 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocketflow/contracts/contracts.dart';
 import 'package:pocketflow/core/database/app_database.dart';
-import 'package:pocketflow/core/domain/category_catalog.dart';
+import 'package:pocketflow/core/domain/catalog_upgrade.dart';
 import 'package:pocketflow/features/backup/domain/json_backup_codec.dart';
 import 'package:pocketflow/features/budget/domain/budget_calculator.dart';
 import 'package:pocketflow/features/export/domain/markdown_exporter.dart';
@@ -47,7 +47,7 @@ void main() {
         expect((await snapshot()).entries, isEmpty);
         expect(
           (await snapshot()).categories.length,
-          recommendedCategories().length,
+          generalRecommendedCategories().length,
         );
         await repository.saveBudget(month, const Money.fromFen(150000));
         final first = await repository.createExpense(

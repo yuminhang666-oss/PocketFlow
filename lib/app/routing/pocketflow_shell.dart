@@ -8,9 +8,11 @@ class PocketFlowShell extends StatefulWidget {
     required this.settings,
     required this.ledger,
     this.onAdd,
+    this.onTabChanged,
   });
   final Widget home, statistics, settings, ledger;
   final VoidCallback? onAdd;
+  final ValueChanged<int>? onTabChanged;
   @override
   State<PocketFlowShell> createState() => _PocketFlowShellState();
 }
@@ -25,7 +27,10 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
         selected: _selected == index,
         button: true,
         child: InkWell(
-          onTap: () => setState(() => _selected = index),
+          onTap: () {
+            setState(() => _selected = index);
+            widget.onTabChanged?.call(index);
+          },
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 58, minWidth: 48),
             child: Padding(

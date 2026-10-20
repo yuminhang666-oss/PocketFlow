@@ -2,6 +2,7 @@ import 'calendar_month.dart';
 import 'ledger_entry.dart';
 import 'money.dart';
 import 'personal_profile.dart';
+import 'planning_models.dart';
 
 final class Category {
   Category({
@@ -76,9 +77,11 @@ final class LedgerMonthData {
     required Iterable<LedgerEntry> entries,
     required Iterable<Category> categories,
     PersonalProfile? profile,
+    Iterable<CategoryBudget> categoryBudgets = const [],
   }) : entries = List.unmodifiable(entries),
        categories = List.unmodifiable(categories),
-       profile = profile ?? PersonalProfile() {
+       profile = profile ?? PersonalProfile(),
+       categoryBudgets = List.unmodifiable(categoryBudgets) {
     if (budget != null && budget!.month != month) {
       throw ArgumentError('预算月份与快照月份不同');
     }
@@ -91,4 +94,5 @@ final class LedgerMonthData {
   final List<LedgerEntry> entries;
   final List<Category> categories;
   final PersonalProfile profile;
+  final List<CategoryBudget> categoryBudgets;
 }

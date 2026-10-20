@@ -207,7 +207,7 @@ Future<void> main(List<String> arguments) async {
   check(
     empty.totalExpense.fen == 0 &&
         empty.highestExpenseDays.isEmpty &&
-        empty.categoryPercent(empty.categoryTotals.first) == null,
+        empty.categoryTotals.isEmpty,
     'empty report',
   );
   check(
@@ -369,7 +369,7 @@ Future<void> main(List<String> arguments) async {
     rejects(() => codec.decode(bad), PocketFlowErrorCode.invalidBackup);
   }
   rejects(
-    () => codec.decode(modified((r) => r['formatVersion'] = 3)),
+    () => codec.decode(modified((r) => r['formatVersion'] = 4)),
     PocketFlowErrorCode.unsupportedBackupVersion,
   );
   check(

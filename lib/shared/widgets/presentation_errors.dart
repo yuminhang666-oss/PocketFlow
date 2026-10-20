@@ -15,5 +15,7 @@ String presentationError(Object error) {
     PocketFlowErrorCode.restoreFailed => '恢复未完成，请重试',
     PocketFlowErrorCode.exportFailed => '导出未完成，请重试',
     PocketFlowErrorCode.importFailed => '文件无法读取，请重新选择',
+    PocketFlowErrorCode.conflict => '记录或计划已变化，请刷新后重试',
+    PocketFlowErrorCode.feedbackUnavailable => '暂时无法打开反馈邮件，草稿已保留，可复制内容后发送',
   };
 }

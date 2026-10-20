@@ -138,8 +138,8 @@ class DriftLedgerRepository implements LedgerRepository {
             allowArchived: old.categoryId == draft.categoryId,
           );
           final nowMs = now.millisecondsSinceEpoch;
-          final updated = nowMs < old.updatedAtUtcMs
-              ? old.updatedAtUtcMs
+          final updated = nowMs <= old.updatedAtUtcMs
+              ? old.updatedAtUtcMs + 1
               : nowMs;
           final entry = LedgerEntry(
             id: old.id,
@@ -153,6 +153,17 @@ class DriftLedgerRepository implements LedgerRepository {
             updatedAtUtcMs: updated,
           );
           validateEntry(entry);
+          final linked = await database
+              .customSelect(
+                'SELECT entry_id FROM plan_occurrences WHERE entry_id=?',
+                variables: [Variable.withString(id)],
+              )
+              .get();
+          if (linked.isNotEmpty &&
+              (entry.categoryId != old.categoryId ||
+                  entry.localDate != old.localDate)) {
+            throw const PocketFlowException(PocketFlowErrorCode.conflict);
+          }
           final changed = await database.customUpdate(
             'UPDATE ledger_entries SET amount_fen = ?, occurred_local = ?, '
             'occurred_at_utc_ms = ?, category_id = ?, note = ?, '
@@ -186,17 +197,24 @@ class DriftLedgerRepository implements LedgerRepository {
       });
 
   @override
-  Future<void> deleteEntry(String id) => _guard(() async {
-    final changed = await database.customUpdate(
-      'DELETE FROM ledger_entries WHERE id = ?',
-      variables: [Variable.withString(id)],
-      updates: {database.ledgerEntries},
-      updateKind: UpdateKind.delete,
-    );
-    if (changed != 1) {
-      throw const PocketFlowException(PocketFlowErrorCode.notFound);
-    }
-  });
+  Future<void> deleteEntry(String id) => _guard(
+    () => database.transaction(() async {
+      await database.customUpdate(
+        "UPDATE plan_occurrences SET status='skipped',entry_id=NULL WHERE entry_id=?",
+        variables: [Variable.withString(id)],
+        updates: {database.planOccurrences},
+      );
+      final changed = await database.customUpdate(
+        'DELETE FROM ledger_entries WHERE id = ?',
+        variables: [Variable.withString(id)],
+        updates: {database.ledgerEntries},
+        updateKind: UpdateKind.delete,
+      );
+      if (changed != 1) {
+        throw const PocketFlowException(PocketFlowErrorCode.notFound);
+      }
+    }),
+  );
 
   Future<void> _requireCategory(
     String id, {
@@ -243,8 +261,12 @@ class DriftLedgerRepository implements LedgerRepository {
   }
 
   @override
-  Future<void> addRecommendedCategories() =>
-      _guard(() => database.transaction(database.addDefaultCategories));
+  Future<void> addRecommendedCategories() => _guard(
+    () => database.transaction(() async {
+      await database.addDefaultCategories();
+      await database.markCatalogSupplemented();
+    }),
+  );
 
   @override
   Future<void> saveCategory(Category category) => _guard(

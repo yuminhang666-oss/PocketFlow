@@ -28,6 +28,89 @@ class PersonalState extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+class PlanBudgets extends Table {
+  TextColumn get month => text()();
+  TextColumn get categoryId => text().references(Categories, #id)();
+  IntColumn get amountFen => integer()();
+  @override
+  Set<Column> get primaryKey => {month, categoryId};
+  @override
+  List<String> get customConstraints => [
+    "CHECK (length(month)=7 AND substr(month,6,2) BETWEEN '01' AND '12')",
+    "CHECK (typeof(amount_fen)='integer' AND amount_fen BETWEEN 0 AND 99999999999)",
+  ];
+}
+
+class PlanRules extends Table {
+  TextColumn get id => text().withLength(min: 1, max: 64)();
+  IntColumn get createdAtUtcMs => integer()();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class PlanVersions extends Table {
+  TextColumn get id => text().withLength(min: 1, max: 64)();
+  TextColumn get ruleId => text().references(PlanRules, #id)();
+  TextColumn get categoryId => text().references(Categories, #id)();
+  TextColumn get effectiveMonth => text()();
+  TextColumn get payload => text()();
+  @override
+  Set<Column> get primaryKey => {id};
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {ruleId, effectiveMonth},
+  ];
+  @override
+  List<String> get customConstraints => [
+    "CHECK (json_valid(payload))",
+    r"CHECK (json_type(payload,'$.amountFen')='integer' AND json_extract(payload,'$.amountFen') BETWEEN 1 AND 99999999999)",
+    r"CHECK (json_type(payload,'$.day')='integer' AND json_extract(payload,'$.day') BETWEEN 1 AND 31)",
+  ];
+}
+
+class PlanOccurrences extends Table {
+  TextColumn get ruleId => text().references(PlanRules, #id)();
+  TextColumn get periodKey => text()();
+  TextColumn get versionId => text().references(PlanVersions, #id)();
+  TextColumn get status => text()();
+  TextColumn get entryId =>
+      text().nullable().unique().references(LedgerEntries, #id)();
+  @override
+  Set<Column> get primaryKey => {ruleId, periodKey};
+  @override
+  List<String> get customConstraints => [
+    "CHECK ((status='settled' AND entry_id IS NOT NULL) OR (status='skipped' AND entry_id IS NULL))",
+  ];
+}
+
+class PlanSettings extends Table {
+  TextColumn get key => text()();
+  TextColumn get payload => text()();
+  @override
+  Set<Column> get primaryKey => {key};
+  @override
+  List<String> get customConstraints => ["CHECK(json_valid(payload))"];
+}
+
+/// Operational state and feedback are deliberately outside financial restore.
+class DeviceStates extends Table {
+  TextColumn get key => text()();
+  TextColumn get payload => text()();
+  @override
+  Set<Column> get primaryKey => {key};
+  @override
+  List<String> get customConstraints => ["CHECK(json_valid(payload))"];
+}
+
+class FeedbackDraftRows extends Table {
+  TextColumn get id => text()();
+  TextColumn get payload => text()();
+  @override
+  Set<Column> get primaryKey => {id};
+  @override
+  List<String> get customConstraints => ["CHECK(json_valid(payload))"];
+}
+
 class MonthlyBudgets extends Table {
   TextColumn get month => text().withLength(min: 7, max: 7)();
   late final IntColumn amountFen = integer().check(

@@ -14,4 +14,9 @@ export '../core/domain/report_models.dart';
 export '../core/domain/personal_profile.dart';
 export '../core/domain/ledger_filter.dart';
 
-const pocketFlowContractVersion = '2.0.0';
+export '../core/domain/planning_models.dart';
+export '../core/domain/range_models.dart';
+export '../core/domain/feedback_models.dart';
+export 'planning_ports.dart';
+
+const pocketFlowContractVersion = '3.0.0';

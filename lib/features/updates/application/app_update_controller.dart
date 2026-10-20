@@ -34,6 +34,7 @@ class AppUpdateController extends ChangeNotifier {
       return;
     }
     phase = AppUpdatePhase.checking;
+    update = null;
     _changed();
     try {
       final found = await source
@@ -43,13 +44,18 @@ class AppUpdateController extends ChangeNotifier {
       update = found;
       phase = found == null ? AppUpdatePhase.current : AppUpdatePhase.available;
     } catch (_) {
-      if (!_disposed) phase = AppUpdatePhase.unavailable;
+      if (!_disposed) {
+        update = null;
+        phase = AppUpdatePhase.unavailable;
+      }
     }
     _changed();
   }
 
   Future<void> download() async {
-    if (update != null) await platform.openDownload(update!.downloadUrl);
+    if (phase == AppUpdatePhase.available && update != null) {
+      await platform.openDownload(update!.downloadUrl);
+    }
   }
 
   @override

@@ -6,9 +6,9 @@ import '../../../shared/widgets/entry_tile.dart';
 import '../domain/monthly_chart_data.dart';
 
 String _axisAmount(double v) {
-  if (v.abs() >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}m';
-  if (v.abs() >= 1000) return '${(v / 1000).toStringAsFixed(1)}k';
-  return v.toStringAsFixed(v.abs() < 1 && v != 0 ? 1 : 0);
+  if (v.abs() >= 10000) return '${(v / 10000).toStringAsFixed(1)}万元';
+  if (v.abs() >= 1000) return '${(v / 1000).toStringAsFixed(1)}千元';
+  return '${v.toStringAsFixed(v.abs() < 1 && v != 0 ? 1 : 0)}元';
 }
 
 FlTitlesData _titles(int lastDay, double interval) => FlTitlesData(

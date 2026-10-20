@@ -21,69 +21,101 @@ class GithubAppReleaseSource implements AppReleaseSource {
   @override
   Future<AppUpdate?> latestFor(InstalledApp installed) async {
     try {
-      final releases = jsonDecode(await _load(_feed)) as List<dynamic>;
+      final feed = jsonDecode(await _load(_feed));
+      if (feed is! List) throw const UpdateUnavailable();
       AppUpdate? newest;
-      for (final item in releases) {
-        final release = item as Map<String, dynamic>;
-        if (release['draft'] == true) continue;
-        final tag = release['tag_name'] as String;
-        final version = RegExp(
-          r'^(?:mvp-)?v(\d+\.\d+\.\d+)(?:-debug)?$',
-        ).firstMatch(tag)?.group(1);
-        if (version == null ||
-            _compareVersions(version, installed.versionName) <= 0) {
-          continue;
-        }
-        final assets = (release['assets'] as List<dynamic>)
-            .cast<Map<String, dynamic>>();
-        final manifest = assets
-            .where((a) => a['name'] == 'PocketFlow-update.json')
-            .firstOrNull;
-        if (manifest == null) throw const UpdateUnavailable();
-        final data =
-            jsonDecode(await _load(_assetUrl(manifest, tag)))
-                as Map<String, dynamic>;
-        if (data['schemaVersion'] != 1 ||
-            data['applicationId'] != installed.applicationId ||
-            data['versionName'] != version ||
-            data['versionCode'] is! int ||
-            data['versionCode'] <= 0 ||
-            data['apkSizeBytes'] is! int ||
-            data['apkSizeBytes'] <= 0 ||
-            data['apkSizeBytes'] > 2147483648 ||
-            data['apkSha256'] is! String ||
-            !RegExp(r'^[a-f0-9]{64}$').hasMatch(data['apkSha256'])) {
-          throw const UpdateUnavailable();
-        }
-        if (data['certificateSha256'] != installed.certificateSha256) continue;
-        if (data['versionCode'] <= installed.versionCode) continue;
-        final apkName = 'PocketFlow-$version-debug.apk';
-        if (data['apkName'] != apkName) throw const UpdateUnavailable();
-        final apk = assets.where((a) => a['name'] == apkName).firstOrNull;
-        if (apk == null ||
-            apk['size'] != data['apkSizeBytes'] ||
-            apk['digest'] != 'sha256:${data['apkSha256']}') {
-          throw const UpdateUnavailable();
-        }
-        final notes = (data['releaseNotes'] as List<dynamic>).cast<String>();
-        if (notes.length > 30 || notes.any((n) => n.length > 500)) {
-          throw const UpdateUnavailable();
-        }
-        final update = AppUpdate(
-          versionName: version,
-          versionCode: data['versionCode'],
-          bytes: data['apkSizeBytes'],
-          sha256: data['apkSha256'],
-          downloadUrl: _assetUrl(apk, tag),
-          releaseUrl: Uri.parse(
-            '${_repositoryPrefix}tag/${Uri.encodeComponent(tag)}',
-          ),
-          notes: notes,
-        );
-        if (newest == null || update.versionCode > newest.versionCode) {
-          newest = update;
+      var invalid = false;
+      for (final item in feed) {
+        try {
+          final release = item as Map<String, dynamic>;
+          if (release['draft'] == true) continue;
+          final tag = release['tag_name'] as String;
+          final version = RegExp(
+            r'^(?:mvp-)?v(\d+\.\d+\.\d+)(?:-(?:debug|release))?$',
+          ).firstMatch(tag)?.group(1);
+          if (version == null ||
+              _compareVersions(version, installed.versionName) <= 0) {
+            continue;
+          }
+          final assets = (release['assets'] as List)
+              .cast<Map<String, dynamic>>();
+          AppUpdate? candidate;
+          var manifestSeen = false, usable = false;
+          for (final manifestName in [
+            'PocketFlow-update-v2.json',
+            'PocketFlow-update.json',
+          ]) {
+            final asset = assets
+                .where((a) => a['name'] == manifestName)
+                .firstOrNull;
+            if (asset == null) continue;
+            manifestSeen = true;
+            try {
+              final data =
+                  jsonDecode(await _load(_assetUrl(asset, tag)))
+                      as Map<String, dynamic>;
+              final v2 = manifestName == 'PocketFlow-update-v2.json';
+              if (data['schemaVersion'] != (v2 ? 2 : 1) ||
+                  data['applicationId'] != installed.applicationId ||
+                  data['versionName'] != version ||
+                  data['versionCode'] is! int ||
+                  data['versionCode'] <= 0 ||
+                  data['apkSizeBytes'] is! int ||
+                  data['apkSizeBytes'] <= 0 ||
+                  data['apkSizeBytes'] > 2147483648 ||
+                  data['apkSha256'] is! String ||
+                  !RegExp(r'^[a-f0-9]{64}$').hasMatch(data['apkSha256'])) {
+                throw const UpdateUnavailable();
+              }
+              final kind = v2 ? data['buildKind'] : 'debug';
+              if (kind != 'debug' && kind != 'release') {
+                throw const UpdateUnavailable();
+              }
+              final name = 'PocketFlow-$version-$kind.apk';
+              if (data[v2 ? 'assetName' : 'apkName'] != name) {
+                throw const UpdateUnavailable();
+              }
+              final apk = assets.where((a) => a['name'] == name).firstOrNull;
+              if (apk == null ||
+                  apk['size'] != data['apkSizeBytes'] ||
+                  apk['digest'] != 'sha256:${data['apkSha256']}') {
+                throw const UpdateUnavailable();
+              }
+              final notes = (data['releaseNotes'] as List).cast<String>();
+              if (notes.length > 30 || notes.any((n) => n.length > 500)) {
+                throw const UpdateUnavailable();
+              }
+              usable = true;
+              if (data['certificateSha256'] != installed.certificateSha256 ||
+                  data['versionCode'] <= installed.versionCode) {
+                continue;
+              }
+              candidate = AppUpdate(
+                versionName: version,
+                versionCode: data['versionCode'],
+                bytes: data['apkSizeBytes'],
+                sha256: data['apkSha256'],
+                downloadUrl: _assetUrl(apk, tag),
+                releaseUrl: Uri.parse(
+                  '${_repositoryPrefix}tag/${Uri.encodeComponent(tag)}',
+                ),
+                notes: notes,
+              );
+              break;
+            } catch (_) {
+              /* v2 may fall back to the independently valid v1. */
+            }
+          }
+          if (!manifestSeen || !usable) invalid = true;
+          if (candidate != null &&
+              (newest == null || candidate.versionCode > newest.versionCode)) {
+            newest = candidate;
+          }
+        } catch (_) {
+          invalid = true;
         }
       }
+      if (newest == null && invalid) throw const UpdateUnavailable();
       return newest;
     } catch (_) {
       throw const UpdateUnavailable();

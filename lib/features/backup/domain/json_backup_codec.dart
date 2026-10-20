@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../contracts/contracts.dart';
 import '../../../core/domain/category_catalog.dart';
+import '../../../core/domain/planning_validation.dart';
 
 /// Read external backup v1/v2 and write v2. No database writes or type coercion.
 final class JsonBackupCodec implements BackupCodec {
@@ -22,6 +23,10 @@ final class JsonBackupCodec implements BackupCodec {
         );
       }
       final document = BackupDocument(
+        sourceFormatVersion: version,
+        plans: version < 3
+            ? PlanningData()
+            : PlanningData.fromJson(_object(root['planning'])),
         exportedAtUtcMs: _timestamp(root, 'exportedAtUtcMs'),
         profile: version == 1
             ? PersonalProfile()
@@ -89,6 +94,7 @@ final class JsonBackupCodec implements BackupCodec {
         'exportedAtUtcMs': document.exportedAtUtcMs,
         'currency': BackupDocument.currency,
         'profile': document.profile.toJson(),
+        'planning': document.plans.toJson(),
         'budgets': [
           for (final b in document.budgets) {'month': b.month.key, 'amountFen': b.amount.fen, 'updatedAtUtcMs': b.updatedAtUtcMs},
         ],
@@ -142,6 +148,7 @@ final class JsonBackupCodec implements BackupCodec {
   }
 
   void _validate(BackupDocument document) {
+    validateFinancialPlans(document);
     _checkTimestamp(document.exportedAtUtcMs);
     final categories = <String>{};
     final entries = <String>{};

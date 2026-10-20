@@ -7,6 +7,7 @@ import '../../../shared/widgets/amount_text.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import '../../../shared/widgets/status_panel.dart';
 import 'widgets/daily_allowance_panel.dart';
+import '../../reports/domain/range_report_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -24,6 +25,9 @@ class HomePage extends StatelessWidget {
     this.onCalendar,
     this.onGoals,
     this.onTemplate,
+    this.onOpenDate,
+    this.onReports,
+    this.onPlans,
   });
   final CalendarMonth month;
   final AsyncValue<(LedgerMonthData, BudgetSnapshot)> state;
@@ -37,6 +41,8 @@ class HomePage extends StatelessWidget {
       onGoals;
   final ValueChanged<LedgerEntry>? onEntryTap;
   final ValueChanged<EntryTemplate>? onTemplate;
+  final ValueChanged<String>? onOpenDate;
+  final VoidCallback? onReports, onPlans;
   final Future<void> Function()? onRefresh;
 
   @override
@@ -67,7 +73,23 @@ class HomePage extends StatelessWidget {
               .firstOrNull
               ?.amount ??
           const Money.fromFen(0);
-      final entries = (report?.entries ?? data.entries).take(5).toList();
+      final complete =
+          data.entries
+              .where(
+                (e) =>
+                    todayKey == null || e.localDate.compareTo(todayKey!) <= 0,
+              )
+              .toList()
+            ..sort((a, b) {
+              final day = b.localDate.compareTo(a.localDate);
+              if (day != 0) return day;
+              final time = b.occurredAtUtcMs.compareTo(a.occurredAtUtcMs);
+              return time == 0 ? a.id.compareTo(b.id) : time;
+            });
+      final totals = {
+        for (final d in fullDailyTotals(complete)) d.localDate: d,
+      };
+      final entries = complete.take(5).toList();
       final goal = data.profile.goals.firstOrNull;
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,6 +114,18 @@ class HomePage extends StatelessWidget {
             spacing: 8,
             runSpacing: 4,
             children: [
+              if (onReports != null)
+                TextButton.icon(
+                  onPressed: onReports,
+                  icon: const Icon(Icons.summarize_outlined),
+                  label: const Text('周报与月报'),
+                ),
+              if (onPlans != null)
+                TextButton.icon(
+                  onPressed: onPlans,
+                  icon: const Icon(Icons.event_repeat_outlined),
+                  label: const Text('未来7天待办'),
+                ),
               if (onCalendar != null)
                 TextButton.icon(
                   onPressed: onCalendar,
@@ -149,13 +183,33 @@ class HomePage extends StatelessWidget {
               if (i == 0 || entries[i].localDate != entries[i - 1].localDate)
                 Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 2),
-                  child: Text(
-                    entries[i].localDate == todayKey
-                        ? '今天'
-                        : entries[i].localDate,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
+                  child: InkWell(
+                    onTap: onOpenDate == null
+                        ? null
+                        : () => onOpenDate!(entries[i].localDate),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entries[i].localDate == todayKey
+                              ? '今天'
+                              : entries[i].localDate,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        Text(
+                          '支出 ${totals[entries[i].localDate]!.expense.yuan} · 收入 ${totals[entries[i].localDate]!.income.yuan}',
+                        ),
+                        if (totals[entries[i].localDate]!.count >
+                            entries
+                                .where(
+                                  (e) => e.localDate == entries[i].localDate,
+                                )
+                                .length)
+                          Text(
+                            '当日共 ${totals[entries[i].localDate]!.count} 笔，已展示 ${entries.where((e) => e.localDate == entries[i].localDate).length} 笔 · 查看当日账单',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
                     ),
                   ),
                 ),

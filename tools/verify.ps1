@@ -41,5 +41,6 @@ try {
     Invoke-Check 'analyze' 'flutter' @('--suppress-analytics', 'analyze', '--no-pub')
     Invoke-Check 'flutter-test' 'flutter' @('--suppress-analytics', 'test', '--no-pub', '--reporter', 'expanded')
     Invoke-Check 'sql-design-test' 'node' @('--test', 'tools/schema.test.mjs')
+    Invoke-Check 'feedback-service-test' 'node' @('--test', 'server/feedback/server.test.mjs')
     Write-Host "Verification passed. Evidence: $evidence"
 } finally { Pop-Location }

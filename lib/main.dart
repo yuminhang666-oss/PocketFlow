@@ -5,6 +5,8 @@ import 'app/composition/pocketflow_root.dart';
 import 'core/database/app_database.dart';
 import 'features/transactions/data/drift_backup_store.dart';
 import 'features/transactions/data/drift_ledger_repository.dart';
+import 'features/planning/data/drift_planning_store.dart';
+import 'features/feedback/data/feedback_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +14,10 @@ void main() {
   runApp(
     ProviderScope(
       overrides: [
+        planningPortProvider.overrideWithValue(DriftPlanningStore(database)),
+        feedbackDraftStoreProvider.overrideWithValue(
+          DriftFeedbackDraftStore(database),
+        ),
         ledgerRepositoryProvider.overrideWithValue(
           DriftLedgerRepository(database),
         ),

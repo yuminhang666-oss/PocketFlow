@@ -11,12 +11,14 @@ class LedgerCalendarPage extends StatefulWidget {
     required this.today,
     required this.onOpenDay,
     required this.onMarkZero,
+    this.onAddDay,
   });
   final LedgerMonthData data;
   final LedgerView view;
   final String today;
   final ValueChanged<String> onOpenDay;
   final Future<void> Function(String, bool) onMarkZero;
+  final ValueChanged<String>? onAddDay;
   @override
   State<LedgerCalendarPage> createState() => _LedgerCalendarPageState();
 }
@@ -257,6 +259,14 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                         onPressed: () => widget.onOpenDay(selected),
                         child: const Text('查看当天账单'),
                       ),
+                      if (widget.onAddDay != null)
+                        TextButton(
+                          onPressed:
+                              _busy || selected.compareTo(widget.today) > 0
+                              ? null
+                              : () => widget.onAddDay!(selected),
+                          child: const Text('记入选定日期'),
+                        ),
                       if ((totals?.expense.fen ?? 0) == 0)
                         TextButton(
                           onPressed: _busy ? null : toggle,

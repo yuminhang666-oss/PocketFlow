@@ -17,11 +17,13 @@ class StatisticsPage extends StatefulWidget {
     this.onChooseMonth,
     this.onOpenCategory,
     this.onOpenDate,
+    this.onReports,
   });
   final CalendarMonth month;
   final AsyncValue<LedgerMonthData> state;
   final Clock clock;
   final VoidCallback? onChooseMonth;
+  final VoidCallback? onReports;
   final void Function(String, EntryKind)? onOpenCategory, onOpenDate;
   @override
   State<StatisticsPage> createState() => _StatisticsPageState();
@@ -35,6 +37,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
     appBar: AppBar(
       title: const Text('统计'),
       actions: [
+        if (widget.onReports != null)
+          IconButton(
+            tooltip: '本周至今与历史报告',
+            onPressed: widget.onReports,
+            icon: const Icon(Icons.summarize_outlined),
+          ),
         TextButton(
           onPressed: widget.onChooseMonth,
           child: Text('${widget.month.year}年${widget.month.month}月 ▾'),

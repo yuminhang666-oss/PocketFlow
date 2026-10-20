@@ -5,6 +5,7 @@ import '../../../contracts/contracts.dart';
 import '../../../core/database/app_database.dart' show AppDatabase;
 import '../../../core/database/ledger_reader.dart';
 import '../../../core/database/ledger_validation.dart';
+import '../../../core/database/planning_storage.dart';
 import 'drift_ledger_repository.dart';
 import 'entry_id.dart';
 import 'recovery_codec.dart';
@@ -69,6 +70,7 @@ class DriftBackupStore implements BackupStore {
           );
         }
 
+        await clearPlanning(database);
         await database.delete(database.ledgerEntries).go();
         await database.delete(database.monthlyBudgets).go();
         await database.delete(database.categories).go();
@@ -110,6 +112,17 @@ class DriftBackupStore implements BackupStore {
         for (final entry in document.entries) {
           await insertEntry(database, entry);
         }
+        await writePlanning(database, document.plans);
+        // Exact retention scope confirmed by user: latest 3, at most 30 days.
+        // Pruning happens after successful recovery write/replacement and is
+        // rolled back too if any part of this financial transaction fails.
+        await database.customUpdate(
+          'DELETE FROM recovery_snapshots WHERE created_at_utc_ms < ? OR id NOT IN (SELECT id FROM recovery_snapshots ORDER BY rowid DESC LIMIT 3)',
+          variables: [
+            Variable.withInt(now - const Duration(days: 30).inMilliseconds),
+          ],
+          updates: {database.recoverySnapshots},
+        );
         if ((await database.customSelect('PRAGMA foreign_key_check').get())
             .isNotEmpty) {
           throw const PocketFlowException(PocketFlowErrorCode.invalidBackup);

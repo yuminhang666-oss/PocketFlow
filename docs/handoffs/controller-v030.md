@@ -1,23 +1,17 @@
-# 0.3 主控交接 · S0 本地候选
+# 0.3 主控交接 · 邮箱版本地候选
 
-执行日期：2026-10-19（Asia/Shanghai）。独立目录 D:/Codex/PocketFlow-v030-20261019，分支 codex/v030-s0-review。
+2026-10-20（Asia/Shanghai）。独立目录D:/Codex/PocketFlow-v030-20261019，分支codex/v030-control-implementation；真实远程main b4f7aa6edea3bcc90d563015252c4e1fcd900649，0.3为待合并审阅候选，尚未发布；用户本轮已授权提交、推送并创建审阅PR，明确暂不合并。不得将本候选当main。
 
-## 唯一基线与本地差异
+S0已按用户精确授权提交4ae3784并以PR #8在两项新CI成功后merge，完整保留#6/#7提交链。随后从真实main新建本分支。旧tag f384ecf和0.2.1资产未改，原D:/Codex/记账工作树与updates/v0.2.1/source未切分支/改写。
 
-远程 main：8b224deabadf042ee901e2bfdf5deaa1d97e2c51，0.1.1。PR #6：081d6b4d0d872939ce48a8614784dad80533489d，base main；PR #7：f384ecfe7a2b4fec5bfcc3d77bbae73762a10145，base integration/v0.2-experience。两 PR 均未合并。本地 HEAD 为 #7 head，不是新 main。
+本地0.3.0+5，合同候选3/schema4/JSON3/recovery3，更新v2兼容v1。所有范围均保留，用户2026-10-20明确将原私有GitHub反馈服务改为邮箱yuminhang666@gmail.com（ADR0009）。生产FeedbackMailPort通过ACTION_SENDTO/mailto打开系统邮件编辑器，预览后由用户发送，App无法确认投递；无客户端时保留草稿/复制。无服务器/域名/云资源/SMTP密码，不再问托管问题；原server/feedback仅保留历史工作，不装配。未发真实邮件。
 
-本地未提交安全修复与文档/CI 收口见 ADR 0007、deliverables/v0.3.0/s0-review.md 和 s0-candidate.patch。财务合同 2.0.0 / schema 3 / JSON 2 / recovery 2；无新增包依赖、数据库迁移或版本号变更。原建议追踪表见 implementation-map.md。
+精确授权已覆盖：schema1/2/3→4安全目录事务代码与合成测试；JSON3/恢复3完整替换/恢复点最近3个30天/设备与反馈隔离的代码测试；本目录必要Flutter生成/分析/合成测试/本地构建。用户2026-10-20另行明确授权本候选提交、推送至公开仓库codex/v030-control-implementation并创建目标main的审阅PR，明确暂不合并。该授权不包含部署或公开Release。
 
-已从远程读取 AGENTS、architecture、data-contracts、interfaces、ownership、milestones、status 以及 A–D handoff；远程原本没有主控专属 handoff，本文件补齐此次交接。原 D:/Codex/记账 工作树及 updates/v0.2.1/source 未修改。
+最终独立干净快照.local/clean-email-v030-20261020排除生成文件后从baseline重新生成219输出、analyze0、139/139客户端与12/12 SQL协作通过。最终Release为68,316,420字节，SHA256 c057dcf57389184630a189527f09df2e237e331f89dfa9c4092ea69f2f180125，原测试签名/三ABI/AOT/非debuggable/16KiB通过。代码输入对照与完整本地补丁/源码ZIP/manifest见deliverables/v0.3.0/；不能复用previous-candidates或邮箱前135测试结果替代它。
 
-## 验证与阻碍
+最终原0.2.1→邮箱Release实际覆盖升级逐字段保留30笔虚构记录、3预算、完整profile、2旧恢复点、全部87旧分类ID，schema4/117合并分类、firstInstallTime不变、FK/完整性通过。固定邮箱的实际原生交接通过无网络的SYNTHETIC接收器验证，无附件、URI/Unicode正文一致；Gmail停用场景草稿保留，之后恢复其启用。原0.2.1解析器在受控本地feed接受真实最终v1清单，未发布新资产。
 
-本轮干净检出的离线锁定解析与 Drift 生成成功；静态分析、Flutter/SQL/协作测试的最终结果、命令和日志见 qa-report.md。缺陷复现日志单独保留，不能混为最终通过日志。未复制 ZIP 中的 g.dart。
+真实截图和页面矩阵已执行，实际小屏两行分类/周报大字曾复现并修复。TalkBack启用和基础焦点有证据，但完整手势/人工听读未完成，期间短暂device offline，不能把未证实激活计过。真实手机/OEM/其他API未验收。五年一万笔性能为Windows测试VM结果，不冒充手机。完整限制见docs/qa-v0.3.0.md和本地qa-report.md。
 
-当前无连接 Android 设备，未构建/安装本轮 APK；旧报告的 Android 升级记录仅作历史证据。未部署反馈或创建反馈库，未改变签名/tag/Release。
-
-S0 的具体下一步是审阅本地完整差异，授权后提交/推送 codex/v030-s0-review，创建到 main 的基线集成 PR，远程 CI 全通过后仅合入该 PR。#6/#7 的原始提交链保留在新 PR 内，不擅自 retarget/关闭或更改旧发布资产。若 main/head 在授权后漂移，先核对新差异，不把本次授权套给其他候选。
-
-## 继续 0.3
-
-严格以合入后的真实远程 main SHA 新建独立分支，开始合同 3.0.0 / schema 4 / JSON 3 的候选（若远程已演进则相应递增）。S1–S6 未完成，不得标为整版完成或悄悄删掉分类预算、周期待办、恢复管理等要求。反馈的服务/费用/私有库/App 权限/HTTPS 及部署需在材料可审阅后另取精确授权；不上传真实财务或凭据。
+续接先读远程协作规则/main及当前Git/进程/日志，不假定被中断命令完成。仅对本任务emulator-5586只读overlay做合成验证；收尾已恢复无障碍/字体/显示设置，移除合成接收器并停止该临时模拟器，保留全部证据。不改主机全局环境或其他对话目录。源码归档不含真实数据、生成文件、密钥或缓存；打包审阅时保持原真实Git索引；后续提交按本轮精确授权执行。

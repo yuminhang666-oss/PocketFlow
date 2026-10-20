@@ -1,6 +1,7 @@
 import 'calendar_month.dart';
 import 'ledger_entry.dart';
 import 'money.dart';
+import 'range_models.dart';
 
 final class DailyExpense {
   DailyExpense({required String localDate, required this.amount})
@@ -34,12 +35,16 @@ final class MonthlyReport {
     this.totalIncome = const Money.fromFen(0),
     Iterable<DailyExpense> dailyIncome = const [],
     Iterable<CategoryExpense> incomeCategoryTotals = const [],
+    Iterable<CategoryBreakdown> breakdown = const [],
+    Map<String, String> entryCategoryNames = const {},
   }) : asOf = parseCalendarDay(asOfLocalDate),
        daily = List.unmodifiable(daily),
        categoryTotals = List.unmodifiable(categoryTotals),
        entries = List.unmodifiable(entries),
        dailyIncome = List.unmodifiable(dailyIncome),
-       incomeCategoryTotals = List.unmodifiable(incomeCategoryTotals);
+       incomeCategoryTotals = List.unmodifiable(incomeCategoryTotals),
+       breakdown = List.unmodifiable(breakdown),
+       entryCategoryNames = Map.unmodifiable(entryCategoryNames);
   final CalendarMonth month;
   final DateTime asOf;
   final Money? budget;
@@ -51,6 +56,8 @@ final class MonthlyReport {
   final Money totalIncome;
   final List<DailyExpense> dailyIncome;
   final List<CategoryExpense> incomeCategoryTotals;
+  final List<CategoryBreakdown> breakdown;
+  final Map<String, String> entryCategoryNames;
   Money get netFlow => totalIncome - totalExpense;
   String get asOfLocalDate => calendarDayKey(asOf);
 }

@@ -11,7 +11,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pocketflow/contracts/contracts.dart';
 import 'package:pocketflow/core/database/app_database.dart' show AppDatabase;
-import 'package:pocketflow/core/domain/category_catalog.dart';
+import 'package:pocketflow/core/domain/catalog_upgrade.dart';
 import 'package:pocketflow/features/backup/domain/json_backup_codec.dart';
 import 'package:pocketflow/features/budget/domain/budget_calculator.dart';
 import 'package:pocketflow/features/statistics/domain/monthly_report_service.dart';
@@ -82,7 +82,7 @@ void main() {
       await repo.saveBudget(month, const Money.fromFen(100000));
       await repo.createExpense(_draft(3000, 'food_canteen'));
       final income = await repo.createIncome(
-        _draft(20000, 'income_tutoring_english'),
+        _draft(20000, 'income_labor_general_1'),
       );
       Future<void> verify(int expectedIncome) async {
         final data = await read();
@@ -114,7 +114,7 @@ void main() {
       await verify(20000);
       final edited = await repo.updateIncome(
         income.id,
-        _draft(25000, 'income_tutoring_math', note: 'fixture income'),
+        _draft(25000, 'income_labor_general_2', note: 'fixture income'),
       );
       expect(edited.kind, EntryKind.income);
       expect(edited.createdAtUtcMs, income.createdAtUtcMs);
@@ -146,7 +146,7 @@ void main() {
       );
       await repo.createExpense(_draft(1500, 'drinks_coffee'));
       await repo.createIncome(
-        _draft(20000, 'income_tutoring_english', note: 'English fixture'),
+        _draft(20000, 'income_labor_general_1', note: 'English fixture'),
       );
       final data = await read();
       const query = DefaultLedgerQueryService();
@@ -257,21 +257,21 @@ void main() {
           name: 'Fixture tutoring',
           kind: EntryKind.income,
           amount: const Money.fromFen(20000),
-          categoryId: 'income_tutoring_english',
+          categoryId: 'income_labor_general_1',
         ),
       );
-      await repo.createIncome(_draft(20000, 'income_tutoring_english'));
+      await repo.createIncome(_draft(20000, 'income_labor_general_1'));
       await repo.markZeroExpenseDay('2026-10-15', true);
       final snapshot = await store.readAll(), encoded = codec.encode(snapshot);
-      expect((jsonDecode(encoded) as Map)['formatVersion'], 2);
+      expect((jsonDecode(encoded) as Map)['formatVersion'], 3);
       final imported = codec.decode(encoded);
       expect(imported.profile.goals.single.saved.fen, 5000);
       expect(imported.profile.templates.single.kind, EntryKind.income);
       expect(
         imported.categories
-            .firstWhere((c) => c.id == 'income_tutoring_english')
+            .firstWhere((c) => c.id == 'income_labor_general_1')
             .parentId,
-        'income_tutoring',
+        'income_labor',
       );
       await repo.savePreferences(theme: 'light');
       await repo.deleteGoal('fixture-goal');
@@ -300,7 +300,7 @@ void main() {
         () => codec.decode(jsonEncode(bad)),
         throwsA(isA<PocketFlowException>()),
       );
-      bad['formatVersion'] = 3;
+      bad['formatVersion'] = 4;
       expect(
         () => codec.decode(jsonEncode(bad)),
         throwsA(isA<PocketFlowException>()),
@@ -358,7 +358,10 @@ void main() {
         ),
         throwsA(isA<PocketFlowException>()),
       );
-      expect((await read()).categories.length, recommendedCategories().length);
+      expect(
+        (await read()).categories.length,
+        generalRecommendedCategories().length,
+      );
     },
   );
   test(
@@ -435,11 +438,11 @@ void main() {
         expect(cat.name, '原餐饮');
         expect(cat.isArchived, isTrue);
         expect(cat.kind, isNull);
-        expect(data.categories.length, recommendedCategories().length);
+        expect(data.categories.length, generalRecommendedCategories().length);
         expect(
           (await upgraded.customSelect('PRAGMA user_version').getSingle())
               .read<int>('user_version'),
-          3,
+          4,
         );
         expect(
           await upgraded.customSelect('PRAGMA foreign_key_check').get(),
