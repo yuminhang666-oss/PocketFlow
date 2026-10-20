@@ -1,7 +1,7 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../core/domain/ledger_entry.dart';
 import '../../core/domain/ledger_models.dart';
-import '../../core/domain/category_catalog.dart';
 import 'amount_text.dart';
 
 String categoryRoot(String id, List<Category> all) {
@@ -129,7 +129,9 @@ class EntryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final c = categories.where((c) => c.id == entry.categoryId).firstOrNull;
-    final name = c == null ? '未识别分类' : categoryPath(c, categories);
+    final name = c == null
+        ? tr(context, "未识别分类")
+        : localizedCategoryPath(context, c, categories);
     final color = categoryColor(entry.categoryId, categories);
     final dark = Theme.of(context).brightness == Brightness.dark;
     final narrow = MediaQuery.textScalerOf(context).scale(14) > 20;
@@ -171,7 +173,11 @@ class EntryTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    entry.note.isEmpty ? (c?.name ?? '未识别分类') : entry.note,
+                    entry.note.isEmpty
+                        ? (c == null
+                              ? tr(context, "未识别分类")
+                              : localizedCategoryName(context, c))
+                        : entry.note,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium,

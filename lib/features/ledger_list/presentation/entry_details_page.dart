@@ -1,8 +1,8 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/domain/ledger_entry.dart';
 import '../../../core/domain/ledger_models.dart';
-import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/amount_text.dart';
 
 class EntryDetailsPage extends StatelessWidget {
@@ -21,7 +21,7 @@ class EntryDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final names = categories.where((c) => c.id == entry.categoryId);
     return Scaffold(
-      appBar: AppBar(title: const Text('账单详情')),
+      appBar: AppBar(title: Text(tr(context, "账单详情"))),
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
@@ -32,7 +32,11 @@ class EntryDetailsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(entry.kind == EntryKind.expense ? '支出金额' : '收入金额'),
+                  Text(
+                    entry.kind == EntryKind.expense
+                        ? tr(context, "支出金额")
+                        : tr(context, "收入金额"),
+                  ),
                   const SizedBox(height: 12),
                   AmountText(
                     entry.amount,
@@ -42,34 +46,40 @@ class EntryDetailsPage extends StatelessWidget {
                   const Divider(),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('分类'),
+                    title: Text(tr(context, "分类")),
                     subtitle: Text(
                       names.isEmpty
-                          ? '未识别分类'
-                          : categoryPath(names.first, categories),
+                          ? tr(context, "未识别分类")
+                          : localizedCategoryPath(
+                              context,
+                              names.first,
+                              categories,
+                            ),
                     ),
                   ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('发生日期'),
+                    title: Text(tr(context, "发生日期")),
                     subtitle: Text(entry.localDate),
                   ),
                   const SizedBox(height: 16),
-                  const Text('备注'),
+                  Text(tr(context, "备注")),
                   const SizedBox(height: 8),
-                  SelectableText(entry.note.isEmpty ? '无备注' : entry.note),
+                  SelectableText(
+                    entry.note.isEmpty ? tr(context, "无备注") : entry.note,
+                  ),
                   const SizedBox(height: 24),
                   if (onEdit != null)
                     FilledButton.tonalIcon(
                       onPressed: onEdit,
                       icon: const Icon(Icons.edit_outlined),
-                      label: const Text('编辑账单'),
+                      label: Text(tr(context, "编辑账单")),
                     ),
                   if (onDelete != null)
                     TextButton.icon(
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline),
-                      label: const Text('删除账单'),
+                      label: Text(tr(context, "删除账单")),
                     ),
                 ],
               ),

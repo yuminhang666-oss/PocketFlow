@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,7 +30,10 @@ class _NoteEditorState extends State<NoteEditor> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('添加备注', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            tr(context, "添加备注"),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 16),
           TextField(
             controller: _controller,
@@ -37,7 +41,7 @@ class _NoteEditorState extends State<NoteEditor> {
             minLines: 2,
             maxLines: 4,
             inputFormatters: [_CodeUnitLimitFormatter(500)],
-            decoration: const InputDecoration(hintText: '例如：食堂午餐（选填）'),
+            decoration: InputDecoration(hintText: tr(context, "例如：食堂午餐（选填）")),
           ),
           const SizedBox(height: 8),
           ValueListenableBuilder<TextEditingValue>(
@@ -48,7 +52,7 @@ class _NoteEditorState extends State<NoteEditor> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () => Navigator.pop(context, _controller.text),
-            child: const Text('完成'),
+            child: Text(tr(context, "完成")),
           ),
         ],
       ),

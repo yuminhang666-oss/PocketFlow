@@ -1,0 +1,1532 @@
+{
+  "@@locale": "en",
+  "m0000": "Budget saved",
+  "m0001": "Saved",
+  "m0002": "Updated",
+  "m0003": "Undo",
+  "m0004": "Delete this entry?",
+  "m0005": "{p0} · {p1}\nTotals will be recalculated. If linked to a recurring plan, this period will be marked skipped and will not be posted again automatically.",
+  "@m0005": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0006": "Cancel",
+  "m0007": "Delete",
+  "m0008": "Ledger",
+  "m0009": "Unable to load the ledger",
+  "m0010": "Retry",
+  "m0011": "{p0} · Save file",
+  "@m0011": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0012": "{p0} · Share",
+  "@m0012": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0013": "Markdown monthly report",
+  "m0014": "System share opened",
+  "m0015": "Monthly report saved",
+  "m0016": "Full JSON backup",
+  "m0017": "Backup saved",
+  "m0018": "Restore and replace this ledger?",
+  "m0019": "This backup contains {p0} entries, {p1} monthly budgets and {p2} categories.\n\nIt will replace your ledger, goals, templates and preferences. Settings absent from older backups will use defaults. A local recovery point will be saved first.{p3}\nExported: {p4}\nSource format v{p5} · {p6} recurring rules{p7}",
+  "@m0019": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      },
+      "p4": {
+        "type": "Object"
+      },
+      "p5": {
+        "type": "Object"
+      },
+      "p6": {
+        "type": "Object"
+      },
+      "p7": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0020": "\nThis backup has no entries. Your ledger will be empty after restoration.",
+  "m0021": "\nThis older backup has no recurring plans or category budgets. They will be empty after replacement.",
+  "m0022": "Replace ledger",
+  "m0023": "Restoration complete",
+  "m0024": "Restored {p0} entries.\nLocal recovery point saved before restoration:\n{p1}",
+  "@m0024": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0025": "Done",
+  "m0026": "Unable to load entries",
+  "m0027": "Last week's review is ready",
+  "m0028": "{p0} — {p1}\nExpenses {p2} · Income {p3}\n{p4}",
+  "@m0028": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      },
+      "p4": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0029": "No expenses recorded",
+  "m0030": "Top expense category: {p0} {p1}",
+  "@m0030": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0031": "Later",
+  "m0032": "View weekly report",
+  "m0033": "Budget progress reminder",
+  "m0034": "Your monthly budget is zero. Recorded expenses total {p0}.",
+  "@m0034": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0035": "Recorded spending is {p0} of your monthly budget, with {p1} remaining. Spending has recently been faster; consider your upcoming plans.",
+  "@m0035": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0036": "Mute for this month",
+  "m0037": "Got it",
+  "m0038": "View budget",
+  "m0039": "Unable to load reminders or reports. You can retry from Reports.",
+  "m0040": "Preparing your ledger",
+  "m0041": "Overview",
+  "m0042": "Entries",
+  "m0043": "＋Add",
+  "m0044": "Statistics",
+  "m0045": "Me",
+  "m0046": "Food",
+  "m0047": "Meals",
+  "m0048": "Canteen",
+  "m0049": "Takeaway",
+  "m0050": "Snacks & fruit",
+  "m0051": "Dining out",
+  "m0052": "Drinks",
+  "m0053": "Coffee",
+  "m0054": "Tea",
+  "m0055": "Bottled drinks",
+  "m0056": "Transport",
+  "m0057": "Bus & metro",
+  "m0058": "Ride-hailing",
+  "m0059": "Cycling",
+  "m0060": "Intercity tickets",
+  "m0061": "Shopping",
+  "m0062": "Daily supplies",
+  "m0063": "Clothes & shoes",
+  "m0064": "Personal care",
+  "m0065": "Tech accessories",
+  "m0066": "Housing & living",
+  "m0067": "Rent",
+  "m0068": "Utilities",
+  "m0069": "Laundry",
+  "m0070": "Repairs",
+  "m0071": "Learning",
+  "m0072": "Books & materials",
+  "m0073": "Stationery",
+  "m0074": "Printing",
+  "m0075": "Courses & training",
+  "m0076": "Exam fees",
+  "m0077": "Course projects",
+  "m0078": "Digital services",
+  "m0079": "Software subscriptions",
+  "m0080": "AI tools",
+  "m0081": "Cloud storage",
+  "m0082": "Development services",
+  "m0083": "Health",
+  "m0084": "Medicine",
+  "m0085": "Medical visits",
+  "m0086": "Health checkups",
+  "m0087": "Communication",
+  "m0088": "Mobile & data",
+  "m0089": "Broadband",
+  "m0090": "Work expenses",
+  "m0091": "Work materials",
+  "m0092": "Document printing",
+  "m0093": "Tools & equipment",
+  "m0094": "Entertainment",
+  "m0095": "Movies",
+  "m0096": "Games",
+  "m0097": "Media subscriptions",
+  "m0098": "Sports",
+  "m0099": "Venue fees",
+  "m0100": "Fitness",
+  "m0101": "Equipment",
+  "m0102": "Social & gifts",
+  "m0103": "Gifts",
+  "m0104": "Cash gifts",
+  "m0105": "Social events",
+  "m0106": "Travel",
+  "m0107": "Accommodation",
+  "m0108": "Attractions",
+  "m0109": "Travel activities",
+  "m0110": "Other",
+  "m0111": "Living allowance",
+  "m0112": "Family support",
+  "m0113": "Salary & wages",
+  "m0114": "Salary",
+  "m0115": "Internship pay",
+  "m0116": "Bonuses & allowances",
+  "m0117": "Part-time work",
+  "m0118": "Tutoring",
+  "m0119": "Part-time jobs",
+  "m0120": "Project work",
+  "m0121": "Scholarships & grants",
+  "m0122": "Scholarships",
+  "m0123": "Grants",
+  "m0124": "Competition prizes",
+  "m0125": "Cash gifts received",
+  "m0126": "Interest income",
+  "m0127": "Other income",
+  "m0128": "Campus jobs",
+  "m0129": "Study",
+  "m0130": "Research & coursework",
+  "m0131": "Tutoring expenses",
+  "m0132": "Travel & trips",
+  "m0133": "Tutoring income",
+  "m0134": "Internships & part-time work",
+  "m0135": "Interest",
+  "m0136": "Off-campus meals",
+  "m0137": "Bike sharing",
+  "m0138": "Trips home",
+  "m0139": "Electronic accessories",
+  "m0140": "Textbooks & study aids",
+  "m0141": "Printing & binding",
+  "m0142": "Personal lab supplies",
+  "m0143": "Course components & fabrication",
+  "m0144": "Competition fees",
+  "m0145": "Academic materials",
+  "m0146": "AI subscriptions",
+  "m0147": "Software licenses",
+  "m0148": "Development & cloud services",
+  "m0149": "Dorm utilities",
+  "m0150": "Household repairs",
+  "m0151": "Haircuts",
+  "m0152": "Handout printing",
+  "m0153": "Teaching materials",
+  "m0154": "Teaching supplies",
+  "m0155": "Sports venues",
+  "m0156": "Sports equipment",
+  "m0157": "Cash gifts given",
+  "m0158": "Club dues",
+  "m0159": "English tutoring",
+  "m0160": "Math & science tutoring",
+  "m0161": "Teaching assistant work",
+  "m0162": "Work-study",
+  "m0163": "University project allowance",
+  "m0164": "Off-campus work",
+  "m0165": "Duplicate category ID",
+  "m0166": "Invalid category hierarchy or entry type",
+  "m0167": "Missing or incompatible entry category",
+  "m0168": "Missing or incompatible template category",
+  "m0169": "Report a problem",
+  "m0170": "Feature suggestion",
+  "m0171": "Not provided",
+  "m0172": "Use at most two decimal places",
+  "m0173": "Enter at most nine whole-number digits",
+  "m0174": "Your recent category is archived or unavailable. Please choose another.",
+  "m0175": "This template's category is archived or unavailable. Please choose another.",
+  "m0176": "The original category is unavailable. Please choose another.",
+  "m0177": "Choose an available category",
+  "m0178": "Choose entry date",
+  "m0179": "OK",
+  "m0180": "Discard this entry?",
+  "m0181": "The unsaved amount and note will be discarded.",
+  "m0182": "Keep editing",
+  "m0183": "Discard",
+  "m0184": "Enter an amount greater than zero",
+  "m0185": "The date cannot be later than today",
+  "m0186": "Saving income is not available",
+  "m0187": "Saved {p0} entries · {p1} · {p2} · {p3}",
+  "@m0187": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0188": "Save as a template",
+  "m0189": "For example: canteen lunch",
+  "m0190": "Save template",
+  "m0191": "Template saved",
+  "m0192": "Backdate {p0} · {p1}",
+  "@m0192": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0193": "Income amount",
+  "m0194": "Expense amount",
+  "m0195": "Amount: CNY {p0}",
+  "@m0195": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0196": "Not entered",
+  "m0197": "Save as template",
+  "m0198": "No available categories",
+  "m0199": "Add recommended categories",
+  "m0200": "Today",
+  "m0201": "Note (optional)",
+  "m0202": "Note added",
+  "m0203": "Save & add another",
+  "m0204": "Saving…",
+  "m0205": "Save changes",
+  "m0206": "Save income",
+  "m0207": "Save expense",
+  "m0208": "Back",
+  "m0209": "Edit income",
+  "m0210": "Edit entry",
+  "m0211": "Expense",
+  "m0212": "Income",
+  "m0213": "Delete digit",
+  "m0214": "Decimal point",
+  "m0215": "Choose expense category",
+  "m0216": "Choose income category",
+  "m0217": "Close",
+  "m0218": "Search categories",
+  "m0219": "{p0} (unspecified)",
+  "@m0219": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0220": "Choose a category",
+  "m0221": "Selected: {p0}",
+  "@m0221": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0222": ", selected",
+  "m0223": "Search all categories",
+  "m0224": "Add a note",
+  "m0225": "For example: canteen lunch (optional)",
+  "m0226": "Not configured",
+  "m0227": "A mail app was opened previously; delivery is unknown. Your draft remains on this device.",
+  "m0228": "Draft saved on this device",
+  "m0229": "To: {p0}\nSubject: {p1}\n\n{p2}",
+  "@m0229": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0230": "Recipient, subject and feedback copied. Your draft remains on this device.",
+  "m0231": "Enter 10–2000 characters after trimming surrounding whitespace",
+  "m0232": "Check your feedback",
+  "m0233": "Preview feedback email",
+  "m0234": "To: {p0}\nSubject: {p1}\n\n{p2}\n\nContinue to your phone's mail app and send the email there. No ledger, database, logs, screenshots or device identifiers are attached. Do not include passwords or identification numbers.",
+  "@m0234": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0235": "Open mail app",
+  "m0236": "Mail app opened. Please send the email there; PocketFlow cannot confirm sending or delivery.",
+  "m0237": "No compatible mail app was found. Your draft is saved locally; copy the content to send it yourself.",
+  "m0238": "Suggestions & bug reports",
+  "m0239": "Feedback email: {p0}",
+  "@m0239": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0240": "Preview first, then send through your mail app. Drafts stay on your device and include only your input and any environment details you choose to add.",
+  "m0241": "Feedback (10–2000 characters)",
+  "m0242": "Steps to reproduce",
+  "m0243": "Expected result",
+  "m0244": "Actual result",
+  "m0245": "Contact details (optional)",
+  "m0246": "Include environment details",
+  "m0247": "Please wait…",
+  "m0248": "Save draft",
+  "m0249": "Copy email address & feedback",
+  "m0250": "Write new feedback",
+  "m0251": "Unable to load your ledger",
+  "m0252": "Loading your ledger",
+  "m0253": "Updating month data",
+  "m0254": "Update failed. Showing the previous result.",
+  "m0255": "Monthly expenses",
+  "m0256": "Monthly income",
+  "m0257": "Today's expenses",
+  "m0258": "Weekly & monthly reports",
+  "m0259": "Next 7 days",
+  "m0260": "Entry calendar",
+  "m0261": "My savings goals",
+  "m0262": "Templates",
+  "m0263": "Recent entries",
+  "m0264": "View all",
+  "m0265": "No expenses yet",
+  "m0266": "Start with an expense or income entry",
+  "m0267": "Add first entry",
+  "m0268": "Expenses {p0} · Income {p1}",
+  "@m0268": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0269": "{p0} entries this day, showing {p1} · View day",
+  "@m0269": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0270": "/ Goal {p0}",
+  "@m0270": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0271": "Track progress separately; your living budget is unchanged",
+  "m0272": "Recorded on {p0} days this month · {p1} entries",
+  "@m0272": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0273": "{p0}-{p1}",
+  "@m0273": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0274": "This month's budget is zero",
+  "m0275": "Budget used: {p0} percent",
+  "@m0275": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0276": "Budget used: {p0}%",
+  "@m0276": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0277": "Monthly remainder",
+  "m0278": "Planned daily amount",
+  "m0279": "Daily budget from today",
+  "m0280": "{p0} days in the month",
+  "@m0280": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0281": "Including today · {p0} days left",
+  "@m0281": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0282": "Set a budget",
+  "m0283": "/ day",
+  "m0284": "Past month · All monthly expenses",
+  "m0285": "For budget planning only",
+  "m0286": "Remaining budget divided by days left; updates after each entry",
+  "m0287": "Over budget this month",
+  "m0288": "Budget remaining",
+  "m0289": "Set a budget to see your daily amount",
+  "m0290": "Budget {p0} · {p1}",
+  "@m0290": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0291": "{p0}% used",
+  "@m0291": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0292": "Set monthly budget",
+  "m0293": "Adjust budget",
+  "m0294": "Previous year",
+  "m0295": "{p0}",
+  "@m0295": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0296": "Next year",
+  "m0297": "Month {p0}",
+  "@m0297": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0298": "Entry details",
+  "m0299": "Category",
+  "m0300": "Unknown category",
+  "m0301": "Entry date",
+  "m0302": "Note",
+  "m0303": "No note",
+  "m0304": "Delete entry",
+  "m0305": "Unable to complete this action. Please retry.",
+  "m0306": "{p0}-{p1} · Entry calendar",
+  "@m0306": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0307": "Mon",
+  "m0308": "Tue",
+  "m0309": "Wed",
+  "m0310": "Thu",
+  "m0311": "Fri",
+  "m0312": "Sat",
+  "m0313": "Sun",
+  "m0314": "Future date",
+  "m0315": "{p0} entries",
+  "@m0315": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0316": "Zero expenses confirmed",
+  "m0317": "Not recorded",
+  "m0318": "{p0}/{p1}, {p2}",
+  "@m0318": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0319": "Orange: expenses · Blue: income · Check: zero expenses confirmed by you",
+  "m0320": "Dates without entries remain “Not recorded”; this does not mean nothing was spent.",
+  "m0321": "No actual entries for future dates",
+  "m0322": "Zero expenses confirmed for this day",
+  "m0323": "No entries for this day",
+  "m0324": "{p0} entries this day",
+  "@m0324": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0325": "View day's entries",
+  "m0326": "Add on selected date",
+  "m0327": "Remove zero-expense mark",
+  "m0328": "Confirm zero expenses",
+  "m0329": "Filter dates in this month",
+  "m0330": "Category & amount filters",
+  "m0331": "Category (including subcategories)",
+  "m0332": "All categories",
+  "m0333": "Minimum amount (CNY, optional)",
+  "m0334": "Maximum amount (CNY, optional)",
+  "m0335": "The minimum amount cannot exceed the maximum",
+  "m0336": "Apply filters",
+  "m0337": "{p0}-{p1} ▾",
+  "@m0337": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0338": "Search notes or categories",
+  "m0339": "All",
+  "m0340": "Category / amount",
+  "m0341": "Date",
+  "m0342": "{p0} to {p1}",
+  "@m0342": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0343": "Clear filters",
+  "m0344": "Filtered expenses",
+  "m0345": "Filtered income",
+  "m0346": "Net flow",
+  "m0347": "{p0} entries · Net flow is not an account balance",
+  "@m0347": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0348": "No matching entries",
+  "m0349": "Expenses {p0} · Income {p1} · {p2} entries",
+  "@m0349": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0350": "Confirm",
+  "m0351": "Save",
+  "m0352": "{p0} budget plan",
+  "@m0352": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0353": "Total budget {p0}",
+  "@m0353": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0354": "Category budgets track plans only. Your remaining allowance comes solely from the total budget.",
+  "m0355": "Set total budget",
+  "m0356": "Clear total budget?",
+  "m0357": "Only this month's budget amount will be cleared. Entries and category plans are kept.",
+  "m0358": "Clear total budget",
+  "m0359": "Category plans total {p0}",
+  "@m0359": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0360": "Category plans exceed the total budget by {p0}",
+  "@m0360": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0361": "Unallocated {p0}",
+  "@m0361": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0362": "Copy last month's category budgets",
+  "m0363": "Copy last month's plans?",
+  "m0364": "Matching plans for this month will be replaced. Only available expense root categories are copied.",
+  "m0365": " (archived)",
+  "m0366": "Used {p0} / {p1}{p2}",
+  "@m0366": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0367": " · Over the planned amount",
+  "m0368": "Set {p0} budget",
+  "@m0368": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0369": "{p0} category budget",
+  "@m0369": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0370": "Clear {p0} budget",
+  "@m0370": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0371": "Clear category budget?",
+  "m0372": "Only {p0}'s plan for this month will be cleared.",
+  "@m0372": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0373": "Recurring expenses & income",
+  "m0374": "Add monthly rule",
+  "m0375": "Plans are not posted automatically. Only confirmed entries affect expenses and income; unconfirmed income does not increase your budget.",
+  "m0376": "Previous month",
+  "m0377": "Next month",
+  "m0378": "Not yet within the reminder window",
+  "m0379": "Pending",
+  "m0380": "Confirmed",
+  "m0381": "Skipped",
+  "m0382": "Confirm actual {p0}",
+  "@m0382": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0383": "Post entry",
+  "m0384": "Skip this period?",
+  "m0385": "No entry will be created. You can explicitly reopen it later.",
+  "m0386": "Skip period",
+  "m0387": "Reopen this period?",
+  "m0388": "This period will return to pending. No entry will be posted automatically.",
+  "m0389": "Reopen period",
+  "m0390": "Rules & versions",
+  "m0391": "No monthly rules yet. Add rent, subscriptions or regular income.",
+  "m0392": "{p0} · Day {p1} each month{p2}{p3}",
+  "@m0392": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0393": " · Paused",
+  "m0394": " · Archived",
+  "m0395": "Latest version effective from {p0}",
+  "@m0395": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0396": "Edit rule",
+  "m0397": "Immutable rule version",
+  "m0398": "New rule version",
+  "m0399": "Changes apply next month by default. Processed periods are preserved. Pausing and archiving also apply from the chosen month.",
+  "m0400": "Amount per period (CNY)",
+  "m0401": "Day of month (last day in shorter months)",
+  "m0402": "Day {p0}",
+  "@m0402": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0403": "Days to show in advance",
+  "m0404": "{p0} days",
+  "@m0404": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0405": "This version's effective month YYYY-MM",
+  "m0406": "Rule start month YYYY-MM",
+  "m0407": "End month (optional)",
+  "m0408": "Enabled",
+  "m0409": "Archived",
+  "m0410": "Save rule version",
+  "m0411": "Local recovery points",
+  "m0412": "Only the latest 3 points within 30 days are kept. They are stored in app data and are lost if the app is uninstalled or its data cleared. They do not replace an external JSON backup.",
+  "m0413": "No local recovery points",
+  "m0414": "Clear all recovery points?",
+  "m0415": "These {p0} internal recovery points will be deleted. Ledger entries are kept.",
+  "@m0415": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0416": "Clear recovery points",
+  "m0417": "This recovery point is damaged. Other ledger data is unaffected.",
+  "m0418": "{p0} entries · Encoding v{p1}",
+  "@m0418": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0419": "Restore and replace all?",
+  "m0420": "This point contains {p0} entries, {p1} monthly budgets and {p2} recurring rules. Exported: {p3}.\nIt will replace financial data. A new recovery point for the current ledger will be saved first.{p4}",
+  "@m0420": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      },
+      "p4": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0421": "This older version has no recurring plans or category budgets. They will be empty after replacement.",
+  "m0422": "Preview & restore",
+  "m0423": "Delete this recovery point?",
+  "m0424": "Only the selected internal recovery point will be deleted.",
+  "m0425": "Reminders & entry preferences",
+  "m0426": "Up to twice monthly, at least 7 days apart; shown inside the app only",
+  "m0427": "Show weekly reviews automatically",
+  "m0428": "Shown when first opened after Monday 08:00; no background notifications",
+  "m0429": "Clear recent {p0} category",
+  "@m0429": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0430": "Recent category cleared",
+  "m0431": "Choose a completed calendar month",
+  "m0432": "Last month's full report will be available after 08:00 today",
+  "m0433": "Choose historical monthly report",
+  "m0434": "This week so far",
+  "m0435": "{p0}/{p1}–{p2}/{p3} weekly report",
+  "@m0435": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      },
+      "p3": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0436": "{p0} monthly report",
+  "@m0436": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0437": "Based on recorded entries · {p0} entries",
+  "@m0437": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0438": "Net flow {p0} (income minus expenses)",
+  "@m0438": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0439": "No entries in this period. This does not mean no spending occurred.",
+  "m0440": "Recorded income {p0}; no expenses recorded this period",
+  "@m0440": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0441": "No comparable expenses in the previous week; no percentage change is calculated",
+  "m0442": "Expenses changed by {p1}% versus the same {p0} days last week",
+  "@m0442": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0443": "Daily income & expenses",
+  "m0444": "No entries",
+  "m0445": "{p0} entries",
+  "@m0445": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0446": "Expenses {p0}",
+  "@m0446": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0447": "Income {p0}",
+  "@m0447": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0448": "Expense root categories",
+  "m0449": "Share {p0}",
+  "@m0449": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0450": "None",
+  "m0451": "{p0} categories tied for the highest expenses",
+  "@m0451": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0452": "Largest expense",
+  "m0453": "{p0} entries tied for the largest amount",
+  "@m0453": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0454": "Updated from current entries at {p0}",
+  "@m0454": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0455": "Weekly reports are available for 30 calendar days after the period ends. Older entries can be reviewed through monthly reports. Your entries are kept.",
+  "m0456": "Frosted theme & in-app updates",
+  "m0457": "Added a separate frosted light theme that stays light and remembers your choice.",
+  "m0458": "Download updates inside the app, see progress, verify the package, then confirm installation in Android.",
+  "m0459": "The Undo notice now disappears automatically after 3 seconds.",
+  "m0460": "Added an official fallback update source, specific network, timeout and verification errors, and retry support.",
+  "m0461": "Plans, reminders & reviews",
+  "m0462": "Set monthly root-category budgets, review allocated and unallocated amounts, and copy last month's plans.",
+  "m0463": "Manage recurring expenses and income, post, skip or reopen periods. Unconfirmed plans are never posted automatically.",
+  "m0464": "View weekly reviews and historical monthly reports with expenses, income and daily totals.",
+  "m0465": "Added optional budget progress reminders. Weekly and budget prompts do not appear one after another.",
+  "m0466": "Preview and manage local recovery points; keep the latest 3 points within 30 days.",
+  "m0467": "Preview feedback before opening a mail app. Keep drafts or copy content when no mail app is available.",
+  "m0468": "View version history in About PocketFlow, even offline.",
+  "m0469": "Fixed daily totals on the overview counting only some entries on busy days.",
+  "m0470": "Fixed backdated entry dates and dates retained by Save & add another; improved category selection and large-text layouts.",
+  "m0471": "Fixed negative amounts and double counting root and subcategory totals in Markdown reports.",
+  "m0472": "Fixed stale update candidates after failed checks while retaining legacy update manifest compatibility.",
+  "m0473": "Strengthened Undo conflict checks to protect entries that have since been edited or linked to recurring plans.",
+  "m0474": "Preserved historical category IDs and user changes during catalog upgrades; failed restorations roll back fully.",
+  "m0475": "Manual update checks",
+  "m0476": "Added Check for updates in Me, with version notes and package size after a manual check.",
+  "m0477": "Download packages through a browser, then confirm an in-place update with Android.",
+  "m0478": "Network access occurs only on a manual check; no automatic downloads, installations or overview update prompts.",
+  "m0479": "Income & usability improvements",
+  "m0480": "Added income entries, search and filters, an entry calendar and income/expense category statistics.",
+  "m0481": "Added two-level categories, reusable templates and manually tracked savings goals.",
+  "m0482": "Added light, dark and system themes, with persistent preferences.",
+  "m0483": "Backups include themes, goals and templates and remain compatible with older backup formats.",
+  "m0484": "Adjusted the four-tab navigation and entry button so amounts are not obscured.",
+  "m0485": "Android ledger startup fix",
+  "m0486": "Fixed Android ledger loading, budget saving and continuously loading statistics.",
+  "m0487": "Show clear loading errors and support manual retries instead of an endless loading screen.",
+  "m0488": "Kept the original application ID and signing identity for in-place updates that retain data.",
+  "m0489": "First personal test version",
+  "m0490": "Added monthly budgets, expense entries, category statistics, Markdown reports and JSON backup/restore.",
+  "m0491": "Your ledger stays on your phone; no account is needed.",
+  "m0492": "This version had an Android ledger startup issue, fixed in 0.1.1.",
+  "m0493": "About PocketFlow",
+  "m0494": "{p0} · Personal test build",
+  "@m0494": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0495": "Manage your living budget offline, record income and expenses, and review your spending.\nUse Markdown for analysis and JSON for full backups.",
+  "m0496": "Version history",
+  "m0497": "Features and fixes in each version",
+  "m0498": "Open-source licenses",
+  "m0499": "Browse features and fixes by version, including offline.",
+  "m0500": "Current version",
+  "m0501": "New features",
+  "m0502": "Bug fixes",
+  "m0503": "Notes",
+  "m0504": "Budget for {p0}-{p1}",
+  "@m0504": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0505": "Monthly living budget",
+  "m0506": "The budget may be zero. Saving updates the budget for this month.",
+  "m0507": "Save budget",
+  "m0508": "Add category",
+  "m0509": "Edit category",
+  "m0510": "Category name",
+  "m0511": "Parent category",
+  "m0512": "New root category",
+  "m0513": "Enter a category name",
+  "m0514": "Save category",
+  "m0515": "Archived; historical entries are kept",
+  "m0516": "Rename",
+  "m0517": "Unarchive",
+  "m0518": "Archive category",
+  "m0519": "Move up",
+  "m0520": "Move down",
+  "m0521": "Manage categories",
+  "m0522": "Expense categories",
+  "m0523": "Income categories",
+  "m0524": "Expand root categories to see subcategories. Archiving hides them from new entries and preserves history.",
+  "m0525": "Show archived categories",
+  "m0526": "Add missing categories only. Your renamed categories and archive settings are preserved.",
+  "m0527": "New savings goal",
+  "m0528": "Edit goal progress",
+  "m0529": "Goal name",
+  "m0530": "For example: headphone fund",
+  "m0531": "Target amount (CNY)",
+  "m0532": "Tracked amount (CNY)",
+  "m0533": "This only tracks goal progress; it does not reduce your living budget.",
+  "m0534": "Save goal",
+  "m0535": "Delete {p0}?",
+  "@m0535": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0536": "Make progress toward your plans. Amounts are entered manually and stay separate from your living budget.",
+  "m0537": "New goal",
+  "m0538": "No goals yet. Start with a small plan.",
+  "m0539": "Goal reached. Mark the moment.",
+  "m0540": "{p0}% tracked",
+  "@m0540": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0541": "Update progress",
+  "m0542": "this goal",
+  "m0543": "Delete goal",
+  "m0544": "Enter an amount and category, then tap the bookmark icon to save a template. You can still confirm the amount, date and note when using it.",
+  "m0545": "No templates yet",
+  "m0546": "Delete template",
+  "m0547": "this template",
+  "m0548": "System",
+  "m0549": "Light",
+  "m0550": "Dark",
+  "m0551": "Choose theme",
+  "m0552": "Frosted glass (light)",
+  "m0553": "Translucent cards and soft layers in a separate light theme",
+  "m0554": "My ledger",
+  "m0555": "Budget settings",
+  "m0556": "Historical entries",
+  "m0557": "Reminders & recent categories",
+  "m0558": "Preferences",
+  "m0559": "Theme",
+  "m0560": "Entry feedback",
+  "m0561": "Haptic feedback after saving",
+  "m0562": "Data management",
+  "m0563": "Export monthly report",
+  "m0564": "Back up data",
+  "m0565": "Restore backup",
+  "m0566": "No successful external backup yet",
+  "m0567": "Last successful export: {p0}",
+  "@m0567": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0568": "Save an external JSON backup. Local recovery points do not replace it.",
+  "m0569": "Keep external JSON backups in a safe place.",
+  "m0570": "About",
+  "m0571": "Check for updates",
+  "m0572": "New version {p0} available",
+  "@m0572": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0573": "No account needed. Data stays on your phone.\nFiles are exported or shared only when you choose to do so.",
+  "m0574": "CNY {p0} × 10,000",
+  "@m0574": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0575": "CNY {p0}k",
+  "@m0575": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0576": "CNY {p0}",
+  "@m0576": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0577": "No income recorded for this period",
+  "m0578": "No expenses recorded for this period",
+  "m0579": "Category {p0} donut chart; amounts are listed below",
+  "@m0579": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0580": "Spending",
+  "m0581": "Amount (CNY) · {p0}",
+  "@m0581": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0582": "Tap a bar to see the amount",
+  "m0583": "Tap a date bar to view entries",
+  "m0584": "Day {p0}\n{p1}",
+  "@m0584": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0585": "Dates after the cutoff are not included.",
+  "m0586": "View daily amounts",
+  "m0587": "Set a monthly budget to see the remaining-budget trend",
+  "m0588": "Remaining budget (CNY) · Solid: daily closing amount · Dashed: even-spending reference",
+  "m0589": "{p0} {p1}\n{p2}",
+  "@m0589": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      },
+      "p2": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0590": "Month start",
+  "m0591": "Remaining",
+  "m0592": "Reference",
+  "m0593": "The reference is not a spending forecast. It uses the current budget and does not reflect past budget changes.",
+  "m0594": "View remaining-budget details",
+  "m0595": "Day {p0} · {p1}",
+  "@m0595": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0596": "Reference {p0}",
+  "@m0596": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0597": "This week & historical reports",
+  "m0598": "Statistics unavailable",
+  "m0599": "No actual statistics for future months",
+  "m0600": "Set a budget from Overview first",
+  "m0601": "Monthly net flow",
+  "m0602": "Through {p0} · Net flow is income minus expenses",
+  "@m0602": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0603": "Expense analysis",
+  "m0604": "Income analysis",
+  "m0605": "Budget trend",
+  "m0606": "No monthly budget yet",
+  "m0607": "Set a budget in Overview or Me to see how the remaining amount changes.",
+  "m0608": "Monthly budget",
+  "m0609": "Spent",
+  "m0610": "Remaining budget",
+  "m0611": "Income is tracked separately and does not automatically increase your budget.",
+  "m0612": "No income entries this month",
+  "m0613": "No expense entries this month",
+  "m0614": "Tap Add below to record your first entry.",
+  "m0615": "Income sources",
+  "m0616": "Where your money goes",
+  "m0617": "Collapse ranking",
+  "m0618": "View all {p0} categories",
+  "@m0618": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0619": "View category donut chart",
+  "m0620": "Daily {p0}",
+  "@m0620": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0621": "{p0} entries · Highest daily amount {p1}",
+  "@m0621": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0622": "Unable to complete this action. Please try again later.",
+  "m0623": "Tap below to check for updates",
+  "m0624": "Checking for updates…",
+  "m0625": "You're up to date",
+  "m0626": "Unable to check for updates. You can keep using your ledger.",
+  "m0627": "Downloading update…",
+  "m0628": "Package downloaded and verified",
+  "m0629": "App updates",
+  "m0630": "Reading installed version",
+  "m0631": "Current version {p0} · Test build",
+  "@m0631": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0632": "Package {p0} MB",
+  "@m0632": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0633": "Downloading {p0}%",
+  "@m0633": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0634": "Install update",
+  "m0635": "Download & update",
+  "m0636": "Cancel download",
+  "m0637": "The app downloads and verifies the package, then Android asks you to confirm installation. Allow app installs the first time. Updating in place preserves your ledger.",
+  "m0638": "Checking…",
+  "m0639": "Open download page",
+  "m0640": "Connects only when you check for updates. Ledger entries are not uploaded.",
+  "m0641": "Unable to reach the update service. Check your connection or switch between Wi-Fi and mobile data, then retry.",
+  "m0642": "Connection timed out. Retry later or switch networks.",
+  "m0643": "Too many update requests. Please retry later.",
+  "m0644": "Update information failed verification. Please retry later.",
+  "m0645": "The new package uses a different signing identity and cannot update this installation.",
+  "m0646": "Unable to read the installed version. Please retry.",
+  "m0647": "Package download failed. Check your connection and available storage, then retry.",
+  "m0648": "Package verification failed. Installation was stopped; please download again.",
+  "m0649": "Download cancelled.",
+  "m0650": "Unable to open the installer. Check install permissions and retry.",
+  "m0651": "{p0}{p1} CNY",
+  "@m0651": {
+    "placeholders": {
+      "p0": {
+        "type": "Object"
+      },
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "m0652": "Not set",
+  "m0653": "Unable to complete this action. Please retry.",
+  "m0654": "Enter a valid amount with at most two decimal places",
+  "m0655": "Choose a valid date; expense dates cannot be later than today",
+  "m0656": "This category is unavailable. Please choose another.",
+  "m0657": "This entry no longer exists. Refresh and retry.",
+  "m0658": "Unable to save your ledger. Please retry.",
+  "m0659": "Unable to read ledger data. Check your backup or retry.",
+  "m0660": "This app version does not support this backup",
+  "m0661": "Unable to read this backup. Choose a valid backup.",
+  "m0662": "Backup incomplete. Please retry.",
+  "m0663": "Restoration incomplete. Please retry.",
+  "m0664": "Export incomplete. Please retry.",
+  "m0665": "Unable to read the file. Please choose it again.",
+  "m0666": "This entry or plan changed. Refresh and retry.",
+  "m0667": "Unable to open a feedback email. Your draft is kept; copy its content to send it.",
+  "m0668": "Rule storage versions do not match",
+  "m0669": "Month is outside the supported range",
+  "m0670": "Use YYYY-MM for the month",
+  "m0671": "Use YYYY-MM-DD for the date",
+  "m0672": "Invalid date",
+  "m0673": "Invalid feedback fields",
+  "m0674": "Entries and categories must have an ID",
+  "m0675": "The amount must be positive and within the allowed range",
+  "m0676": "Notes cannot exceed 500 characters",
+  "m0677": "IDs cannot exceed 64 characters",
+  "m0678": "The modification time cannot precede creation",
+  "m0679": "Invalid category ID or name",
+  "m0680": "Invalid budget amount",
+  "m0681": "Invalid expense amount",
+  "m0682": "Invalid category or note",
+  "m0683": "The budget and snapshot months differ",
+  "m0684": "The month snapshot contains entries from another month",
+  "m0685": "Enter an amount with up to two decimal places",
+  "m0686": "Amount exceeds the allowed range",
+  "m0687": "Invalid goal name or amount",
+  "m0688": "Invalid template",
+  "m0689": "Invalid personal preferences",
+  "m0690": "Invalid plan ID",
+  "m0691": "Invalid plan amount",
+  "m0692": "Invalid rule time",
+  "m0693": "Invalid recurring rule fields",
+  "m0694": "Invalid recurring occurrence link",
+  "m0695": "Invalid category catalog version",
+  "m0696": "Invalid plan ID or version relationship",
+  "m0697": "Invalid recurring period relationship",
+  "m0698": "Category budgets must use a top-level expense category",
+  "m0699": "Rule and category types do not match",
+  "m0700": "The recurring period and entry link do not match",
+  "m0701": "Invalid date range in snapshot",
+  "m0702": "Budget amount is outside the allowed range",
+  "m0703": "This day already has expenses and cannot be marked as zero spending",
+  "m0704": "Language",
+  "m0705": "Choose language",
+  "m0706": "System installer opened. Confirm the update there; if cancelled, you can tap Install again.",
+  "m0707": "Allow PocketFlow to install apps, then return and tap Install update.",
+  "m0708": "Added Simplified Chinese, Traditional Chinese and English, with instant switching and persistent preferences. User-authored content is preserved.",
+  "m0709": "Refined light, dark and frosted themes, with clearer layouts and accessibility across Overview, entry, budgets and statistics."
+}

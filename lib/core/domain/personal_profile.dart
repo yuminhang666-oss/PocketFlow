@@ -87,6 +87,8 @@ final class EntryTemplate {
 final class PersonalProfile {
   PersonalProfile({
     this.theme = 'system',
+    this.surfaceStyle = 'classic',
+    this.locale = 'zh_Hans',
     this.feedback = true,
     this.lastExpenseCategoryId,
     this.lastIncomeCategoryId,
@@ -97,6 +99,8 @@ final class PersonalProfile {
        templates = List.unmodifiable(templates),
        zeroExpenseDays = List.unmodifiable(zeroExpenseDays) {
     if (!['system', 'light', 'dark'].contains(theme) ||
+        !['classic', 'glass'].contains(surfaceStyle) ||
+        !['zh_Hans', 'zh_Hant', 'en'].contains(locale) ||
         [
           lastExpenseCategoryId,
           lastIncomeCategoryId,
@@ -112,6 +116,8 @@ final class PersonalProfile {
     }
   }
   final String theme;
+  final String surfaceStyle;
+  final String locale;
   final bool feedback;
   final String? lastExpenseCategoryId;
   final String? lastIncomeCategoryId;
@@ -121,6 +127,8 @@ final class PersonalProfile {
 
   PersonalProfile copyWith({
     String? theme,
+    String? surfaceStyle,
+    String? locale,
     bool? feedback,
     String? lastExpenseCategoryId,
     String? lastIncomeCategoryId,
@@ -131,6 +139,8 @@ final class PersonalProfile {
     Iterable<String>? zeroExpenseDays,
   }) => PersonalProfile(
     theme: theme ?? this.theme,
+    surfaceStyle: surfaceStyle ?? this.surfaceStyle,
+    locale: locale ?? this.locale,
     feedback: feedback ?? this.feedback,
     lastExpenseCategoryId: clearExpenseCategory
         ? null
@@ -145,6 +155,8 @@ final class PersonalProfile {
 
   Map<String, Object?> toJson() => {
     'theme': theme,
+    if (surfaceStyle != 'classic') 'surfaceStyle': surfaceStyle,
+    if (locale != 'zh_Hans') 'locale': locale,
     'feedback': feedback,
     'lastExpenseCategoryId': lastExpenseCategoryId,
     'lastIncomeCategoryId': lastIncomeCategoryId,
@@ -154,6 +166,8 @@ final class PersonalProfile {
   };
   factory PersonalProfile.fromJson(Map<String, dynamic> row) => PersonalProfile(
     theme: row['theme'] as String,
+    surfaceStyle: row['surfaceStyle'] as String? ?? 'classic',
+    locale: row['locale'] as String? ?? 'zh_Hans',
     feedback: row['feedback'] as bool,
     lastExpenseCategoryId: row['lastExpenseCategoryId'] as String?,
     lastIncomeCategoryId: row['lastIncomeCategoryId'] as String?,

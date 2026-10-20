@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -20,6 +21,20 @@ class GithubAppReleaseSource implements AppReleaseSource {
 
   @override
   Future<AppUpdate?> latestFor(InstalledApp installed) async {
+    try {
+      return await _fromFeed(installed);
+    } on UpdateUnavailable catch (failure) {
+      // An invalid manifest must not bypass the release metadata checks.
+      if (failure.reason != UpdateFailure.network &&
+          failure.reason != UpdateFailure.timeout &&
+          failure.reason != UpdateFailure.rateLimited) {
+        rethrow;
+      }
+      return _fromLatest(installed, failure);
+    }
+  }
+
+  Future<AppUpdate?> _fromFeed(InstalledApp installed) async {
     try {
       final feed = jsonDecode(await _load(_feed));
       if (feed is! List) throw const UpdateUnavailable();
@@ -102,8 +117,11 @@ class GithubAppReleaseSource implements AppReleaseSource {
                 notes: notes,
               );
               break;
-            } catch (_) {
+            } on UpdateUnavailable catch (e) {
+              if (e.reason != UpdateFailure.invalidMetadata) rethrow;
               /* v2 may fall back to the independently valid v1. */
+            } catch (_) {
+              /* Malformed v2 may fall back to the independently valid v1. */
             }
           }
           if (!manifestSeen || !usable) invalid = true;
@@ -111,15 +129,95 @@ class GithubAppReleaseSource implements AppReleaseSource {
               (newest == null || candidate.versionCode > newest.versionCode)) {
             newest = candidate;
           }
+        } on UpdateUnavailable catch (e) {
+          if (e.reason != UpdateFailure.invalidMetadata) rethrow;
+          invalid = true;
         } catch (_) {
           invalid = true;
         }
       }
       if (newest == null && invalid) throw const UpdateUnavailable();
       return newest;
+    } on UpdateUnavailable {
+      rethrow;
+    } on TimeoutException {
+      throw const UpdateUnavailable(UpdateFailure.timeout);
+    } on SocketException {
+      throw const UpdateUnavailable(UpdateFailure.network);
+    } on HandshakeException {
+      throw const UpdateUnavailable(UpdateFailure.network);
     } catch (_) {
       throw const UpdateUnavailable();
     }
+  }
+
+  Future<AppUpdate?> _fromLatest(
+    InstalledApp installed,
+    UpdateUnavailable original,
+  ) async {
+    for (final schema in [2, 1]) {
+      try {
+        final name = schema == 2
+            ? 'PocketFlow-update-v2.json'
+            : 'PocketFlow-update.json';
+        final data =
+            jsonDecode(
+                  await _load(
+                    Uri.parse('${_repositoryPrefix}latest/download/$name'),
+                  ),
+                )
+                as Map<String, dynamic>;
+        final version = data['versionName'];
+        final kind = schema == 2 ? data['buildKind'] : 'debug';
+        if (data['schemaVersion'] != schema ||
+            data['applicationId'] != installed.applicationId ||
+            version is! String ||
+            !RegExp(r'^\d+\.\d+\.\d+$').hasMatch(version) ||
+            (kind != 'release' && kind != 'debug') ||
+            data[schema == 2 ? 'assetName' : 'apkName'] !=
+                'PocketFlow-$version-$kind.apk' ||
+            data['versionCode'] is! int ||
+            data['versionCode'] <= 0 ||
+            data['apkSizeBytes'] is! int ||
+            data['apkSizeBytes'] <= 0 ||
+            data['apkSizeBytes'] > 2147483648 ||
+            data['apkSha256'] is! String ||
+            !RegExp(r'^[a-f0-9]{64}$').hasMatch(data['apkSha256']) ||
+            data['releaseNotes'] is! List ||
+            (data['releaseNotes'] as List).length > 30 ||
+            (data['releaseNotes'] as List).any(
+              (n) => n is! String || n.length > 500,
+            )) {
+          throw const UpdateUnavailable();
+        }
+        if (data['certificateSha256'] != installed.certificateSha256) {
+          throw const UpdateUnavailable(UpdateFailure.incompatibleSignature);
+        }
+        if (_compareVersions(version, installed.versionName) <= 0 ||
+            data['versionCode'] <= installed.versionCode) {
+          return null;
+        }
+        // latest/download resolves the actual tag, including historical tag forms.
+        // Native download verifies bytes, SHA-256, package, version and signer.
+        return AppUpdate(
+          versionName: version,
+          versionCode: data['versionCode'],
+          bytes: data['apkSizeBytes'],
+          sha256: data['apkSha256'],
+          downloadUrl: Uri.parse(
+            '${_repositoryPrefix}latest/download/PocketFlow-$version-$kind.apk',
+          ),
+          releaseUrl: releasesPage,
+          notes: (data['releaseNotes'] as List).cast<String>(),
+        );
+      } on UpdateUnavailable catch (e) {
+        if (e.reason == UpdateFailure.incompatibleSignature) rethrow;
+        if (schema == 1 && e.reason == UpdateFailure.invalidMetadata) rethrow;
+      } catch (_) {
+        // Try the legacy manifest on the same official release only.
+      }
+    }
+    throw original;
   }
 
   static Uri _assetUrl(Map<String, dynamic> asset, String tag) {
@@ -157,7 +255,12 @@ class GithubAppReleaseSource implements AppReleaseSource {
           'application/vnd.github+json',
         );
         final response = await request.close();
-        if (response.statusCode != 200) throw const UpdateUnavailable();
+        if (response.statusCode == 403 || response.statusCode == 429) {
+          throw const UpdateUnavailable(UpdateFailure.rateLimited);
+        }
+        if (response.statusCode != 200) {
+          throw const UpdateUnavailable(UpdateFailure.network);
+        }
         final bytes = <int>[];
         await for (final chunk in response) {
           if (bytes.length + chunk.length > 1048576) {
@@ -167,6 +270,12 @@ class GithubAppReleaseSource implements AppReleaseSource {
         }
         return utf8.decode(bytes);
       })().timeout(const Duration(seconds: 12));
+    } on TimeoutException {
+      throw const UpdateUnavailable(UpdateFailure.timeout);
+    } on SocketException {
+      throw const UpdateUnavailable(UpdateFailure.network);
+    } on HandshakeException {
+      throw const UpdateUnavailable(UpdateFailure.network);
     } finally {
       client.close(force: true);
     }

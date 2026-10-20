@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../../../contracts/contracts.dart';
@@ -59,14 +60,16 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
       try {
         await widget.onMarkZero(selected, !zero);
       } catch (e) {
-        if (mounted) setState(() => _error = '操作未完成，请重试');
+        if (mounted) setState(() => _error = tr(context, "操作未完成，请重试"));
       } finally {
         if (mounted) setState(() => _busy = false);
       }
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('${month.year}年${month.month}月 · 记账日历')),
+      appBar: AppBar(
+        title: Text(tr(context, "{0}年{1}月 · 记账日历", [month.year, month.month])),
+      ),
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
@@ -84,14 +87,14 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                       children: [
                         Row(
                           children: [
-                            for (final day in const [
-                              '一',
-                              '二',
-                              '三',
-                              '四',
-                              '五',
-                              '六',
-                              '日',
+                            for (final day in [
+                              tr(context, "一"),
+                              tr(context, "二"),
+                              tr(context, "三"),
+                              tr(context, "四"),
+                              tr(context, "五"),
+                              tr(context, "六"),
+                              tr(context, "日"),
                             ])
                               Expanded(
                                 child: Center(
@@ -125,14 +128,18 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                                     .contains(date);
                             final isFuture = date.compareTo(widget.today) > 0;
                             final desc = isFuture
-                                ? '未来日期'
+                                ? tr(context, "未来日期")
                                 : data != null
-                                ? '${data.count}笔记录'
+                                ? tr(context, "{0}笔记录", [data.count])
                                 : marked
-                                ? '已确认零支出'
-                                : '尚未记录';
+                                ? tr(context, "已确认零支出")
+                                : tr(context, "尚未记录");
                             return Semantics(
-                              label: '${month.month}月$day日，$desc',
+                              label: tr(context, "{0}月{1}日，{2}", [
+                                month.month,
+                                day,
+                                desc,
+                              ]),
                               button: true,
                               child: InkWell(
                                 onTap: () => setState(() => _selected = date),
@@ -206,10 +213,10 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('橙点：支出 · 蓝点：收入 · 勾选：主动确认零支出'),
+                    Text(tr(context, "橙点：支出 · 蓝点：收入 · 勾选：主动确认零支出")),
                     const SizedBox(height: 6),
                     Text(
-                      '没有记录的日期保持“尚未记录”，不等同于没有消费。',
+                      tr(context, "没有记录的日期保持“尚未记录”，不等同于没有消费。"),
                       style: TextStyle(
                         fontSize: 12,
                         color: scheme.onSurfaceVariant,
@@ -222,12 +229,14 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                     ),
                     const SizedBox(height: 12),
                     if (future)
-                      const Text('未来日期尚无实际记录')
+                      Text(tr(context, "未来日期尚无实际记录"))
                     else ...[
                       Text(
                         totals == null
-                            ? (zero ? '已确认当天零支出' : '当天尚未记录')
-                            : '当天 ${totals.count} 笔',
+                            ? (zero
+                                  ? tr(context, "已确认当天零支出")
+                                  : tr(context, "当天尚未记录"))
+                            : tr(context, "当天 {0} 笔", [totals.count]),
                       ),
                       const SizedBox(height: 8),
                       Wrap(
@@ -237,7 +246,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('支出'),
+                              Text(tr(context, "支出")),
                               AmountText(
                                 totals?.expense ?? const Money.fromFen(0),
                               ),
@@ -246,7 +255,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('收入'),
+                              Text(tr(context, "收入")),
                               AmountText(
                                 totals?.income ?? const Money.fromFen(0),
                               ),
@@ -257,7 +266,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                       const SizedBox(height: 16),
                       FilledButton(
                         onPressed: () => widget.onOpenDay(selected),
-                        child: const Text('查看当天账单'),
+                        child: Text(tr(context, "查看当天账单")),
                       ),
                       if (widget.onAddDay != null)
                         TextButton(
@@ -265,22 +274,25 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                               _busy || selected.compareTo(widget.today) > 0
                               ? null
                               : () => widget.onAddDay!(selected),
-                          child: const Text('记入选定日期'),
+                          child: Text(tr(context, "记入选定日期")),
                         ),
                       if ((totals?.expense.fen ?? 0) == 0)
                         TextButton(
                           onPressed: _busy ? null : toggle,
                           child: Text(
                             _busy
-                                ? '保存中…'
+                                ? tr(context, "保存中…")
                                 : zero
-                                ? '取消零支出标记'
-                                : '确认当天零支出',
+                                ? tr(context, "取消零支出标记")
+                                : tr(context, "确认当天零支出"),
                           ),
                         ),
                     ],
                     if (_error != null)
-                      Text(_error!, style: TextStyle(color: scheme.error)),
+                      Text(
+                        tr(context, _error!),
+                        style: TextStyle(color: scheme.error),
+                      ),
                   ],
                 ),
               ),

@@ -27,6 +27,20 @@ class AppUpdate {
   final List<String> notes;
 }
 
+enum UpdateFailure {
+  network,
+  timeout,
+  rateLimited,
+  invalidMetadata,
+  incompatibleSignature,
+  installedInfo,
+  download,
+  integrity,
+  cancelled,
+  installer,
+}
+
 class UpdateUnavailable implements Exception {
-  const UpdateUnavailable();
+  const UpdateUnavailable([this.reason = UpdateFailure.invalidMetadata]);
+  final UpdateFailure reason;
 }

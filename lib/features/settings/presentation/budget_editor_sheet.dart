@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -78,7 +79,7 @@ class _BudgetEditorSheetState extends State<BudgetEditorSheet> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = presentationError(error);
+          _error = tr(context, presentationError(error));
         });
       }
     }
@@ -100,7 +101,10 @@ class _BudgetEditorSheetState extends State<BudgetEditorSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '${widget.month.year}年${widget.month.month}月预算',
+              tr(context, "{0}年{1}月预算", [
+                widget.month.year,
+                widget.month.month,
+              ]),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -120,21 +124,21 @@ class _BudgetEditorSheetState extends State<BudgetEditorSheet> {
                 ),
               ],
               decoration: InputDecoration(
-                labelText: '本月生活费',
+                labelText: tr(context, "本月生活费"),
                 prefixText: '¥ ',
                 errorText: _error,
               ),
             ),
             const SizedBox(height: 12),
-            const Text('预算可以为零，保存后将更新该月预算信息。'),
+            Text(tr(context, "预算可以为零，保存后将更新该月预算信息。")),
             const SizedBox(height: 20),
             FilledButton(
               onPressed: _saving ? null : _save,
-              child: Text(_saving ? '保存中…' : '保存预算'),
+              child: Text(_saving ? tr(context, "保存中…") : tr(context, "保存预算")),
             ),
             TextButton(
               onPressed: _saving ? null : () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(tr(context, "取消")),
             ),
           ],
         ),

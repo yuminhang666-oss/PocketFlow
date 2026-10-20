@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pocketflow/l10n/app_strings.dart';
 
 class StatusPanel extends StatelessWidget {
   const StatusPanel({
@@ -33,17 +34,20 @@ class StatusPanel extends StatelessWidget {
           Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
         const SizedBox(height: 16),
         Text(
-          title,
+          tr(context, title),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         if (message != null) ...[
           const SizedBox(height: 8),
-          Text(message!, textAlign: TextAlign.center),
+          Text(tr(context, message!), textAlign: TextAlign.center),
         ],
         if (onAction != null && actionLabel != null) ...[
           const SizedBox(height: 16),
-          OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+          OutlinedButton(
+            onPressed: onAction,
+            child: Text(tr(context, actionLabel!)),
+          ),
         ],
       ],
     ),

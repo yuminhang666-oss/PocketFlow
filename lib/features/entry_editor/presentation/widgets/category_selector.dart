@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/domain/ledger_models.dart';
 import '../../../../core/domain/ledger_entry.dart';
@@ -35,12 +36,14 @@ Future<String?> showCategoryPicker(
                 children: [
                   Expanded(
                     child: Text(
-                      kind == EntryKind.expense ? '选择支出分类' : '选择收入分类',
+                      kind == EntryKind.expense
+                          ? tr(context, "选择支出分类")
+                          : tr(context, "选择收入分类"),
                       style: Theme.of(sheet).textTheme.titleLarge,
                     ),
                   ),
                   IconButton(
-                    tooltip: '关闭',
+                    tooltip: tr(context, "关闭"),
                     onPressed: () => Navigator.pop(sheet),
                     icon: const Icon(Icons.close),
                   ),
@@ -50,9 +53,9 @@ Future<String?> showCategoryPicker(
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixIcon: Icon(Icons.search),
-                  hintText: '搜索分类或细分类',
+                  hintText: tr(context, "搜索分类或细分类"),
                 ),
                 onChanged: (v) => setSheet(() => query = v.trim()),
               ),
@@ -64,15 +67,22 @@ Future<String?> showCategoryPicker(
                 children: [
                   for (final root in all.where((c) => c.parentId == null)) ...[
                     if (query.isEmpty ||
-                        root.name.contains(query) ||
+                        localizedCategoryName(
+                          context,
+                          root,
+                        ).toLowerCase().contains(query.toLowerCase()) ||
                         all.any(
                           (c) =>
-                              c.parentId == root.id && c.name.contains(query),
+                              c.parentId == root.id &&
+                              localizedCategoryName(
+                                context,
+                                c,
+                              ).toLowerCase().contains(query.toLowerCase()),
                         )) ...[
                       Padding(
                         padding: const EdgeInsets.only(top: 16, bottom: 8),
                         child: Text(
-                          root.name,
+                          localizedCategoryName(context, root),
                           style: Theme.of(sheet).textTheme.titleMedium,
                         ),
                       ),
@@ -85,12 +95,22 @@ Future<String?> showCategoryPicker(
                             ...all.where((c) => c.parentId == root.id),
                           ])
                             if (query.isEmpty ||
-                                root.name.contains(query) ||
-                                c.name.contains(query))
+                                localizedCategoryName(
+                                  context,
+                                  root,
+                                ).toLowerCase().contains(query.toLowerCase()) ||
+                                localizedCategoryName(
+                                  context,
+                                  c,
+                                ).toLowerCase().contains(query.toLowerCase()))
                               ChoiceChip(
                                 selected: c.id == selectedId,
                                 label: Text(
-                                  c.id == root.id ? '${c.name}（未细分）' : c.name,
+                                  c.id == root.id
+                                      ? tr(context, "{0}（未细分）", [
+                                          localizedCategoryName(context, c),
+                                        ])
+                                      : localizedCategoryName(context, c),
                                 ),
                                 avatar: Icon(
                                   categoryIcon(c.id, categories),
@@ -145,15 +165,17 @@ class CategorySelector extends StatelessWidget {
       children: [
         Text(
           selected == null
-              ? '请选择分类'
-              : '已选：${categoryPath(selected, categories)}',
+              ? tr(context, "请选择分类")
+              : tr(context, "已选：{0}", [
+                  localizedCategoryPath(context, selected, categories),
+                ]),
           key: const ValueKey('selected-category-path'),
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 8),
         SizedBox(
           height: large
-              ? 230
+              ? 266
               : medium
               ? 198
               : 158,
@@ -167,7 +189,7 @@ class CategorySelector extends StatelessWidget {
                   ? 3
                   : 4,
               mainAxisExtent: large
-                  ? 112
+                  ? 130
                   : medium
                   ? 96
                   : 76,
@@ -179,22 +201,28 @@ class CategorySelector extends StatelessWidget {
               return Semantics(
                 selected: active,
                 button: true,
-                label: '${c.name}${active ? '，已选' : ''}',
+                enabled: enabled,
+                excludeSemantics: true,
+                onTap: enabled ? () => onSelected(c.id) : null,
+                label: tr(context, "{0}{1}", [
+                  localizedCategoryName(context, c),
+                  active ? tr(context, "，已选") : '',
+                ]),
                 child: OutlinedButton(
                   onPressed: enabled ? () => onSelected(c.id) : null,
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(4),
                     backgroundColor: active
                         ? Theme.of(context).colorScheme.primaryContainer
-                        : null,
+                        : Theme.of(context).colorScheme.surface,
                     side: BorderSide(
                       color: active
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.outlineVariant,
-                      width: active ? 2 : 1,
+                          : Colors.transparent,
+                      width: active ? 1.5 : 1,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   child: Stack(
@@ -205,10 +233,13 @@ class CategorySelector extends StatelessWidget {
                         children: [
                           Icon(categoryIcon(c.id, categories), size: 22),
                           const SizedBox(height: 4),
-                          Text(
-                            c.name,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
+                          Flexible(
+                            child: Text(
+                              localizedCategoryName(context, c),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ],
                       ),
@@ -238,7 +269,7 @@ class CategorySelector extends StatelessWidget {
                       showCheckmark: false,
                       avatar: Icon(categoryIcon(c.id, categories), size: 18),
                       selected: c.id == selectedId,
-                      label: Text(c.name),
+                      label: Text(localizedCategoryName(context, c)),
                       onSelected: enabled ? (_) => onSelected(c.id) : null,
                     ),
                   ),
@@ -249,7 +280,7 @@ class CategorySelector extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: TextButton.icon(
             icon: const Icon(Icons.search, size: 18),
-            label: const Text('搜索全部分类'),
+            label: Text(tr(context, "搜索全部分类")),
             onPressed: !enabled
                 ? null
                 : () async {

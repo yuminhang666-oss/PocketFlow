@@ -1,4 +1,6 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
+import '../../app/theme/frosted_glass.dart';
 import '../../core/domain/money.dart';
 import 'amount_text.dart';
 
@@ -22,39 +24,40 @@ class MetricGrid extends StatelessWidget {
         runSpacing: 8,
         children: [
           for (final item in values)
-            Container(
+            SizedBox(
               width: width,
-              padding: const EdgeInsets.all(11),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                border: Border.all(color: scheme.outlineVariant),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.$1,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  if (item.$2 == null)
-                    const Text('待设置')
-                  else
-                    AmountText(
-                      item.$2!,
+              child: FrostedSurface(
+                radius: 18,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.$1,
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: item.$1.contains('收入')
-                            ? scheme.primary
-                            : scheme.onSurface,
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 6),
+                    if (item.$2 == null)
+                      Text(tr(context, "待设置"))
+                    else
+                      AmountText(
+                        item.$2!,
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w600,
+                          color: item.$1.contains(tr(context, "收入"))
+                              ? scheme.primary
+                              : scheme.onSurface,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
         ],

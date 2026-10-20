@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../contracts/contracts.dart';
 import '../../../core/domain/category_catalog.dart';
@@ -18,11 +19,11 @@ Future<bool> confirmPlanningAction(
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(d, false),
-            child: const Text('取消'),
+            child: Text(tr(context, "取消")),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(d, true),
-            child: const Text('确认'),
+            child: Text(tr(context, "确认")),
           ),
         ],
       ),
@@ -43,12 +44,15 @@ Future<Money?> editPlanningAmount(
         content: TextField(
           controller: input,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(prefixText: '¥ ', errorText: error),
+          decoration: InputDecoration(
+            prefixText: '¥ ',
+            errorText: error == null ? null : tr(d, error!),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(d),
-            child: const Text('取消'),
+            child: Text(tr(context, "取消")),
           ),
           FilledButton(
             onPressed: () {
@@ -58,7 +62,7 @@ Future<Money?> editPlanningAmount(
                 set(() => error = e.message);
               }
             },
-            child: const Text('保存'),
+            child: Text(tr(context, "保存")),
           ),
         ],
       ),
@@ -73,7 +77,7 @@ void _error(BuildContext c, Object e) {
   if (c.mounted) {
     ScaffoldMessenger.of(
       c,
-    ).showSnackBar(SnackBar(content: Text(presentationError(e))));
+    ).showSnackBar(SnackBar(content: Text(tr(c, presentationError(e)))));
   }
 }
 
@@ -104,69 +108,99 @@ class CategoryBudgetsPage extends StatelessWidget {
     );
     final spent = {for (final e in expense) e.categoryId: e.amount.fen};
     return Scaffold(
-      appBar: AppBar(title: Text('${data.month.key} 预算计划')),
+      appBar: AppBar(title: Text(tr(context, "{0} 预算计划", [data.month.key]))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            '总预算 ${total?.yuan ?? '未设置'}',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const Text('分类预算只显示计划进度；总预算是剩余额度的唯一来源。'),
-          Wrap(
-            spacing: 8,
-            children: [
-              TextButton(onPressed: onTotalBudget, child: const Text('设置总预算')),
-              if (total != null)
-                TextButton(
-                  onPressed: () async {
-                    if (await confirmPlanningAction(
-                      context,
-                      '清除总预算？',
-                      '仅清除本月额度，不删除账目和分类计划。',
-                    )) {
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    tr(context, "总预算 {0}", [total?.yuan ?? tr(context, "未设置")]),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    tr(context, "分类预算只显示计划进度；总预算是剩余额度的唯一来源。"),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      TextButton(
+                        onPressed: onTotalBudget,
+                        child: Text(tr(context, "设置总预算")),
+                      ),
+                      if (total != null)
+                        TextButton(
+                          onPressed: () async {
+                            if (await confirmPlanningAction(
+                              context,
+                              tr(context, "清除总预算？"),
+                              tr(context, "仅清除本月额度，不删除账目和分类计划。"),
+                            )) {
+                              try {
+                                await port.clearBudget(data.month);
+                              } catch (e) {
+                                if (context.mounted) _error(context, e);
+                              }
+                            }
+                          },
+                          child: Text(tr(context, "清除总预算")),
+                        ),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Text(
+                    tr(context, "分类计划合计 {0}", [Money.fromFen(planned).yuan]),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (total != null)
+                    Text(
+                      planned > total.fen
+                          ? tr(context, "分类计划超出总预算 {0}", [
+                              Money.fromFen(planned - total.fen).yuan,
+                            ])
+                          : tr(context, "未分配 {0}", [
+                              Money.fromFen(total.fen - planned).yuan,
+                            ]),
+                    ),
+                  TextButton.icon(
+                    icon: const Icon(Icons.copy_outlined),
+                    label: Text(tr(context, "复制上月分类预算")),
+                    onPressed: () async {
+                      if (!await confirmPlanningAction(
+                        context,
+                        tr(context, "复制上月计划？"),
+                        tr(context, "同分类的本月计划将被覆盖，只复制仍可用的支出根类。"),
+                      )) {
+                        return;
+                      }
                       try {
-                        await port.clearBudget(data.month);
+                        await port.copyCategoryBudgets(
+                          CalendarMonth.fromDate(
+                            DateTime.utc(data.month.year, data.month.month - 1),
+                          ),
+                          data.month,
+                        );
                       } catch (e) {
                         if (context.mounted) _error(context, e);
                       }
-                    }
-                  },
-                  child: const Text('清除总预算'),
-                ),
-            ],
-          ),
-          Text('分类计划合计 ${Money.fromFen(planned).yuan}'),
-          if (total != null)
-            Text(
-              planned > total.fen
-                  ? '分类计划超出总预算 ${Money.fromFen(planned - total.fen).yuan}'
-                  : '未分配 ${Money.fromFen(total.fen - planned).yuan}',
-            ),
-          TextButton.icon(
-            icon: const Icon(Icons.copy_outlined),
-            label: const Text('复制上月分类预算'),
-            onPressed: () async {
-              if (!await confirmPlanningAction(
-                context,
-                '复制上月计划？',
-                '同分类的本月计划将被覆盖，只复制仍可用的支出根类。',
-              )) {
-                return;
-              }
-              try {
-                await port.copyCategoryBudgets(
-                  CalendarMonth.fromDate(
-                    DateTime.utc(data.month.year, data.month.month - 1),
+                    },
                   ),
-                  data.month,
-                );
-              } catch (e) {
-                if (context.mounted) _error(context, e);
-              }
-            },
+                ],
+              ),
+            ),
           ),
-          const Divider(),
+          const SizedBox(height: 16),
           for (final c in data.categories.where(
             (c) =>
                 c.parentId == null &&
@@ -184,61 +218,112 @@ class CategoryBudgetsPage extends StatelessWidget {
                     data.month.compareTo(CalendarMonth.fromDate(today)) > 0
                     ? 0
                     : spent[c.id] ?? 0;
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('${c.name}${c.isArchived ? '（已归档）' : ''}'),
-                  subtitle: Text(
-                    '已用 ${Money.fromFen(used).yuan} / ${budget?.yuan ?? '未设置'}${budget != null && used > budget.fen ? ' · 已超出计划' : ''}',
-                  ),
-                  trailing: Wrap(
-                    children: [
-                      if (!c.isArchived)
-                        IconButton(
-                          tooltip: '设置${c.name}预算',
-                          icon: const Icon(Icons.edit_outlined),
-                          onPressed: () async {
-                            final amount = await editPlanningAmount(
-                              context,
-                              '${c.name}分类预算',
-                              initial: budget,
-                            );
-                            if (amount != null) {
-                              try {
-                                await port.saveCategoryBudget(
-                                  CategoryBudget(
-                                    month: data.month,
-                                    categoryId: c.id,
-                                    amount: amount,
-                                  ),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
+                      title: Text(
+                        tr(context, "{0}{1}", [
+                          localizedCategoryName(context, c),
+                          c.isArchived ? tr(context, "（已归档）") : '',
+                        ]),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            tr(context, "已用 {0} / {1}{2}", [
+                              Money.fromFen(used).yuan,
+                              budget?.yuan ?? tr(context, "未设置"),
+                              budget != null && used > budget.fen
+                                  ? tr(context, " · 已超出计划")
+                                  : '',
+                            ]),
+                          ),
+                          if (budget != null && budget.fen > 0) ...[
+                            const SizedBox(height: 8),
+                            Semantics(
+                              label: tr(context, "预算已用百分之{0}", [
+                                (used / budget.fen * 100).toStringAsFixed(0),
+                              ]),
+                              child: LinearProgressIndicator(
+                                value: (used / budget.fen).clamp(0.0, 1.0),
+                                minHeight: 4,
+                                borderRadius: BorderRadius.circular(4),
+                                color: used > budget.fen
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.primary,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      trailing: Wrap(
+                        children: [
+                          if (!c.isArchived)
+                            IconButton(
+                              tooltip: tr(context, "设置{0}预算", [
+                                localizedCategoryName(context, c),
+                              ]),
+                              icon: const Icon(Icons.edit_outlined),
+                              onPressed: () async {
+                                final amount = await editPlanningAmount(
+                                  context,
+                                  tr(context, "{0}分类预算", [
+                                    localizedCategoryName(context, c),
+                                  ]),
+                                  initial: budget,
                                 );
-                              } catch (e) {
-                                if (context.mounted) _error(context, e);
-                              }
-                            }
-                          },
-                        ),
-                      if (budget != null)
-                        IconButton(
-                          tooltip: '清除${c.name}预算',
-                          icon: const Icon(Icons.clear),
-                          onPressed: () async {
-                            if (await confirmPlanningAction(
-                              context,
-                              '清除分类预算？',
-                              '仅清除${c.name}本月计划。',
-                            )) {
-                              try {
-                                await port.clearCategoryBudget(
-                                  data.month,
-                                  c.id,
-                                );
-                              } catch (e) {
-                                if (context.mounted) _error(context, e);
-                              }
-                            }
-                          },
-                        ),
-                    ],
+                                if (amount != null) {
+                                  try {
+                                    await port.saveCategoryBudget(
+                                      CategoryBudget(
+                                        month: data.month,
+                                        categoryId: c.id,
+                                        amount: amount,
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    if (context.mounted) _error(context, e);
+                                  }
+                                }
+                              },
+                            ),
+                          if (budget != null)
+                            IconButton(
+                              tooltip: tr(context, "清除{0}预算", [
+                                localizedCategoryName(context, c),
+                              ]),
+                              icon: const Icon(Icons.clear),
+                              onPressed: () async {
+                                if (await confirmPlanningAction(
+                                  context,
+                                  tr(context, "清除分类预算？"),
+                                  tr(context, "仅清除{0}本月计划。", [
+                                    localizedCategoryName(context, c),
+                                  ]),
+                                )) {
+                                  try {
+                                    await port.clearCategoryBudget(
+                                      data.month,
+                                      c.id,
+                                    );
+                                  } catch (e) {
+                                    if (context.mounted) _error(context, e);
+                                  }
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 );
               },
@@ -293,10 +378,10 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text('周期账单与收入'),
+      title: Text(tr(context, "周期账单与收入")),
       actions: [
         IconButton(
-          tooltip: '新增月度规则',
+          tooltip: tr(context, "新增月度规则"),
           onPressed: busy ? null : () => editor(),
           icon: const Icon(Icons.add),
         ),
@@ -305,17 +390,19 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
     body: StreamBuilder<PlanningData>(
       stream: stream,
       builder: (context, s) {
-        if (s.hasError) return Center(child: Text(presentationError(s.error!)));
+        if (s.hasError) {
+          return Center(child: Text(tr(context, presentationError(s.error!))));
+        }
         if (!s.hasData) return const Center(child: CircularProgressIndicator());
         final p = s.data!, now = calendarDay(widget.clock.now());
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('待办不会自动入账。只有确认后才计入收支；未确认收入不增加预算。'),
+            Text(tr(context, "待办不会自动入账。只有确认后才计入收支；未确认收入不增加预算。")),
             Row(
               children: [
                 IconButton(
-                  tooltip: '上月',
+                  tooltip: tr(context, "上月"),
                   onPressed: () => setState(
                     () => month = CalendarMonth.fromDate(
                       DateTime.utc(month.year, month.month - 1),
@@ -325,7 +412,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                 ),
                 Expanded(child: Text(month.key, textAlign: TextAlign.center)),
                 IconButton(
-                  tooltip: '下月',
+                  tooltip: tr(context, "下月"),
                   onPressed: () => setState(
                     () => month = CalendarMonth.fromDate(
                       DateTime.utc(month.year, month.month + 1),
@@ -363,7 +450,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                   );
                   if (month != this.month &&
                       (!visible ||
-                          due.isAfter(now.add(const Duration(days: 7))))){
+                          due.isAfter(now.add(const Duration(days: 7))))) {
                     return const SizedBox.shrink();
                   }
                   return Card(
@@ -373,20 +460,28 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            '${v.kind == EntryKind.income ? '收入' : '支出'} · ${v.amount.yuan} · ${v.dueDate(month)}',
+                            tr(context, "{0} · {1} · {2}", [
+                              v.kind == EntryKind.income
+                                  ? tr(context, "收入")
+                                  : tr(context, "支出"),
+                              v.amount.yuan,
+                              v.dueDate(month),
+                            ]),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Text(
-                            '${widget.categories.where((c) => c.id == v.categoryId).firstOrNull?.name ?? v.categoryId} · ${v.note}',
+                            '${localizedCategoryById(context, v.categoryId, widget.categories)} · ${v.note}',
                           ),
                           Text(
                             occurrence == null
                                 ? (future
-                                      ? (visible ? '未来7天待办' : '尚未到提前展示日期')
-                                      : '待处理')
+                                      ? (visible
+                                            ? tr(context, "未来7天待办")
+                                            : tr(context, "尚未到提前展示日期"))
+                                      : tr(context, "待处理"))
                                 : (occurrence.status == OccurrenceStatus.settled
-                                      ? '已确认'
-                                      : '已跳过'),
+                                      ? tr(context, "已确认")
+                                      : tr(context, "已跳过")),
                           ),
                           if (occurrence == null)
                             Wrap(
@@ -396,11 +491,16 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                                   onPressed: busy || future
                                       ? null
                                       : () => action(() async {
-                                          final amount = await editPlanningAmount(
-                                            context,
-                                            '确认实际${v.kind == EntryKind.income ? '收入' : '支出'}',
-                                            initial: v.amount,
-                                          );
+                                          final amount =
+                                              await editPlanningAmount(
+                                                context,
+                                                tr(context, "确认实际{0}", [
+                                                  v.kind == EntryKind.income
+                                                      ? tr(context, "收入")
+                                                      : tr(context, "支出"),
+                                                ]),
+                                                initial: v.amount,
+                                              );
                                           if (amount != null) {
                                             await widget.port.confirm(
                                               pending,
@@ -408,7 +508,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                                             );
                                           }
                                         }),
-                                  child: const Text('确认入账'),
+                                  child: Text(tr(context, "确认入账")),
                                 ),
                                 TextButton(
                                   onPressed: busy
@@ -416,13 +516,13 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                                       : () => action(() async {
                                           if (await confirmPlanningAction(
                                             context,
-                                            '跳过本期？',
-                                            '不会生成账目；以后可以主动恢复待处理。',
+                                            tr(context, "跳过本期？"),
+                                            tr(context, "不会生成账目；以后可以主动恢复待处理。"),
                                           )) {
                                             await widget.port.skip(pending);
                                           }
                                         }),
-                                  child: const Text('跳过本期'),
+                                  child: Text(tr(context, "跳过本期")),
                                 ),
                               ],
                             ),
@@ -433,8 +533,8 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                                   : () => action(() async {
                                       if (await confirmPlanningAction(
                                         context,
-                                        '恢复待处理？',
-                                        '本期将重新显示待确认，不会自动入账。',
+                                        tr(context, "恢复待处理？"),
+                                        tr(context, "本期将重新显示待确认，不会自动入账。"),
                                       )) {
                                         await widget.port.reopen(
                                           rule.id,
@@ -442,7 +542,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                                         );
                                       }
                                     }),
-                              child: const Text('恢复待处理'),
+                              child: Text(tr(context, "恢复待处理")),
                             ),
                         ],
                       ),
@@ -451,11 +551,14 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                 },
               ),
             const Divider(),
-            Text('规则与版本', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              tr(context, "规则与版本"),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             if (p.rules.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(16),
-                child: Text('还没有月度规则，可添加房租、订阅或固定收入。'),
+                child: Text(tr(context, "还没有月度规则，可添加房租、订阅或固定收入。")),
               ),
             for (final rule in p.rules)
               Builder(
@@ -469,18 +572,25 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                   final latest = versions.first;
                   return ListTile(
                     title: Text(
-                      '${latest.amount.yuan} · 每月${latest.day}日${!latest.enabled ? ' · 已暂停' : ''}${latest.archived ? ' · 已归档' : ''}',
+                      tr(context, "{0} · 每月{1}日{2}{3}", [
+                        latest.amount.yuan,
+                        latest.day,
+                        !latest.enabled ? tr(context, " · 已暂停") : '',
+                        latest.archived ? tr(context, " · 已归档") : '',
+                      ]),
                     ),
-                    subtitle: Text('最新版本从 ${latest.effectiveMonth.key} 生效'),
+                    subtitle: Text(
+                      tr(context, "最新版本从 {0} 生效", [latest.effectiveMonth.key]),
+                    ),
                     trailing: IconButton(
-                      tooltip: '修改规则',
+                      tooltip: tr(context, "修改规则"),
                       icon: const Icon(Icons.edit_outlined),
                       onPressed: busy ? null : () => editor(latest),
                     ),
                     onTap: () => showDialog<void>(
                       context: context,
                       builder: (d) => AlertDialog(
-                        title: const Text('不可变规则版本'),
+                        title: Text(tr(context, "不可变规则版本")),
                         content: SingleChildScrollView(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -500,7 +610,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(d),
-                            child: const Text('关闭'),
+                            child: Text(tr(context, "关闭")),
                           ),
                         ],
                       ),
@@ -592,7 +702,9 @@ class _RecurringRuleEditorState extends State<RecurringRuleEditor> {
     } catch (e) {
       if (mounted) {
         setState(
-          () => error = e is FormatException ? e.message : presentationError(e),
+          () => error = e is FormatException
+              ? e.message
+              : tr(context, presentationError(e)),
         );
       }
     } finally {
@@ -610,18 +722,28 @@ class _RecurringRuleEditorState extends State<RecurringRuleEditor> {
         )
         .toList();
     return Scaffold(
-      appBar: AppBar(title: Text(widget.initial == null ? '新增月度规则' : '新建规则版本')),
+      appBar: AppBar(
+        title: Text(
+          widget.initial == null
+              ? tr(context, "新增月度规则")
+              : tr(context, "新建规则版本"),
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('修改默认下月生效；已处理期不会被改写。暂停或归档也按生效月份应用。'),
+          Text(tr(context, "修改默认下月生效；已处理期不会被改写。暂停或归档也按生效月份应用。")),
           DropdownButtonFormField<EntryKind>(
             initialValue: kind,
             items: [
               for (final k in EntryKind.values)
                 DropdownMenuItem(
                   value: k,
-                  child: Text(k == EntryKind.expense ? '支出' : '收入'),
+                  child: Text(
+                    k == EntryKind.expense
+                        ? tr(context, "支出")
+                        : tr(context, "收入"),
+                  ),
                 ),
             ],
             onChanged: saving
@@ -637,12 +759,14 @@ class _RecurringRuleEditorState extends State<RecurringRuleEditor> {
                 ? category
                 : null,
             isExpanded: true,
-            decoration: const InputDecoration(labelText: '分类'),
+            decoration: InputDecoration(labelText: tr(context, "分类")),
             items: [
               for (final c in options)
                 DropdownMenuItem(
                   value: c.id,
-                  child: Text(categoryPath(c, widget.categories)),
+                  child: Text(
+                    localizedCategoryPath(context, c, widget.categories),
+                  ),
                 ),
             ],
             onChanged: saving ? null : (v) => setState(() => category = v),
@@ -650,61 +774,71 @@ class _RecurringRuleEditorState extends State<RecurringRuleEditor> {
           TextField(
             controller: amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: '每期金额（元）'),
+            decoration: InputDecoration(labelText: tr(context, "每期金额（元）")),
           ),
           DropdownButtonFormField<int>(
             initialValue: day,
-            decoration: const InputDecoration(labelText: '每月日期（短月取月末）'),
+            decoration: InputDecoration(labelText: tr(context, "每月日期（短月取月末）")),
             items: [
               for (var i = 1; i <= 31; i++)
-                DropdownMenuItem(value: i, child: Text('$i日')),
+                DropdownMenuItem(
+                  value: i,
+                  child: Text(tr(context, "{0}日", [i])),
+                ),
             ],
             onChanged: saving ? null : (v) => day = v!,
           ),
           DropdownButtonFormField<int>(
             initialValue: lead,
-            decoration: const InputDecoration(labelText: '提前可见天数'),
+            decoration: InputDecoration(labelText: tr(context, "提前可见天数")),
             items: [
               for (var i = 0; i <= 31; i++)
-                DropdownMenuItem(value: i, child: Text('$i天')),
+                DropdownMenuItem(
+                  value: i,
+                  child: Text(tr(context, "{0}天", [i])),
+                ),
             ],
             onChanged: saving ? null : (v) => lead = v!,
           ),
           TextField(
             controller: effective,
-            decoration: const InputDecoration(labelText: '此版本生效月份 YYYY-MM'),
+            decoration: InputDecoration(
+              labelText: tr(context, "此版本生效月份 YYYY-MM"),
+            ),
           ),
           TextField(
             controller: start,
-            decoration: const InputDecoration(labelText: '规则起始月份 YYYY-MM'),
+            decoration: InputDecoration(
+              labelText: tr(context, "规则起始月份 YYYY-MM"),
+            ),
           ),
           TextField(
             controller: end,
-            decoration: const InputDecoration(labelText: '终止月份（可留空）'),
+            decoration: InputDecoration(labelText: tr(context, "终止月份（可留空）")),
           ),
           TextField(
             controller: note,
             maxLength: 500,
-            decoration: const InputDecoration(labelText: '备注'),
+            decoration: InputDecoration(labelText: tr(context, "备注")),
           ),
           SwitchListTile(
-            title: const Text('启用'),
+            title: Text(tr(context, "启用")),
             value: enabled,
             onChanged: saving ? null : (v) => setState(() => enabled = v),
           ),
           SwitchListTile(
-            title: const Text('归档'),
+            title: Text(tr(context, "归档")),
             value: archived,
             onChanged: saving ? null : (v) => setState(() => archived = v),
           ),
           if (error != null)
             Text(
-              error!,
+              tr(context, error!),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           FilledButton(
             onPressed: saving ? null : save,
-            child: Text(saving ? '保存中…' : '保存规则版本'),
+            child: Text(saving ? tr(context, "保存中…") : tr(context, "保存规则版本")),
           ),
         ],
       ),
@@ -746,18 +880,25 @@ class _RecoveryPointsPageState extends State<RecoveryPointsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('本地恢复点')),
+    appBar: AppBar(title: Text(tr(context, "本地恢复点"))),
     body: FutureBuilder<List<RecoveryPoint>>(
       future: load,
       builder: (context, s) {
-        if (s.hasError) return Center(child: Text(presentationError(s.error!)));
+        if (s.hasError) {
+          return Center(child: Text(tr(context, presentationError(s.error!))));
+        }
         if (!s.hasData) return const Center(child: CircularProgressIndicator());
         final points = s.data!;
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            const Text('仅保留最近3个且不超过30天。恢复点位于App数据目录，会随卸载或清除数据丢失，不能替代外部JSON备份。'),
-            if (points.isEmpty) const ListTile(title: Text('暂无本地恢复点')),
+            Text(
+              tr(
+                context,
+                "仅保留最近3个且不超过30天。恢复点位于App数据目录，会随卸载或清除数据丢失，不能替代外部JSON备份。",
+              ),
+            ),
+            if (points.isEmpty) ListTile(title: Text(tr(context, "暂无本地恢复点"))),
             if (points.isNotEmpty)
               TextButton(
                 onPressed: busy
@@ -765,15 +906,17 @@ class _RecoveryPointsPageState extends State<RecoveryPointsPage> {
                     : () => act(() async {
                         if (await confirmPlanningAction(
                           context,
-                          '清空所有恢复点？',
-                          '将删除这 ${points.length} 个内部恢复点，不删除账目。',
+                          tr(context, "清空所有恢复点？"),
+                          tr(context, "将删除这 {0} 个内部恢复点，不删除账目。", [
+                            points.length,
+                          ]),
                         )) {
                           await widget.port.deleteRecoveryPoints(
                             points.map((p) => p.id).toList(),
                           );
                         }
                       }),
-                child: const Text('清空恢复点'),
+                child: Text(tr(context, "清空恢复点")),
               ),
             for (final point in points)
               Card(
@@ -789,8 +932,11 @@ class _RecoveryPointsPageState extends State<RecoveryPointsPage> {
                       ),
                       Text(
                         point.corrupted
-                            ? '此恢复点损坏，其他账目不受影响'
-                            : '${point.entries}笔 · 编码v${point.encodingVersion}',
+                            ? tr(context, "此恢复点损坏，其他账目不受影响")
+                            : tr(context, "{0}笔 · 编码v{1}", [
+                                point.entries,
+                                point.encodingVersion,
+                              ]),
                       ),
                       Wrap(
                         children: [
@@ -804,13 +950,30 @@ class _RecoveryPointsPageState extends State<RecoveryPointsPage> {
                                       if (!context.mounted) return;
                                       if (await confirmPlanningAction(
                                         context,
-                                        '恢复并完整替换？',
-                                        '恢复点包含${doc.entries.length}笔账目、${doc.budgets.length}个月预算、${doc.plans.rules.length}条周期规则。导出时间：${DateTime.fromMillisecondsSinceEpoch(doc.exportedAtUtcMs)}。\n会替换财务数据，恢复前将保留当前账本的新恢复点。${doc.sourceFormatVersion < 3 ? '旧版不含周期计划/分类预算，替换后将为空。' : ''}',
+                                        tr(context, "恢复并完整替换？"),
+                                        tr(
+                                          context,
+                                          "恢复点包含{0}笔账目、{1}个月预算、{2}条周期规则。导出时间：{3}。\n会替换财务数据，恢复前将保留当前账本的新恢复点。{4}",
+                                          [
+                                            doc.entries.length,
+                                            doc.budgets.length,
+                                            doc.plans.rules.length,
+                                            DateTime.fromMillisecondsSinceEpoch(
+                                              doc.exportedAtUtcMs,
+                                            ),
+                                            doc.sourceFormatVersion < 3
+                                                ? tr(
+                                                    context,
+                                                    "旧版不含周期计划/分类预算，替换后将为空。",
+                                                  )
+                                                : '',
+                                          ],
+                                        ),
                                       )) {
                                         await widget.backup.replaceAll(doc);
                                       }
                                     }),
-                              child: const Text('预检并恢复'),
+                              child: Text(tr(context, "预检并恢复")),
                             ),
                           TextButton(
                             onPressed: busy
@@ -818,15 +981,15 @@ class _RecoveryPointsPageState extends State<RecoveryPointsPage> {
                                 : () => act(() async {
                                     if (await confirmPlanningAction(
                                       context,
-                                      '删除这个恢复点？',
-                                      '仅删除所选内部恢复点。',
+                                      tr(context, "删除这个恢复点？"),
+                                      tr(context, "仅删除所选内部恢复点。"),
                                     )) {
                                       await widget.port.deleteRecoveryPoints([
                                         point.id,
                                       ]);
                                     }
                                   }),
-                            child: const Text('删除'),
+                            child: Text(tr(context, "删除")),
                           ),
                         ],
                       ),
@@ -846,18 +1009,20 @@ class ReminderSettingsPage extends StatelessWidget {
   final PlanningPort port;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('提醒与记账偏好')),
+    appBar: AppBar(title: Text(tr(context, "提醒与记账偏好"))),
     body: StreamBuilder<PlanningData>(
       stream: port.watchPlans(),
       builder: (context, s) {
-        if (s.hasError) return Center(child: Text(presentationError(s.error!)));
+        if (s.hasError) {
+          return Center(child: Text(tr(context, presentationError(s.error!))));
+        }
         if (!s.hasData) return const Center(child: CircularProgressIndicator());
         final settings = s.data!.settings;
         return ListView(
           children: [
             SwitchListTile(
-              title: const Text('预算进度提醒'),
-              subtitle: const Text('每月最多2次，至少相隔7天，仅应用内显示'),
+              title: Text(tr(context, "预算进度提醒")),
+              subtitle: Text(tr(context, "每月最多2次，至少相隔7天，仅应用内显示")),
               value: settings.budget,
               onChanged: (v) async {
                 try {
@@ -870,8 +1035,8 @@ class ReminderSettingsPage extends StatelessWidget {
               },
             ),
             SwitchListTile(
-              title: const Text('自动显示周报'),
-              subtitle: const Text('周一08:00后首次打开时提示，不发后台通知'),
+              title: Text(tr(context, "自动显示周报")),
+              subtitle: Text(tr(context, "周一08:00后首次打开时提示，不发后台通知")),
               value: settings.weekly,
               onChanged: (v) async {
                 try {
@@ -885,14 +1050,20 @@ class ReminderSettingsPage extends StatelessWidget {
             ),
             for (final kind in EntryKind.values)
               ListTile(
-                title: Text('清空${kind == EntryKind.expense ? '支出' : '收入'}最近分类'),
+                title: Text(
+                  tr(context, "清空{0}最近分类", [
+                    kind == EntryKind.expense
+                        ? tr(context, "支出")
+                        : tr(context, "收入"),
+                  ]),
+                ),
                 onTap: () async {
                   try {
                     await port.clearRecentCategory(kind);
                     if (context.mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('已清空最近分类')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(tr(context, "已清空最近分类"))),
+                      );
                     }
                   } catch (e) {
                     if (context.mounted) _error(context, e);

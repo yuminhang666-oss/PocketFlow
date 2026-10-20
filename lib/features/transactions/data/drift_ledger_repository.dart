@@ -349,8 +349,19 @@ class DriftLedgerRepository implements LedgerRepository {
   );
 
   @override
-  Future<void> savePreferences({String? theme, bool? feedback}) =>
-      _changeProfile((p) => p.copyWith(theme: theme, feedback: feedback));
+  Future<void> savePreferences({
+    String? theme,
+    String? surfaceStyle,
+    String? locale,
+    bool? feedback,
+  }) => _changeProfile(
+    (p) => p.copyWith(
+      theme: theme,
+      surfaceStyle: surfaceStyle,
+      locale: locale,
+      feedback: feedback,
+    ),
+  );
   @override
   Future<void> saveGoal(SavingsGoal goal) => _changeProfile(
     (p) => p.copyWith(goals: [...p.goals.where((g) => g.id != goal.id), goal]),

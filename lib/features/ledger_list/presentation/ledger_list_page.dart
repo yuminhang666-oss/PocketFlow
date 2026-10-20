@@ -1,10 +1,10 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/status_panel.dart';
-import '../../../core/domain/category_catalog.dart';
 
 class LedgerListPage extends StatefulWidget {
   const LedgerListPage({
@@ -70,8 +70,8 @@ class _LedgerListPageState extends State<LedgerListPage> {
       context: context,
       firstDate: first,
       lastDate: DateTime(last.year, last.month, last.day),
-      helpText: '筛选当前月份日期',
-      saveText: '确定',
+      helpText: tr(context, "筛选当前月份日期"),
+      saveText: tr(context, "确定"),
     );
     if (picked != null && mounted) {
       setState(() {
@@ -106,19 +106,28 @@ class _LedgerListPageState extends State<LedgerListPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('分类与金额筛选', style: Theme.of(sheet).textTheme.titleLarge),
+              Text(
+                tr(context, "分类与金额筛选"),
+                style: Theme.of(sheet).textTheme.titleLarge,
+              ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 initialValue: category ?? '',
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: '分类（包含细分类）'),
+                decoration: InputDecoration(
+                  labelText: tr(context, "分类（包含细分类）"),
+                ),
                 items: [
-                  const DropdownMenuItem(value: '', child: Text('全部分类')),
+                  DropdownMenuItem(value: '', child: Text(tr(context, "全部分类"))),
                   for (final c in widget.data.categories)
                     DropdownMenuItem(
                       value: c.id,
                       child: Text(
-                        categoryPath(c, widget.data.categories),
+                        localizedCategoryPath(
+                          context,
+                          c,
+                          widget.data.categories,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -131,7 +140,9 @@ class _LedgerListPageState extends State<LedgerListPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: '最低金额（元，选填）'),
+                decoration: InputDecoration(
+                  labelText: tr(context, "最低金额（元，选填）"),
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -139,13 +150,15 @@ class _LedgerListPageState extends State<LedgerListPage> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: '最高金额（元，选填）'),
+                decoration: InputDecoration(
+                  labelText: tr(context, "最高金额（元，选填）"),
+                ),
               ),
               if (error != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    error!,
+                    tr(context, error!),
                     style: TextStyle(color: Theme.of(sheet).colorScheme.error),
                   ),
                 ),
@@ -160,7 +173,7 @@ class _LedgerListPageState extends State<LedgerListPage> {
                         ? null
                         : Money.parse(max.text).fen;
                     if (low != null && high != null && low > high) {
-                      throw const FormatException('最低金额不能高于最高金额');
+                      throw FormatException(tr(context, "最低金额不能高于最高金额"));
                     }
                     _min = low;
                     _max = high;
@@ -170,11 +183,11 @@ class _LedgerListPageState extends State<LedgerListPage> {
                     setSheet(() => error = e.message);
                   }
                 },
-                child: const Text('应用筛选'),
+                child: Text(tr(context, "应用筛选")),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(sheet, false),
-                child: const Text('取消'),
+                child: Text(tr(context, "取消")),
               ),
             ],
           ),
@@ -213,12 +226,15 @@ class _LedgerListPageState extends State<LedgerListPage> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('账单'),
+        title: Text(tr(context, "账单")),
         actions: [
           TextButton(
             onPressed: widget.onChooseMonth,
             child: Text(
-              '${widget.data.month.year}年${widget.data.month.month}月 ▾',
+              tr(context, "{0}年{1}月 ▾", [
+                widget.data.month.year,
+                widget.data.month.month,
+              ]),
             ),
           ),
         ],
@@ -236,9 +252,9 @@ class _LedgerListPageState extends State<LedgerListPage> {
                     TextField(
                       controller: _search,
                       onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         prefixIcon: Icon(Icons.search),
-                        hintText: '搜索备注或分类',
+                        hintText: tr(context, "搜索备注或分类"),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -247,28 +263,32 @@ class _LedgerListPageState extends State<LedgerListPage> {
                       runSpacing: 2,
                       children: [
                         ChoiceChip(
-                          label: const Text('全部'),
+                          label: Text(tr(context, "全部")),
                           selected: _kind == null,
                           onSelected: (_) => setState(() => _kind = null),
                         ),
                         ChoiceChip(
-                          label: const Text('支出'),
+                          label: Text(tr(context, "支出")),
                           selected: _kind == EntryKind.expense,
                           onSelected: (_) =>
                               setState(() => _kind = EntryKind.expense),
                         ),
                         ChoiceChip(
-                          label: const Text('收入'),
+                          label: Text(tr(context, "收入")),
                           selected: _kind == EntryKind.income,
                           onSelected: (_) =>
                               setState(() => _kind = EntryKind.income),
                         ),
                         ActionChip(
-                          label: const Text('分类 / 金额'),
+                          label: Text(tr(context, "分类 / 金额")),
                           onPressed: _advanced,
                         ),
                         ActionChip(
-                          label: Text(_from == null ? '日期' : '$_from 至 $_to'),
+                          label: Text(
+                            _from == null
+                                ? tr(context, "日期")
+                                : tr(context, "{0} 至 {1}", [_from, _to]),
+                          ),
                           onPressed: _range,
                         ),
                         if (_search.text.isNotEmpty ||
@@ -278,7 +298,7 @@ class _LedgerListPageState extends State<LedgerListPage> {
                             _min != null ||
                             _max != null)
                           ActionChip(
-                            label: const Text('清除筛选'),
+                            label: Text(tr(context, "清除筛选")),
                             onPressed: _clear,
                           ),
                       ],
@@ -286,15 +306,17 @@ class _LedgerListPageState extends State<LedgerListPage> {
                     const SizedBox(height: 10),
                     MetricGrid(
                       values: [
-                        ('筛选支出', view.expense),
-                        ('筛选收入', view.income),
-                        ('收支差额', view.netFlow),
+                        (tr(context, "筛选支出"), view.expense),
+                        (tr(context, "筛选收入"), view.income),
+                        (tr(context, "收支差额"), view.netFlow),
                       ],
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Text(
-                        '共 ${view.entries.length} 笔 · 差额不是账户余额',
+                        tr(context, "共 {0} 笔 · 差额不是账户余额", [
+                          view.entries.length,
+                        ]),
                         style: TextStyle(
                           fontSize: 12,
                           color: scheme.onSurfaceVariant,
@@ -306,7 +328,9 @@ class _LedgerListPageState extends State<LedgerListPage> {
               ),
             ),
             if (view.entries.isEmpty)
-              const SliverToBoxAdapter(child: StatusPanel(title: '没有符合条件的账单'))
+              SliverToBoxAdapter(
+                child: StatusPanel(title: tr(context, "没有符合条件的账单")),
+              )
             else
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -333,7 +357,11 @@ class _LedgerListPageState extends State<LedgerListPage> {
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                                 Text(
-                                  '支出 ${totals.expense.yuan} · 收入 ${totals.income.yuan} · ${totals.count}笔',
+                                  tr(context, "支出 {0} · 收入 {1} · {2}笔", [
+                                    totals.expense.yuan,
+                                    totals.income.yuan,
+                                    totals.count,
+                                  ]),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: scheme.onSurfaceVariant,

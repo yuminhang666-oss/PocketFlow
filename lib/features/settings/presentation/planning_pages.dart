@@ -1,3 +1,4 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
 import '../../../contracts/contracts.dart';
@@ -36,7 +37,7 @@ Future<void> editSavingsGoal(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                initial == null ? '新建小目标' : '编辑目标进度',
+                initial == null ? tr(context, "新建小目标") : tr(context, "编辑目标进度"),
                 style: Theme.of(sheet).textTheme.titleLarge,
               ),
               const SizedBox(height: 14),
@@ -44,9 +45,9 @@ Future<void> editSavingsGoal(
                 controller: name,
                 enabled: !busy,
                 maxLength: 40,
-                decoration: const InputDecoration(
-                  labelText: '目标名称',
-                  hintText: '例如：耳机基金',
+                decoration: InputDecoration(
+                  labelText: tr(context, "目标名称"),
+                  hintText: tr(context, "例如：耳机基金"),
                 ),
               ),
               TextField(
@@ -55,7 +56,7 @@ Future<void> editSavingsGoal(
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: '目标金额（元）'),
+                decoration: InputDecoration(labelText: tr(context, "目标金额（元）")),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -64,13 +65,13 @@ Future<void> editSavingsGoal(
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(labelText: '已登记金额（元）'),
+                decoration: InputDecoration(labelText: tr(context, "已登记金额（元）")),
               ),
               const SizedBox(height: 12),
-              const Text('这里只登记你的目标进度，不会扣减生活费预算。'),
+              Text(tr(context, "这里只登记你的目标进度，不会扣减生活费预算。")),
               if (error != null)
                 Text(
-                  error!,
+                  tr(context, error!),
                   style: TextStyle(color: Theme.of(sheet).colorScheme.error),
                 ),
               const SizedBox(height: 16),
@@ -96,16 +97,16 @@ Future<void> editSavingsGoal(
                               busy = false;
                               error = e is FormatException
                                   ? e.message
-                                  : presentationError(e);
+                                  : tr(context, presentationError(e));
                             });
                           }
                         }
                       },
-                child: Text(busy ? '保存中…' : '保存目标'),
+                child: Text(busy ? tr(context, "保存中…") : tr(context, "保存目标")),
               ),
               TextButton(
                 onPressed: busy ? null : () => Navigator.pop(sheet),
-                child: const Text('取消'),
+                child: Text(tr(context, "取消")),
               ),
             ],
           ),
@@ -122,15 +123,15 @@ Future<bool> confirmPlanningDelete(BuildContext context, String name) =>
     showDialog<bool>(
       context: context,
       builder: (dialog) => AlertDialog(
-        title: Text('删除$name？'),
+        title: Text(tr(context, "删除{0}？", [name])),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialog, false),
-            child: const Text('取消'),
+            child: Text(tr(context, "取消")),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialog, true),
-            child: const Text('删除'),
+            child: Text(tr(context, "删除")),
           ),
         ],
       ),
@@ -150,7 +151,7 @@ class GoalsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('我的小目标')),
+      appBar: AppBar(title: Text(tr(context, "我的小目标"))),
       body: SafeArea(
         top: false,
         child: ListView(
@@ -162,18 +163,21 @@ class GoalsPage extends StatelessWidget {
                 color: scheme.primaryContainer,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: const Text('把想做的事变成看得见的进度。金额由你手动登记，与生活费预算独立。'),
+              child: Text(tr(context, "把想做的事变成看得见的进度。金额由你手动登记，与生活费预算独立。")),
             ),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: () => editSavingsGoal(context, null, onSave),
               icon: const Icon(Icons.add),
-              label: const Text('新建目标'),
+              label: Text(tr(context, "新建目标")),
             ),
             if (profile.goals.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 32),
-                child: Text('还没有目标，可以从一个小计划开始。', textAlign: TextAlign.center),
+                child: Text(
+                  tr(context, "还没有目标，可以从一个小计划开始。"),
+                  textAlign: TextAlign.center,
+                ),
               ),
             for (final goal in profile.goals)
               Padding(
@@ -220,14 +224,17 @@ class GoalsPage extends StatelessWidget {
                         runSpacing: 8,
                         children: [
                           AmountText(goal.saved),
-                          Text('/ 目标 ${goal.target.yuan}'),
+                          Text(tr(context, "/ 目标 {0}", [goal.target.yuan])),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         goal.saved.fen >= goal.target.fen
-                            ? '已达到目标，记录这一刻。'
-                            : '已登记 ${(goal.saved.fen / goal.target.fen * 100).toStringAsFixed(0)}%',
+                            ? tr(context, "已达到目标，记录这一刻。")
+                            : tr(context, "已登记 {0}%", [
+                                (goal.saved.fen / goal.target.fen * 100)
+                                    .toStringAsFixed(0),
+                              ]),
                         style: TextStyle(color: scheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 8),
@@ -237,13 +244,13 @@ class GoalsPage extends StatelessWidget {
                           TextButton(
                             onPressed: () =>
                                 editSavingsGoal(context, goal, onSave),
-                            child: const Text('更新进度'),
+                            child: Text(tr(context, "更新进度")),
                           ),
                           TextButton(
                             onPressed: () async {
                               if (await confirmPlanningDelete(
                                 context,
-                                '这个目标',
+                                tr(context, "这个目标"),
                               )) {
                                 try {
                                   await onDelete(goal.id);
@@ -251,14 +258,16 @@ class GoalsPage extends StatelessWidget {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(presentationError(e)),
+                                        content: Text(
+                                          tr(context, presentationError(e)),
+                                        ),
                                       ),
                                     );
                                   }
                                 }
                               }
                             },
-                            child: const Text('删除目标'),
+                            child: Text(tr(context, "删除目标")),
                           ),
                         ],
                       ),
@@ -287,35 +296,48 @@ class TemplatesPage extends StatelessWidget {
   final Future<void> Function(String) onDelete;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('常用模板')),
+    appBar: AppBar(title: Text(tr(context, "常用模板"))),
     body: SafeArea(
       top: false,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('在记账页填写金额和分类后，点右上角书签图标保存模板。使用时仍可确认金额、日期和备注。'),
+          Text(tr(context, "在记账页填写金额和分类后，点右上角书签图标保存模板。使用时仍可确认金额、日期和备注。")),
           const SizedBox(height: 16),
           if (profile.templates.isEmpty)
-            const Padding(padding: EdgeInsets.all(24), child: Text('还没有模板')),
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: Text(tr(context, "还没有模板")),
+            ),
           for (final t in profile.templates)
             ListTile(
               leading: Icon(categoryIcon(t.categoryId, categories)),
               title: Text(t.name),
               subtitle: Text(
-                '${t.kind == EntryKind.income ? '收入' : '支出'} · ${t.amount.yuan}',
+                tr(context, "{0} · {1}", [
+                  t.kind == EntryKind.income
+                      ? tr(context, "收入")
+                      : tr(context, "支出"),
+                  t.amount.yuan,
+                ]),
               ),
               onTap: () => onUse(t),
               trailing: IconButton(
-                tooltip: '删除模板',
+                tooltip: tr(context, "删除模板"),
                 icon: const Icon(Icons.delete_outline),
                 onPressed: () async {
-                  if (await confirmPlanningDelete(context, '这个模板')) {
+                  if (await confirmPlanningDelete(
+                    context,
+                    tr(context, "这个模板"),
+                  )) {
                     try {
                       await onDelete(t.id);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(presentationError(e))),
+                          SnackBar(
+                            content: Text(tr(context, presentationError(e))),
+                          ),
                         );
                       }
                     }

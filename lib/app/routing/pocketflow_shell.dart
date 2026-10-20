@@ -1,4 +1,6 @@
+import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
+import '../theme/frosted_glass.dart';
 
 class PocketFlowShell extends StatefulWidget {
   const PocketFlowShell({
@@ -22,10 +24,19 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final motion = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 160);
     Widget destination(int index, String label, IconData icon) => Expanded(
       child: Semantics(
         selected: _selected == index,
         button: true,
+        label: label,
+        excludeSemantics: true,
+        onTap: () {
+          setState(() => _selected = index);
+          widget.onTabChanged?.call(index);
+        },
         child: InkWell(
           onTap: () {
             setState(() => _selected = index);
@@ -33,7 +44,14 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
           },
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 58, minWidth: 48),
-            child: Padding(
+            child: AnimatedContainer(
+              duration: motion,
+              decoration: _selected == index
+                  ? BoxDecoration(
+                      color: scheme.primary.withValues(alpha: .10),
+                      borderRadius: BorderRadius.circular(22),
+                    )
+                  : null,
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -48,8 +66,14 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
                   const SizedBox(height: 3),
                   Text(
                     label,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
+                      fontWeight: _selected == index
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                       color: _selected == index
                           ? scheme.primary
                           : scheme.onSurfaceVariant,
@@ -59,6 +83,32 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+    final navigation = Material(
+      color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            destination(0, tr(context, "总览"), Icons.home_outlined),
+            destination(1, tr(context, "账单"), Icons.receipt_long_outlined),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: FilledButton(
+                onPressed: widget.onAdd,
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: const Size(82, 48),
+                ),
+                child: Text(tr(context, "＋记账")),
+              ),
+            ),
+            destination(2, tr(context, "统计"), Icons.bar_chart_rounded),
+            destination(3, tr(context, "我的"), Icons.person_outline_rounded),
+          ],
         ),
       ),
     );
@@ -72,36 +122,11 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
           widget.settings,
         ],
       ),
-      bottomNavigationBar: Material(
-        color: scheme.surface,
-        child: SafeArea(
-          top: false,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: scheme.outlineVariant)),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                destination(0, '总览', Icons.home_outlined),
-                destination(1, '账单', Icons.receipt_long_outlined),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: FilledButton(
-                    onPressed: widget.onAdd,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      minimumSize: const Size(82, 48),
-                    ),
-                    child: const Text('＋记账'),
-                  ),
-                ),
-                destination(2, '统计', Icons.bar_chart_rounded),
-                destination(3, '我的', Icons.person_outline_rounded),
-              ],
-            ),
-          ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+          child: FrostedSurface(radius: 28, child: navigation),
         ),
       ),
     );
