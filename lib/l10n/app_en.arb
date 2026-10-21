@@ -1528,5 +1528,10 @@
   "m0706": "System installer opened. Confirm the update there; if cancelled, you can tap Install again.",
   "m0707": "Allow PocketFlow to install apps, then return and tap Install update.",
   "m0708": "Added Simplified Chinese, Traditional Chinese and English, with instant switching and persistent preferences. User-authored content is preserved.",
-  "m0709": "Refined light, dark and frosted themes, with clearer layouts and accessibility across Overview, entry, budgets and statistics."
+  "m0709": "Refined light, dark and frosted themes, with clearer layouts and accessibility across Overview, entry, budgets and statistics.",
+  "m0710": "Theme continuity and centered icon",
+  "m0711": "Fixed the light flash during frosted page transitions, keeping new pages and back navigation consistent.",
+  "m0712": "Centered the blue and white wallet visually, with consistent spacing across launcher masks and legacy icons.",
+  "m0713": "Kept appearance preferences during data reloads, improved reduced motion support and category selection feedback.",
+  "m0714": "Preserves existing entries and backup formats, with in-place upgrades."
 }

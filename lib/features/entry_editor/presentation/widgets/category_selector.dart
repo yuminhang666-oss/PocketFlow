@@ -266,7 +266,7 @@ class CategorySelector extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: ChoiceChip(
-                      showCheckmark: false,
+                      showCheckmark: true,
                       avatar: Icon(categoryIcon(c.id, categories), size: 18),
                       selected: c.id == selectedId,
                       label: Text(localizedCategoryName(context, c)),

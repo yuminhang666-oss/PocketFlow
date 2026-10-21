@@ -131,6 +131,9 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
   int _tab = 0;
   int? _lastExport;
   bool _foreground = true;
+  // Month snapshots may temporarily be loading. A known app-wide appearance
+  // must not revert to defaults while the next financial snapshot is read.
+  PersonalProfile _appearance = PersonalProfile();
 
   @override
   void initState() {
@@ -700,9 +703,10 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     final month = _month;
     final state = ref.watch(monthDataProvider(month));
     final current = state.asData?.value;
+    if (current != null) _appearance = current.profile;
     final today = ref.read(clockProvider).now();
     final themeMode = ThemeMode.values.byName(
-      current?.profile.theme ?? 'system',
+      _appearance.theme,
     );
     final reports = DefaultMonthlyReportService(clock: ref.read(clockProvider));
     final report =
@@ -722,8 +726,8 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     );
     return PocketFlowApp(
       themeMode: themeMode,
-      language: current?.profile.locale ?? 'zh_Hans',
-      glass: current?.profile.surfaceStyle == 'glass',
+      language: _appearance.locale,
+      glass: _appearance.surfaceStyle == 'glass',
       navigatorObservers: [_promptObserver],
       home: Builder(
         builder: (context) {
@@ -809,10 +813,10 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     onUpdates: () => _showUpdates(context),
                     updateVersion: _updates.update?.versionName,
                     themeMode: themeMode,
-                    language: current?.profile.locale ?? 'zh_Hans',
+                    language: _appearance.locale,
                     onLanguageChanged: (value) =>
                         _preferences(context, locale: value),
-                    glass: current?.profile.surfaceStyle == 'glass',
+                    glass: _appearance.surfaceStyle == 'glass',
                     onGlassSelected: () =>
                         _preferences(context, surfaceStyle: 'glass'),
                     onThemeChanged: (theme) => _preferences(
