@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../routing/pocketflow_page_transitions.dart';
 import 'frosted_glass.dart';
 
 abstract final class PocketFlowTheme {
@@ -29,6 +30,14 @@ abstract final class PocketFlowTheme {
     );
     return base.copyWith(
       extensions: const [FrostedAppearance()],
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          ...base.pageTransitionsTheme.builders,
+          TargetPlatform.android: const PocketFlowPageTransitions(
+            fallbackColor: Colors.transparent,
+          ),
+        },
+      ),
       colorScheme: scheme,
       scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: base.appBarTheme.copyWith(
@@ -82,6 +91,12 @@ abstract final class PocketFlowTheme {
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
     final background = dark ? const Color(0xFF101218) : const Color(0xFFF3F5F9);
     return base.copyWith(
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          ...base.pageTransitionsTheme.builders,
+          TargetPlatform.android: const PocketFlowPageTransitions(),
+        },
+      ),
       scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(
         backgroundColor: background,

@@ -26,6 +26,9 @@ class PocketFlowApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: 'PocketFlow',
     debugShowCheckedModeBanner: false,
+    // Glass changes structure as well as colors; apply the selected appearance
+    // atomically, including routes opened immediately after a preference write.
+    themeAnimationDuration: Duration.zero,
     locale: AppStrings.localeFor(language),
     supportedLocales: AppStrings.supportedLocales,
     localizationsDelegates: const [

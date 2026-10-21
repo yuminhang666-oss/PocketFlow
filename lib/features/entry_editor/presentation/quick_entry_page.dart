@@ -503,8 +503,14 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                       : () => _save(more: true),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(48, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: Text(tr(context, "保存并继续")),
+                  child: Text(
+                    tr(context, "保存并继续"),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -523,6 +529,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                       : _kind == EntryKind.income
                       ? tr(context, "保存收入")
                       : tr(context, "保存支出"),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

@@ -20,8 +20,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0016": "JSON 完整备份",
     "m0017": "备份已保存",
     "m0018": "恢复并替换现有账本？",
-    "m0019":
-        "备份包含 {p0} 笔记录、{p1} 个月预算、{p2} 个分类。\n\n将完整替换现有账本、目标、模板和偏好设置。旧版备份不含的新设置会恢复默认。恢复前会保留本地恢复点。{p3}\n导出时间：{p4}\n来源格式 v{p5} · {p6}条周期规则{p7}",
+    "m0019": "备份包含 {p0} 笔记录、{p1} 个月预算、{p2} 个分类。\n\n将完整替换现有账本、目标、模板和偏好设置。旧版备份不含的新设置会恢复默认。恢复前会保留本地恢复点。{p3}\n导出时间：{p4}\n来源格式 v{p5} · {p6}条周期规则{p7}",
     "m0020": "\n此备份没有账单，恢复后账单将为空。",
     "m0021": "\n旧备份不含周期计划/分类预算，确认替换后将为空。",
     "m0022": "确认替换",
@@ -236,8 +235,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0231": "内容去首尾空白后须为10—2000字符",
     "m0232": "请检查反馈内容",
     "m0233": "预览反馈邮件",
-    "m0234":
-        "收件人：{p0}\n主题：{p1}\n\n{p2}\n\n确认后打开手机邮件客户端，请在那里完成发送。不会附加账本、数据库、日志、截图或设备标识。请勿填写身份证号或密码。",
+    "m0234": "收件人：{p0}\n主题：{p1}\n\n{p2}\n\n确认后打开手机邮件客户端，请在那里完成发送。不会附加账本、数据库、日志、截图或设备标识。请勿填写身份证号或密码。",
     "m0235": "打开邮件客户端",
     "m0236": "已打开邮件客户端，请在那里完成发送；App无法确认是否发送或送达。",
     "m0237": "未找到可用的邮件客户端。草稿已保存在本机，可复制内容后自行发送。",
@@ -423,8 +421,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0417": "此恢复点损坏，其他账目不受影响",
     "m0418": "{p0}笔 · 编码v{p1}",
     "m0419": "恢复并完整替换？",
-    "m0420":
-        "恢复点包含{p0}笔账目、{p1}个月预算、{p2}条周期规则。导出时间：{p3}。\n会替换财务数据，恢复前将保留当前账本的新恢复点。{p4}",
+    "m0420": "恢复点包含{p0}笔账目、{p1}个月预算、{p2}条周期规则。导出时间：{p3}。\n会替换财务数据，恢复前将保留当前账本的新恢复点。{p4}",
     "m0421": "旧版不含周期计划/分类预算，替换后将为空。",
     "m0422": "预检并恢复",
     "m0423": "删除这个恢复点？",
@@ -714,6 +711,11 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0707": "请允许 PocketFlow 安装应用，返回后点击“安装更新”。",
     "m0708": "增加简体中文、繁體中文和English选择，界面立即切换并保存，用户自定义内容保持原文。",
     "m0709": "统一浅色、深色和毛玻璃主题，优化首页、记账、预算和统计的布局与无障碍。",
+    "m0710": "主题衔接与图标居中",
+    "m0711": "修复毛玻璃页面过渡的浅色闪变，统一新页面与返回过程的主题。",
+    "m0712": "校正蓝白钱包图标的视觉中心，统一桌面遮罩与传统图标的留白。",
+    "m0713": "保留数据重载期间的外观偏好，完善减少动画与分类选中反馈。",
+    "m0714": "保持原有账目与备份格式，支持覆盖安装。",
   },
   "zh_Hant": {
     "m0000": "預算已保存",
@@ -735,8 +737,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0016": "JSON 完整備份",
     "m0017": "備份已保存",
     "m0018": "恢復并替換現有賬本？",
-    "m0019":
-        "備份包含 {p0} 筆記錄、{p1} 個月預算、{p2} 個分類。\n\n將完整替換現有賬本、目標、模板和偏好設置。舊版備份不含的新設置會恢復默認。恢復前會保留本地恢復點。{p3}\n導出時間：{p4}\n來源格式 v{p5} · {p6}條周期規則{p7}",
+    "m0019": "備份包含 {p0} 筆記錄、{p1} 個月預算、{p2} 個分類。\n\n將完整替換現有賬本、目標、模板和偏好設置。舊版備份不含的新設置會恢復默認。恢復前會保留本地恢復點。{p3}\n導出時間：{p4}\n來源格式 v{p5} · {p6}條周期規則{p7}",
     "m0020": "\n此備份沒有賬單，恢復后賬單將為空。",
     "m0021": "\n舊備份不含周期計劃/分類預算，確認替換后將為空。",
     "m0022": "確認替換",
@@ -951,8 +952,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0231": "內容去首尾空白后須為10—2000字符",
     "m0232": "請檢查反饋內容",
     "m0233": "預覽反饋郵件",
-    "m0234":
-        "收件人：{p0}\n主題：{p1}\n\n{p2}\n\n確認后打開手機郵件客戶端，請在那里完成發送。不會附加賬本、數據庫、日志、截圖或設備標識。請勿填寫身份證號或密碼。",
+    "m0234": "收件人：{p0}\n主題：{p1}\n\n{p2}\n\n確認后打開手機郵件客戶端，請在那里完成發送。不會附加賬本、數據庫、日志、截圖或設備標識。請勿填寫身份證號或密碼。",
     "m0235": "打開郵件客戶端",
     "m0236": "已打開郵件客戶端，請在那里完成發送；App無法確認是否發送或送達。",
     "m0237": "未找到可用的郵件客戶端。草稿已保存在本機，可復制內容后自行發送。",
@@ -1138,8 +1138,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0417": "此恢復點損壞，其他賬目不受影響",
     "m0418": "{p0}筆 · 編碼v{p1}",
     "m0419": "恢復并完整替換？",
-    "m0420":
-        "恢復點包含{p0}筆賬目、{p1}個月預算、{p2}條周期規則。導出時間：{p3}。\n會替換財務數據，恢復前將保留當前賬本的新恢復點。{p4}",
+    "m0420": "恢復點包含{p0}筆賬目、{p1}個月預算、{p2}條周期規則。導出時間：{p3}。\n會替換財務數據，恢復前將保留當前賬本的新恢復點。{p4}",
     "m0421": "舊版不含周期計劃/分類預算，替換后將為空。",
     "m0422": "預檢并恢復",
     "m0423": "刪除這個恢復點？",
@@ -1429,6 +1428,11 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0707": "請允許 PocketFlow 安裝應用，返回后點擊“安裝更新”。",
     "m0708": "增加簡體中文、繁體中文和English選擇，界面立即切換并保存，用戶自定義內容保持原文。",
     "m0709": "統一淺色、深色和毛玻璃主題，優化首頁、記賬、預算和統計的佈局與無障礙。",
+    "m0710": "主題銜接與圖示置中",
+    "m0711": "修復毛玻璃頁面轉場的淺色閃變，統一新頁面與返回過程的主題。",
+    "m0712": "校正藍白錢包圖示的視覺中心，統一桌面遮罩與傳統圖示的留白。",
+    "m0713": "保留資料重新載入期間的外觀偏好，完善減少動畫與分類選取回饋。",
+    "m0714": "維持原有帳目與備份格式，支援覆蓋安裝。",
   },
   "en": {
     "m0000": "Budget saved",
@@ -1436,8 +1440,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0002": "Updated",
     "m0003": "Undo",
     "m0004": "Delete this entry?",
-    "m0005":
-        "{p0} · {p1}\nTotals will be recalculated. If linked to a recurring plan, this period will be marked skipped and will not be posted again automatically.",
+    "m0005": "{p0} · {p1}\nTotals will be recalculated. If linked to a recurring plan, this period will be marked skipped and will not be posted again automatically.",
     "m0006": "Cancel",
     "m0007": "Delete",
     "m0008": "Ledger",
@@ -1451,16 +1454,12 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0016": "Full JSON backup",
     "m0017": "Backup saved",
     "m0018": "Restore and replace this ledger?",
-    "m0019":
-        "This backup contains {p0} entries, {p1} monthly budgets and {p2} categories.\n\nIt will replace your ledger, goals, templates and preferences. Settings absent from older backups will use defaults. A local recovery point will be saved first.{p3}\nExported: {p4}\nSource format v{p5} · {p6} recurring rules{p7}",
-    "m0020":
-        "\nThis backup has no entries. Your ledger will be empty after restoration.",
-    "m0021":
-        "\nThis older backup has no recurring plans or category budgets. They will be empty after replacement.",
+    "m0019": "This backup contains {p0} entries, {p1} monthly budgets and {p2} categories.\n\nIt will replace your ledger, goals, templates and preferences. Settings absent from older backups will use defaults. A local recovery point will be saved first.{p3}\nExported: {p4}\nSource format v{p5} · {p6} recurring rules{p7}",
+    "m0020": "\nThis backup has no entries. Your ledger will be empty after restoration.",
+    "m0021": "\nThis older backup has no recurring plans or category budgets. They will be empty after replacement.",
     "m0022": "Replace ledger",
     "m0023": "Restoration complete",
-    "m0024":
-        "Restored {p0} entries.\nLocal recovery point saved before restoration:\n{p1}",
+    "m0024": "Restored {p0} entries.\nLocal recovery point saved before restoration:\n{p1}",
     "m0025": "Done",
     "m0026": "Unable to load entries",
     "m0027": "Last week's review is ready",
@@ -1471,8 +1470,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0032": "View weekly report",
     "m0033": "Budget progress reminder",
     "m0034": "Your monthly budget is zero. Recorded expenses total {p0}.",
-    "m0035":
-        "Recorded spending is {p0} of your monthly budget, with {p1} remaining. Spending has recently been faster; consider your upcoming plans.",
+    "m0035": "Recorded spending is {p0} of your monthly budget, with {p1} remaining. Spending has recently been faster; consider your upcoming plans.",
     "m0036": "Mute for this month",
     "m0037": "Got it",
     "m0038": "View budget",
@@ -1611,10 +1609,8 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0171": "Not provided",
     "m0172": "Use at most two decimal places",
     "m0173": "Enter at most nine whole-number digits",
-    "m0174":
-        "Your recent category is archived or unavailable. Please choose another.",
-    "m0175":
-        "This template's category is archived or unavailable. Please choose another.",
+    "m0174": "Your recent category is archived or unavailable. Please choose another.",
+    "m0175": "This template's category is archived or unavailable. Please choose another.",
     "m0176": "The original category is unavailable. Please choose another.",
     "m0177": "Choose an available category",
     "m0178": "Choose entry date",
@@ -1666,26 +1662,20 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0224": "Add a note",
     "m0225": "For example: canteen lunch (optional)",
     "m0226": "Not configured",
-    "m0227":
-        "A mail app was opened previously; delivery is unknown. Your draft remains on this device.",
+    "m0227": "A mail app was opened previously; delivery is unknown. Your draft remains on this device.",
     "m0228": "Draft saved on this device",
     "m0229": "To: {p0}\nSubject: {p1}\n\n{p2}",
-    "m0230":
-        "Recipient, subject and feedback copied. Your draft remains on this device.",
+    "m0230": "Recipient, subject and feedback copied. Your draft remains on this device.",
     "m0231": "Enter 10–2000 characters after trimming surrounding whitespace",
     "m0232": "Check your feedback",
     "m0233": "Preview feedback email",
-    "m0234":
-        "To: {p0}\nSubject: {p1}\n\n{p2}\n\nContinue to your phone's mail app and send the email there. No ledger, database, logs, screenshots or device identifiers are attached. Do not include passwords or identification numbers.",
+    "m0234": "To: {p0}\nSubject: {p1}\n\n{p2}\n\nContinue to your phone's mail app and send the email there. No ledger, database, logs, screenshots or device identifiers are attached. Do not include passwords or identification numbers.",
     "m0235": "Open mail app",
-    "m0236":
-        "Mail app opened. Please send the email there; PocketFlow cannot confirm sending or delivery.",
-    "m0237":
-        "No compatible mail app was found. Your draft is saved locally; copy the content to send it yourself.",
+    "m0236": "Mail app opened. Please send the email there; PocketFlow cannot confirm sending or delivery.",
+    "m0237": "No compatible mail app was found. Your draft is saved locally; copy the content to send it yourself.",
     "m0238": "Suggestions & bug reports",
     "m0239": "Feedback email: {p0}",
-    "m0240":
-        "Preview first, then send through your mail app. Drafts stay on your device and include only your input and any environment details you choose to add.",
+    "m0240": "Preview first, then send through your mail app. Drafts stay on your device and include only your input and any environment details you choose to add.",
     "m0241": "Feedback (10–2000 characters)",
     "m0242": "Steps to reproduce",
     "m0243": "Expected result",
@@ -1764,10 +1754,8 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0316": "Zero expenses confirmed",
     "m0317": "Not recorded",
     "m0318": "{p0}/{p1}, {p2}",
-    "m0319":
-        "Orange: expenses · Blue: income · Check: zero expenses confirmed by you",
-    "m0320":
-        "Dates without entries remain “Not recorded”; this does not mean nothing was spent.",
+    "m0319": "Orange: expenses · Blue: income · Check: zero expenses confirmed by you",
+    "m0320": "Dates without entries remain “Not recorded”; this does not mean nothing was spent.",
     "m0321": "No actual entries for future dates",
     "m0322": "Zero expenses confirmed for this day",
     "m0323": "No entries for this day",
@@ -1801,20 +1789,17 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0351": "Save",
     "m0352": "{p0} budget plan",
     "m0353": "Total budget {p0}",
-    "m0354":
-        "Category budgets track plans only. Your remaining allowance comes solely from the total budget.",
+    "m0354": "Category budgets track plans only. Your remaining allowance comes solely from the total budget.",
     "m0355": "Set total budget",
     "m0356": "Clear total budget?",
-    "m0357":
-        "Only this month's budget amount will be cleared. Entries and category plans are kept.",
+    "m0357": "Only this month's budget amount will be cleared. Entries and category plans are kept.",
     "m0358": "Clear total budget",
     "m0359": "Category plans total {p0}",
     "m0360": "Category plans exceed the total budget by {p0}",
     "m0361": "Unallocated {p0}",
     "m0362": "Copy last month's category budgets",
     "m0363": "Copy last month's plans?",
-    "m0364":
-        "Matching plans for this month will be replaced. Only available expense root categories are copied.",
+    "m0364": "Matching plans for this month will be replaced. Only available expense root categories are copied.",
     "m0365": " (archived)",
     "m0366": "Used {p0} / {p1}{p2}",
     "m0367": " · Over the planned amount",
@@ -1825,8 +1810,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0372": "Only {p0}'s plan for this month will be cleared.",
     "m0373": "Recurring expenses & income",
     "m0374": "Add monthly rule",
-    "m0375":
-        "Plans are not posted automatically. Only confirmed entries affect expenses and income; unconfirmed income does not increase your budget.",
+    "m0375": "Plans are not posted automatically. Only confirmed entries affect expenses and income; unconfirmed income does not increase your budget.",
     "m0376": "Previous month",
     "m0377": "Next month",
     "m0378": "Not yet within the reminder window",
@@ -1839,8 +1823,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0385": "No entry will be created. You can explicitly reopen it later.",
     "m0386": "Skip period",
     "m0387": "Reopen this period?",
-    "m0388":
-        "This period will return to pending. No entry will be posted automatically.",
+    "m0388": "This period will return to pending. No entry will be posted automatically.",
     "m0389": "Reopen period",
     "m0390": "Rules & versions",
     "m0391": "No monthly rules yet. Add rent, subscriptions or regular income.",
@@ -1851,8 +1834,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0396": "Edit rule",
     "m0397": "Immutable rule version",
     "m0398": "New rule version",
-    "m0399":
-        "Changes apply next month by default. Processed periods are preserved. Pausing and archiving also apply from the chosen month.",
+    "m0399": "Changes apply next month by default. Processed periods are preserved. Pausing and archiving also apply from the chosen month.",
     "m0400": "Amount per period (CNY)",
     "m0401": "Day of month (last day in shorter months)",
     "m0402": "Day {p0}",
@@ -1865,29 +1847,23 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0409": "Archived",
     "m0410": "Save rule version",
     "m0411": "Local recovery points",
-    "m0412":
-        "Only the latest 3 points within 30 days are kept. They are stored in app data and are lost if the app is uninstalled or its data cleared. They do not replace an external JSON backup.",
+    "m0412": "Only the latest 3 points within 30 days are kept. They are stored in app data and are lost if the app is uninstalled or its data cleared. They do not replace an external JSON backup.",
     "m0413": "No local recovery points",
     "m0414": "Clear all recovery points?",
-    "m0415":
-        "These {p0} internal recovery points will be deleted. Ledger entries are kept.",
+    "m0415": "These {p0} internal recovery points will be deleted. Ledger entries are kept.",
     "m0416": "Clear recovery points",
     "m0417": "This recovery point is damaged. Other ledger data is unaffected.",
     "m0418": "{p0} entries · Encoding v{p1}",
     "m0419": "Restore and replace all?",
-    "m0420":
-        "This point contains {p0} entries, {p1} monthly budgets and {p2} recurring rules. Exported: {p3}.\nIt will replace financial data. A new recovery point for the current ledger will be saved first.{p4}",
-    "m0421":
-        "This older version has no recurring plans or category budgets. They will be empty after replacement.",
+    "m0420": "This point contains {p0} entries, {p1} monthly budgets and {p2} recurring rules. Exported: {p3}.\nIt will replace financial data. A new recovery point for the current ledger will be saved first.{p4}",
+    "m0421": "This older version has no recurring plans or category budgets. They will be empty after replacement.",
     "m0422": "Preview & restore",
     "m0423": "Delete this recovery point?",
     "m0424": "Only the selected internal recovery point will be deleted.",
     "m0425": "Reminders & entry preferences",
-    "m0426":
-        "Up to twice monthly, at least 7 days apart; shown inside the app only",
+    "m0426": "Up to twice monthly, at least 7 days apart; shown inside the app only",
     "m0427": "Show weekly reviews automatically",
-    "m0428":
-        "Shown when first opened after Monday 08:00; no background notifications",
+    "m0428": "Shown when first opened after Monday 08:00; no background notifications",
     "m0429": "Clear recent {p0} category",
     "m0430": "Recent category cleared",
     "m0431": "Choose a completed calendar month",
@@ -1898,11 +1874,9 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0436": "{p0} monthly report",
     "m0437": "Based on recorded entries · {p0} entries",
     "m0438": "Net flow {p0} (income minus expenses)",
-    "m0439":
-        "No entries in this period. This does not mean no spending occurred.",
+    "m0439": "No entries in this period. This does not mean no spending occurred.",
     "m0440": "Recorded income {p0}; no expenses recorded this period",
-    "m0441":
-        "No comparable expenses in the previous week; no percentage change is calculated",
+    "m0441": "No comparable expenses in the previous week; no percentage change is calculated",
     "m0442": "Expenses changed by {p1}% versus the same {p0} days last week",
     "m0443": "Daily income & expenses",
     "m0444": "No entries",
@@ -1916,77 +1890,47 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0452": "Largest expense",
     "m0453": "{p0} entries tied for the largest amount",
     "m0454": "Updated from current entries at {p0}",
-    "m0455":
-        "Weekly reports are available for 30 calendar days after the period ends. Older entries can be reviewed through monthly reports. Your entries are kept.",
+    "m0455": "Weekly reports are available for 30 calendar days after the period ends. Older entries can be reviewed through monthly reports. Your entries are kept.",
     "m0456": "Frosted theme & in-app updates",
-    "m0457":
-        "Added a separate frosted light theme that stays light and remembers your choice.",
-    "m0458":
-        "Download updates inside the app, see progress, verify the package, then confirm installation in Android.",
+    "m0457": "Added a separate frosted light theme that stays light and remembers your choice.",
+    "m0458": "Download updates inside the app, see progress, verify the package, then confirm installation in Android.",
     "m0459": "The Undo notice now disappears automatically after 3 seconds.",
-    "m0460":
-        "Added an official fallback update source, specific network, timeout and verification errors, and retry support.",
+    "m0460": "Added an official fallback update source, specific network, timeout and verification errors, and retry support.",
     "m0461": "Plans, reminders & reviews",
-    "m0462":
-        "Set monthly root-category budgets, review allocated and unallocated amounts, and copy last month's plans.",
-    "m0463":
-        "Manage recurring expenses and income, post, skip or reopen periods. Unconfirmed plans are never posted automatically.",
-    "m0464":
-        "View weekly reviews and historical monthly reports with expenses, income and daily totals.",
-    "m0465":
-        "Added optional budget progress reminders. Weekly and budget prompts do not appear one after another.",
-    "m0466":
-        "Preview and manage local recovery points; keep the latest 3 points within 30 days.",
-    "m0467":
-        "Preview feedback before opening a mail app. Keep drafts or copy content when no mail app is available.",
+    "m0462": "Set monthly root-category budgets, review allocated and unallocated amounts, and copy last month's plans.",
+    "m0463": "Manage recurring expenses and income, post, skip or reopen periods. Unconfirmed plans are never posted automatically.",
+    "m0464": "View weekly reviews and historical monthly reports with expenses, income and daily totals.",
+    "m0465": "Added optional budget progress reminders. Weekly and budget prompts do not appear one after another.",
+    "m0466": "Preview and manage local recovery points; keep the latest 3 points within 30 days.",
+    "m0467": "Preview feedback before opening a mail app. Keep drafts or copy content when no mail app is available.",
     "m0468": "View version history in About PocketFlow, even offline.",
-    "m0469":
-        "Fixed daily totals on the overview counting only some entries on busy days.",
-    "m0470":
-        "Fixed backdated entry dates and dates retained by Save & add another; improved category selection and large-text layouts.",
-    "m0471":
-        "Fixed negative amounts and double counting root and subcategory totals in Markdown reports.",
-    "m0472":
-        "Fixed stale update candidates after failed checks while retaining legacy update manifest compatibility.",
-    "m0473":
-        "Strengthened Undo conflict checks to protect entries that have since been edited or linked to recurring plans.",
-    "m0474":
-        "Preserved historical category IDs and user changes during catalog upgrades; failed restorations roll back fully.",
+    "m0469": "Fixed daily totals on the overview counting only some entries on busy days.",
+    "m0470": "Fixed backdated entry dates and dates retained by Save & add another; improved category selection and large-text layouts.",
+    "m0471": "Fixed negative amounts and double counting root and subcategory totals in Markdown reports.",
+    "m0472": "Fixed stale update candidates after failed checks while retaining legacy update manifest compatibility.",
+    "m0473": "Strengthened Undo conflict checks to protect entries that have since been edited or linked to recurring plans.",
+    "m0474": "Preserved historical category IDs and user changes during catalog upgrades; failed restorations roll back fully.",
     "m0475": "Manual update checks",
-    "m0476":
-        "Added Check for updates in Me, with version notes and package size after a manual check.",
-    "m0477":
-        "Download packages through a browser, then confirm an in-place update with Android.",
-    "m0478":
-        "Network access occurs only on a manual check; no automatic downloads, installations or overview update prompts.",
+    "m0476": "Added Check for updates in Me, with version notes and package size after a manual check.",
+    "m0477": "Download packages through a browser, then confirm an in-place update with Android.",
+    "m0478": "Network access occurs only on a manual check; no automatic downloads, installations or overview update prompts.",
     "m0479": "Income & usability improvements",
-    "m0480":
-        "Added income entries, search and filters, an entry calendar and income/expense category statistics.",
-    "m0481":
-        "Added two-level categories, reusable templates and manually tracked savings goals.",
-    "m0482":
-        "Added light, dark and system themes, with persistent preferences.",
-    "m0483":
-        "Backups include themes, goals and templates and remain compatible with older backup formats.",
-    "m0484":
-        "Adjusted the four-tab navigation and entry button so amounts are not obscured.",
+    "m0480": "Added income entries, search and filters, an entry calendar and income/expense category statistics.",
+    "m0481": "Added two-level categories, reusable templates and manually tracked savings goals.",
+    "m0482": "Added light, dark and system themes, with persistent preferences.",
+    "m0483": "Backups include themes, goals and templates and remain compatible with older backup formats.",
+    "m0484": "Adjusted the four-tab navigation and entry button so amounts are not obscured.",
     "m0485": "Android ledger startup fix",
-    "m0486":
-        "Fixed Android ledger loading, budget saving and continuously loading statistics.",
-    "m0487":
-        "Show clear loading errors and support manual retries instead of an endless loading screen.",
-    "m0488":
-        "Kept the original application ID and signing identity for in-place updates that retain data.",
+    "m0486": "Fixed Android ledger loading, budget saving and continuously loading statistics.",
+    "m0487": "Show clear loading errors and support manual retries instead of an endless loading screen.",
+    "m0488": "Kept the original application ID and signing identity for in-place updates that retain data.",
     "m0489": "First personal test version",
-    "m0490":
-        "Added monthly budgets, expense entries, category statistics, Markdown reports and JSON backup/restore.",
+    "m0490": "Added monthly budgets, expense entries, category statistics, Markdown reports and JSON backup/restore.",
     "m0491": "Your ledger stays on your phone; no account is needed.",
-    "m0492":
-        "This version had an Android ledger startup issue, fixed in 0.1.1.",
+    "m0492": "This version had an Android ledger startup issue, fixed in 0.1.1.",
     "m0493": "About PocketFlow",
     "m0494": "{p0} · Personal test build",
-    "m0495":
-        "Manage your living budget offline, record income and expenses, and review your spending.\nUse Markdown for analysis and JSON for full backups.",
+    "m0495": "Manage your living budget offline, record income and expenses, and review your spending.\nUse Markdown for analysis and JSON for full backups.",
     "m0496": "Version history",
     "m0497": "Features and fixes in each version",
     "m0498": "Open-source licenses",
@@ -1997,8 +1941,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0503": "Notes",
     "m0504": "Budget for {p0}-{p1}",
     "m0505": "Monthly living budget",
-    "m0506":
-        "The budget may be zero. Saving updates the budget for this month.",
+    "m0506": "The budget may be zero. Saving updates the budget for this month.",
     "m0507": "Save budget",
     "m0508": "Add category",
     "m0509": "Edit category",
@@ -2016,23 +1959,19 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0521": "Manage categories",
     "m0522": "Expense categories",
     "m0523": "Income categories",
-    "m0524":
-        "Expand root categories to see subcategories. Archiving hides them from new entries and preserves history.",
+    "m0524": "Expand root categories to see subcategories. Archiving hides them from new entries and preserves history.",
     "m0525": "Show archived categories",
-    "m0526":
-        "Add missing categories only. Your renamed categories and archive settings are preserved.",
+    "m0526": "Add missing categories only. Your renamed categories and archive settings are preserved.",
     "m0527": "New savings goal",
     "m0528": "Edit goal progress",
     "m0529": "Goal name",
     "m0530": "For example: headphone fund",
     "m0531": "Target amount (CNY)",
     "m0532": "Tracked amount (CNY)",
-    "m0533":
-        "This only tracks goal progress; it does not reduce your living budget.",
+    "m0533": "This only tracks goal progress; it does not reduce your living budget.",
     "m0534": "Save goal",
     "m0535": "Delete {p0}?",
-    "m0536":
-        "Make progress toward your plans. Amounts are entered manually and stay separate from your living budget.",
+    "m0536": "Make progress toward your plans. Amounts are entered manually and stay separate from your living budget.",
     "m0537": "New goal",
     "m0538": "No goals yet. Start with a small plan.",
     "m0539": "Goal reached. Mark the moment.",
@@ -2040,8 +1979,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0541": "Update progress",
     "m0542": "this goal",
     "m0543": "Delete goal",
-    "m0544":
-        "Enter an amount and category, then tap the bookmark icon to save a template. You can still confirm the amount, date and note when using it.",
+    "m0544": "Enter an amount and category, then tap the bookmark icon to save a template. You can still confirm the amount, date and note when using it.",
     "m0545": "No templates yet",
     "m0546": "Delete template",
     "m0547": "this template",
@@ -2065,14 +2003,12 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0565": "Restore backup",
     "m0566": "No successful external backup yet",
     "m0567": "Last successful export: {p0}",
-    "m0568":
-        "Save an external JSON backup. Local recovery points do not replace it.",
+    "m0568": "Save an external JSON backup. Local recovery points do not replace it.",
     "m0569": "Keep external JSON backups in a safe place.",
     "m0570": "About",
     "m0571": "Check for updates",
     "m0572": "New version {p0} available",
-    "m0573":
-        "No account needed. Data stays on your phone.\nFiles are exported or shared only when you choose to do so.",
+    "m0573": "No account needed. Data stays on your phone.\nFiles are exported or shared only when you choose to do so.",
     "m0574": "CNY {p0} × 10,000",
     "m0575": "CNY {p0}k",
     "m0576": "CNY {p0}",
@@ -2087,14 +2023,12 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0585": "Dates after the cutoff are not included.",
     "m0586": "View daily amounts",
     "m0587": "Set a monthly budget to see the remaining-budget trend",
-    "m0588":
-        "Remaining budget (CNY) · Solid: daily closing amount · Dashed: even-spending reference",
+    "m0588": "Remaining budget (CNY) · Solid: daily closing amount · Dashed: even-spending reference",
     "m0589": "{p0} {p1}\n{p2}",
     "m0590": "Month start",
     "m0591": "Remaining",
     "m0592": "Reference",
-    "m0593":
-        "The reference is not a spending forecast. It uses the current budget and does not reflect past budget changes.",
+    "m0593": "The reference is not a spending forecast. It uses the current budget and does not reflect past budget changes.",
     "m0594": "View remaining-budget details",
     "m0595": "Day {p0} · {p1}",
     "m0596": "Reference {p0}",
@@ -2108,13 +2042,11 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0604": "Income analysis",
     "m0605": "Budget trend",
     "m0606": "No monthly budget yet",
-    "m0607":
-        "Set a budget in Overview or Me to see how the remaining amount changes.",
+    "m0607": "Set a budget in Overview or Me to see how the remaining amount changes.",
     "m0608": "Monthly budget",
     "m0609": "Spent",
     "m0610": "Remaining budget",
-    "m0611":
-        "Income is tracked separately and does not automatically increase your budget.",
+    "m0611": "Income is tracked separately and does not automatically increase your budget.",
     "m0612": "No income entries this month",
     "m0613": "No expense entries this month",
     "m0614": "Tap Add below to record your first entry.",
@@ -2140,27 +2072,20 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0634": "Install update",
     "m0635": "Download & update",
     "m0636": "Cancel download",
-    "m0637":
-        "The app downloads and verifies the package, then Android asks you to confirm installation. Allow app installs the first time. Updating in place preserves your ledger.",
+    "m0637": "The app downloads and verifies the package, then Android asks you to confirm installation. Allow app installs the first time. Updating in place preserves your ledger.",
     "m0638": "Checking…",
     "m0639": "Open download page",
-    "m0640":
-        "Connects only when you check for updates. Ledger entries are not uploaded.",
-    "m0641":
-        "Unable to reach the update service. Check your connection or switch between Wi-Fi and mobile data, then retry.",
+    "m0640": "Connects only when you check for updates. Ledger entries are not uploaded.",
+    "m0641": "Unable to reach the update service. Check your connection or switch between Wi-Fi and mobile data, then retry.",
     "m0642": "Connection timed out. Retry later or switch networks.",
     "m0643": "Too many update requests. Please retry later.",
     "m0644": "Update information failed verification. Please retry later.",
-    "m0645":
-        "The new package uses a different signing identity and cannot update this installation.",
+    "m0645": "The new package uses a different signing identity and cannot update this installation.",
     "m0646": "Unable to read the installed version. Please retry.",
-    "m0647":
-        "Package download failed. Check your connection and available storage, then retry.",
-    "m0648":
-        "Package verification failed. Installation was stopped; please download again.",
+    "m0647": "Package download failed. Check your connection and available storage, then retry.",
+    "m0648": "Package verification failed. Installation was stopped; please download again.",
     "m0649": "Download cancelled.",
-    "m0650":
-        "Unable to open the installer. Check install permissions and retry.",
+    "m0650": "Unable to open the installer. Check install permissions and retry.",
     "m0651": "{p0}{p1} CNY",
     "m0652": "Not set",
     "m0653": "Unable to complete this action. Please retry.",
@@ -2177,8 +2102,7 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0664": "Export incomplete. Please retry.",
     "m0665": "Unable to read the file. Please choose it again.",
     "m0666": "This entry or plan changed. Refresh and retry.",
-    "m0667":
-        "Unable to open a feedback email. Your draft is kept; copy its content to send it.",
+    "m0667": "Unable to open a feedback email. Your draft is kept; copy its content to send it.",
     "m0668": "Rule storage versions do not match",
     "m0669": "Month is outside the supported range",
     "m0670": "Use YYYY-MM for the month",
@@ -2214,17 +2138,17 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0700": "The recurring period and entry link do not match",
     "m0701": "Invalid date range in snapshot",
     "m0702": "Budget amount is outside the allowed range",
-    "m0703":
-        "This day already has expenses and cannot be marked as zero spending",
+    "m0703": "This day already has expenses and cannot be marked as zero spending",
     "m0704": "Language",
     "m0705": "Choose language",
-    "m0706":
-        "System installer opened. Confirm the update there; if cancelled, you can tap Install again.",
-    "m0707":
-        "Allow PocketFlow to install apps, then return and tap Install update.",
-    "m0708":
-        "Added Simplified Chinese, Traditional Chinese and English, with instant switching and persistent preferences. User-authored content is preserved.",
-    "m0709":
-        "Refined light, dark and frosted themes, with clearer layouts and accessibility across Overview, entry, budgets and statistics.",
+    "m0706": "System installer opened. Confirm the update there; if cancelled, you can tap Install again.",
+    "m0707": "Allow PocketFlow to install apps, then return and tap Install update.",
+    "m0708": "Added Simplified Chinese, Traditional Chinese and English, with instant switching and persistent preferences. User-authored content is preserved.",
+    "m0709": "Refined light, dark and frosted themes, with clearer layouts and accessibility across Overview, entry, budgets and statistics.",
+    "m0710": "Theme continuity and centered icon",
+    "m0711": "Fixed the light flash during frosted page transitions, keeping new pages and back navigation consistent.",
+    "m0712": "Centered the blue and white wallet visually, with consistent spacing across launcher masks and legacy icons.",
+    "m0713": "Kept appearance preferences during data reloads, improved reduced motion support and category selection feedback.",
+    "m0714": "Preserves existing entries and backup formats, with in-place upgrades.",
   },
 };

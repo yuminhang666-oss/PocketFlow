@@ -1,5 +1,9 @@
 # 项目状态
 
+## 0.3.2 优化更新（2026-10-21，发布集成）
+
+远程 main / v0.3.1-release 实查同为 `4eb9be53bc5b2c9088a4ce16cea2949176983dba`，正式旧包 0.3.1+7。本轮独立 `integration/v032-control-polish` 实现 0.3.2+8 的玻璃过渡修复、图标视觉居中及相邻交互改善。181 项 Flutter、20 项 Node、静态分析和 Release/签名检查已执行通过；API36 模拟器覆盖安装核对 12 表与非默认偏好保持。见 [本轮 QA](qa-v0.3.2.md)、[0.3.2 更新](v0.3.2-update.md) 和 [主控交接](handoffs/controller-v032.md)。用户在本地验收后追加授权提交、推送及手机应用内更新发布；主控按独立分支 PR/CI 集成，发布 v1/v2 清单与同签名 Release，不将未完成的远程检查写成通过。最终发布结果见 GitHub PR/Release 与本轮交付 publication-report.md。以下保留历史记录。
+
 ## 0.3.1 图标补充（2026-10-20，最新）
 
 0.3.1+6 已经 PR #10 合并并发布，main 为 `900f3c7a52841662e0cb074bf442d9fca93e7f4c`。用户追加指定蓝白钱包图片作为应用图标，主控基于该 main 创建独立 `integration/v031-icon`，以显示版本 0.3.1 / 内部构建 7 更新 Android 传统及自适应图标。业务和存储不变。见[图标补充说明](v0.3.1-icon-update.md)；最终 PR/CI、设备及新 Release 结果以本轮交付报告为准。
