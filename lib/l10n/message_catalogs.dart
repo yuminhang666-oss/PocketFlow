@@ -716,6 +716,9 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0712": "校正蓝白钱包图标的视觉中心，统一桌面遮罩与传统图标的留白。",
     "m0713": "保留数据重载期间的外观偏好，完善减少动画与分类选中反馈。",
     "m0714": "保持原有账目与备份格式，支持覆盖安装。",
+    "m0715": "金额卡片对齐与自适应",
+    "m0716": "修复账单与统计卡片中的金额拆行及基线错位。",
+    "m0717": "按系统字体与完整金额自适应列数，改善长金额和大字体显示。",
   },
   "zh_Hant": {
     "m0000": "預算已保存",
@@ -1433,6 +1436,9 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0712": "校正藍白錢包圖示的視覺中心，統一桌面遮罩與傳統圖示的留白。",
     "m0713": "保留資料重新載入期間的外觀偏好，完善減少動畫與分類選取回饋。",
     "m0714": "維持原有帳目與備份格式，支援覆蓋安裝。",
+    "m0715": "金額卡片對齊與自適應",
+    "m0716": "修復帳單與統計卡片中的金額斷行及基線錯位。",
+    "m0717": "依系統字型與完整金額自適應欄數，改善長金額與大字體顯示。",
   },
   "en": {
     "m0000": "Budget saved",
@@ -2150,5 +2156,8 @@ const messageCatalogs = <String, Map<String, String>>{
     "m0712": "Centered the blue and white wallet visually, with consistent spacing across launcher masks and legacy icons.",
     "m0713": "Kept appearance preferences during data reloads, improved reduced motion support and category selection feedback.",
     "m0714": "Preserves existing entries and backup formats, with in-place upgrades.",
+    "m0715": "Aligned, adaptive amount cards",
+    "m0716": "Fixed split amounts and misaligned baselines in Ledger and Statistics cards.",
+    "m0717": "Adapted columns to the system font and full amount, improving long values and larger text.",
   },
 };
