@@ -11,13 +11,18 @@ class AmountText extends StatelessWidget {
   final TextStyle? style;
   final String prefix;
 
-  @override
-  Widget build(BuildContext context) {
+  /// Layout decisions must measure exactly what is painted, including grouping.
+  String get displayText {
     final parts = amount.decimal.split('.');
     final whole = parts[0].replaceAllMapped(
       RegExp(r'(\d)(?=(\d{3})+$)'),
       (match) => '${match[1]},',
     );
+    return '$prefix$whole.${parts[1]}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Semantics(
       label: tr(context, "{0}{1} 元", [
         prefix.startsWith('−')
@@ -29,7 +34,7 @@ class AmountText extends StatelessWidget {
       ]),
       excludeSemantics: true,
       child: Text(
-        '$prefix$whole.${parts[1]}',
+        displayText,
         softWrap: true,
         style: (style ?? Theme.of(context).textTheme.titleLarge)?.copyWith(
           fontFeatures: const [FontFeature.tabularFigures()],

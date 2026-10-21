@@ -20,8 +20,15 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.3.3',
+    title: '金额卡片对齐与自适应',
+    fixes: ['修复账单与统计卡片中的金额拆行及基线错位。', '按系统字体与完整金额自适应列数，改善长金额和大字体显示。'],
+    notes: ['保持原有账目与备份格式，支持覆盖安装。'],
+  ),
+  AppVersionNotes(
     version: '0.3.2',
     title: '主题衔接与图标居中',
+    publishedOn: '2026-10-21',
     fixes: [
       '修复毛玻璃页面过渡的浅色闪变，统一新页面与返回过程的主题。',
       '校正蓝白钱包图标的视觉中心，统一桌面遮罩与传统图标的留白。',

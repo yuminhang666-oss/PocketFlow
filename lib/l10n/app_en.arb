@@ -1533,5 +1533,8 @@
   "m0711": "Fixed the light flash during frosted page transitions, keeping new pages and back navigation consistent.",
   "m0712": "Centered the blue and white wallet visually, with consistent spacing across launcher masks and legacy icons.",
   "m0713": "Kept appearance preferences during data reloads, improved reduced motion support and category selection feedback.",
-  "m0714": "Preserves existing entries and backup formats, with in-place upgrades."
+  "m0714": "Preserves existing entries and backup formats, with in-place upgrades.",
+  "m0715": "Aligned, adaptive amount cards",
+  "m0716": "Fixed split amounts and misaligned baselines in Ledger and Statistics cards.",
+  "m0717": "Adapted columns to the system font and full amount, improving long values and larger text."
 }
