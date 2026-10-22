@@ -1536,5 +1536,21 @@
   "m0714": "Preserves existing entries and backup formats, with in-place upgrades.",
   "m0715": "Aligned, adaptive amount cards",
   "m0716": "Fixed split amounts and misaligned baselines in Ledger and Statistics cards.",
-  "m0717": "Adapted columns to the system font and full amount, improving long values and larger text."
+  "m0717": "Adapted columns to the system font and full amount, improving long values and larger text.",
+  "m0718": "Previous entry undone. Your draft is preserved.",
+  "m0719": "No matching categories. Try another search.",
+  "m0720": "Filtered entries",
+  "m0721": "Month changed. Category, type, search and amount filters are kept; the date range is reset.",
+  "m0722": "Category: {p0}",
+  "m0723": "Min {p0}",
+  "m0724": "Max {p0}",
+  "m0725": "No entries this month",
+  "m0726": "Viewing {p0}",
+  "m0727": "This month",
+  "m0728": "Date or category updated. The source list keeps its filters.",
+  "m0729": "Smoother entry and navigation",
+  "m0730": "Continuous entry adds a three-second undo while keeping your next draft and failed-save input.",
+  "m0731": "Unified full-ledger navigation. Editing returns to details and preserves source filters.",
+  "m0732": "Simplified category shortcuts and a separate full picker. Active ledger filters can be removed individually.",
+  "m0733": "Physical-phone experience and performance still need validation."
 }

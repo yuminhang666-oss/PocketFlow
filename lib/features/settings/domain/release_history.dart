@@ -20,6 +20,16 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.3.4',
+    title: '记账与返回体验优化',
+    fixes: [
+      '连续记账提供三秒撤销，保留下一笔输入与保存失败的草稿。',
+      '统一全量账单入口，编辑取消或保存后返回详情，保留来源筛选。',
+      '简化快捷分类，完整分类独立搜索；账单筛选条件可查看和逐项移除。',
+    ],
+    notes: ['真实手机体验与性能仍待验收。'],
+  ),
+  AppVersionNotes(
     version: '0.3.3',
     title: '金额卡片对齐与自适应',
     fixes: ['修复账单与统计卡片中的金额拆行及基线错位。', '按系统字体与完整金额自适应列数，改善长金额和大字体显示。'],

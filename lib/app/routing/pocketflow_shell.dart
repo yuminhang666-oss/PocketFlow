@@ -16,37 +16,41 @@ class PocketFlowShell extends StatefulWidget {
   final VoidCallback? onAdd;
   final ValueChanged<int>? onTabChanged;
   @override
-  State<PocketFlowShell> createState() => _PocketFlowShellState();
+  State<PocketFlowShell> createState() => PocketFlowShellState();
 }
 
-class _PocketFlowShellState extends State<PocketFlowShell> {
+class PocketFlowShellState extends State<PocketFlowShell> {
   int _selected = 0;
+  void selectDestination(int index) {
+    setState(() => _selected = index);
+    widget.onTabChanged?.call(index);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final selected = _selected;
     final scheme = Theme.of(context).colorScheme;
     final motion = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : const Duration(milliseconds: 160);
     Widget destination(int index, String label, IconData icon) => Expanded(
       child: Semantics(
-        selected: _selected == index,
+        selected: selected == index,
         button: true,
         label: label,
         excludeSemantics: true,
         onTap: () {
-          setState(() => _selected = index);
-          widget.onTabChanged?.call(index);
+          selectDestination(index);
         },
         child: InkWell(
           onTap: () {
-            setState(() => _selected = index);
-            widget.onTabChanged?.call(index);
+            selectDestination(index);
           },
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 58, minWidth: 48),
             child: AnimatedContainer(
               duration: motion,
-              decoration: _selected == index
+              decoration: selected == index
                   ? BoxDecoration(
                       color: scheme.primary.withValues(alpha: .10),
                       borderRadius: BorderRadius.circular(22),
@@ -58,7 +62,7 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
                 children: [
                   Icon(
                     icon,
-                    color: _selected == index
+                    color: selected == index
                         ? scheme.primary
                         : scheme.onSurfaceVariant,
                     size: 23,
@@ -71,10 +75,10 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: _selected == index
+                      fontWeight: selected == index
                           ? FontWeight.w600
                           : FontWeight.w400,
-                      color: _selected == index
+                      color: selected == index
                           ? scheme.primary
                           : scheme.onSurfaceVariant,
                     ),
@@ -114,7 +118,7 @@ class _PocketFlowShellState extends State<PocketFlowShell> {
     );
     return Scaffold(
       body: IndexedStack(
-        index: _selected,
+        index: selected,
         children: [
           widget.home,
           widget.ledger,

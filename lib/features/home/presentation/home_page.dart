@@ -29,6 +29,7 @@ class HomePage extends StatelessWidget {
     this.onOpenDate,
     this.onReports,
     this.onPlans,
+    this.onCurrentMonth,
   });
   final CalendarMonth month;
   final AsyncValue<(LedgerMonthData, BudgetSnapshot)> state;
@@ -44,6 +45,7 @@ class HomePage extends StatelessWidget {
   final ValueChanged<EntryTemplate>? onTemplate;
   final ValueChanged<String>? onOpenDate;
   final VoidCallback? onReports, onPlans;
+  final VoidCallback? onCurrentMonth;
   final Future<void> Function()? onRefresh;
 
   @override
@@ -97,6 +99,16 @@ class HomePage extends StatelessWidget {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (todayKey != null &&
+              month != CalendarMonth.fromDate(parseCalendarDay(todayKey!)))
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(tr(context, "正在查看 {0}", [month.key])),
+              trailing: TextButton(
+                onPressed: onCurrentMonth,
+                child: Text(tr(context, "回到本月")),
+              ),
+            ),
           if (state.hasError)
             Padding(
               padding: EdgeInsets.only(bottom: 12),
@@ -116,48 +128,6 @@ class HomePage extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              if (onReports != null)
-                TextButton.icon(
-                  onPressed: onReports,
-                  icon: const Icon(Icons.summarize_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "周报与月报")),
-                ),
-              if (onPlans != null)
-                TextButton.icon(
-                  onPressed: onPlans,
-                  icon: const Icon(Icons.event_repeat_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "未来7天待办")),
-                ),
-              if (onCalendar != null)
-                TextButton.icon(
-                  onPressed: onCalendar,
-                  icon: const Icon(Icons.calendar_month_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "记账日历")),
-                ),
-              if (onGoals != null)
-                TextButton.icon(
-                  onPressed: onGoals,
-                  icon: const Icon(Icons.savings_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "我的小目标")),
-                ),
-            ],
-          ),
           if (data.profile.templates.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
@@ -256,6 +226,48 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ],
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              if (onReports != null)
+                TextButton.icon(
+                  onPressed: onReports,
+                  icon: const Icon(Icons.summarize_outlined),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "周报与月报")),
+                ),
+              if (onPlans != null)
+                TextButton.icon(
+                  onPressed: onPlans,
+                  icon: const Icon(Icons.event_repeat_outlined),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "未来7天待办")),
+                ),
+              if (onCalendar != null)
+                TextButton.icon(
+                  onPressed: onCalendar,
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "记账日历")),
+                ),
+              if (onGoals != null)
+                TextButton.icon(
+                  onPressed: onGoals,
+                  icon: const Icon(Icons.savings_outlined),
+                  style: TextButton.styleFrom(
+                    foregroundColor: scheme.onSurfaceVariant,
+                  ),
+                  label: Text(tr(context, "我的小目标")),
+                ),
+            ],
+          ),
           if (goal != null) ...[
             const SizedBox(height: 18),
             InkWell(

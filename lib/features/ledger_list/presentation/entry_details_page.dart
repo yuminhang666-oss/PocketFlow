@@ -12,11 +12,13 @@ class EntryDetailsPage extends StatelessWidget {
     required this.categories,
     this.onEdit,
     this.onDelete,
+    this.notice,
   });
   final LedgerEntry entry;
   final List<Category> categories;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final String? notice;
   @override
   Widget build(BuildContext context) {
     final names = categories.where((c) => c.id == entry.categoryId);
@@ -63,6 +65,7 @@ class EntryDetailsPage extends StatelessWidget {
                     subtitle: Text(entry.localDate),
                   ),
                   const SizedBox(height: 16),
+                  if (notice != null) Text(notice!),
                   Text(tr(context, "备注")),
                   const SizedBox(height: 8),
                   SelectableText(

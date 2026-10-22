@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
@@ -55,7 +56,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   String _cleanAmount = '', _cleanNote = '';
   String? _cleanCategory;
   late DateTime _cleanDate;
-  LedgerEntry? _lastSaved;
+  LedgerEntry? _undoEntry;
+  Timer? _undoExpiry;
+  String? _savedFeedback;
+  bool _undoing = false;
   final _selectedByKind = <EntryKind, String?>{};
   int _savedCount = 0;
 
@@ -158,7 +162,6 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   void _key(String key) {
     if (!_saving) {
       setState(() {
-        _notice = null;
         _error = _amount.insert(key);
       });
     }
@@ -199,14 +202,15 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   }
 
   void _pop([LedgerEntry? value]) {
+    _undoExpiry?.cancel();
     setState(() => _allowPop = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) Navigator.pop(context, value ?? _lastSaved);
+      if (mounted) Navigator.pop(context, value);
     });
   }
 
   Future<void> _leave() async {
-    if (_saving || _confirming || _allowPop) return;
+    if (_saving || _undoing || _confirming || _allowPop) return;
     if (!_dirty) {
       _pop();
       return;
@@ -261,7 +265,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
   }
 
   Future<void> _save({bool more = false}) async {
-    if (_saving) return;
+    if (_saving || _undoing) return;
     try {
       final draft = _draft();
       if (_kind == EntryKind.income && widget.onSaveIncome == null) {
@@ -277,20 +281,29 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       if (!mounted) return;
       if (widget.profile?.feedback ?? true) HapticFeedback.lightImpact();
       if (more) {
+        _undoExpiry?.cancel();
         setState(() {
-          _lastSaved = entry;
+          _undoEntry = widget.onUndo == null ? null : entry;
           _saving = false;
           _amount.value = '';
           _note = '';
           _time = TimeOfDay.fromDateTime(widget.clock.now());
           _savedCount++;
-          _notice = tr(context, "已保存 {0} 笔 · {1} · {2} · {3}", [
+          _savedFeedback = tr(context, "已保存 {0} 笔 · {1} · {2} · {3}", [
             _savedCount,
             entry.amount.yuan,
             localizedCategoryById(context, entry.categoryId, widget.categories),
             entry.localDate,
           ]);
           _markClean();
+        });
+        _undoExpiry = Timer(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _undoEntry = null;
+              _savedFeedback = null;
+            });
+          }
         });
       } else {
         _pop(entry);
@@ -310,6 +323,36 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
         });
       }
     }
+  }
+
+  Future<void> _undo() async {
+    final entry = _undoEntry;
+    if (entry == null || _saving || _undoing) return;
+    setState(() {
+      _undoEntry = null;
+      _undoing = true;
+    });
+    try {
+      await widget.onUndo!(entry);
+      if (mounted) {
+        setState(() {
+          _savedCount--;
+          _savedFeedback = tr(context, "已撤销上一笔，当前输入已保留");
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() => _error = tr(context, presentationError(error)));
+      }
+    } finally {
+      if (mounted) setState(() => _undoing = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _undoExpiry?.cancel();
+    super.dispose();
   }
 
   Future<void> _saveTemplate() async {
@@ -490,6 +533,25 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     final controls = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (_savedFeedback != null)
+          Semantics(
+            liveRegion: true,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _savedFeedback!,
+                    key: const ValueKey('save-feedback'),
+                  ),
+                ),
+                if (_undoEntry != null)
+                  TextButton(
+                    onPressed: _saving || _undoing ? null : _undo,
+                    child: Text(tr(context, "撤销")),
+                  ),
+              ],
+            ),
+          ),
         AmountKeypad(onKey: _key, enabled: !_saving),
         const SizedBox(height: 6),
         Row(
@@ -498,7 +560,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               Expanded(
                 child: OutlinedButton(
                   onPressed:
-                      _saving || _amount.value.isEmpty || _available.isEmpty
+                      _saving ||
+                          _undoing ||
+                          _amount.value.isEmpty ||
+                          _available.isEmpty
                       ? null
                       : () => _save(more: true),
                   style: OutlinedButton.styleFrom(
@@ -518,7 +583,10 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             Expanded(
               child: FilledButton(
                 onPressed:
-                    _saving || _amount.value.isEmpty || _available.isEmpty
+                    _saving ||
+                        _undoing ||
+                        _amount.value.isEmpty ||
+                        _available.isEmpty
                     ? null
                     : () => _save(),
                 child: Text(
@@ -538,7 +606,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       ],
     );
     return PopScope<LedgerEntry>(
-      canPop: _allowPop || (!_dirty && !_saving && _lastSaved == null),
+      canPop: _allowPop || (!_dirty && !_saving && !_undoing),
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _leave();
       },
@@ -578,7 +646,8 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               constraints: const BoxConstraints(maxWidth: 520),
               child: LayoutBuilder(
                 builder: (context, box) {
-                  if (box.maxHeight < 400) {
+                  if (box.maxHeight < 400 ||
+                      MediaQuery.textScalerOf(context).scale(14) > 24) {
                     return SingleChildScrollView(
                       padding: const EdgeInsets.all(12),
                       child: Column(children: [fields, controls]),
