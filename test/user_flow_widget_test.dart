@@ -114,6 +114,8 @@ void main() {
         await tester.pumpAndSettle();
         data = await read();
         expect(data.entries.single.amount.fen, 4000);
+        expect(find.text('账单详情'), findsOneWidget);
+        await hit(find.byType(BackButton).last);
         await hit(find.text('统计').last);
         await tester.pumpAndSettle();
         expect(find.text('钱花在哪里'), findsOneWidget);

@@ -5,6 +5,7 @@ import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/status_panel.dart';
+import '../../../shared/widgets/presentation_errors.dart';
 
 class LedgerListPage extends StatefulWidget {
   const LedgerListPage({
@@ -17,8 +18,18 @@ class LedgerListPage extends StatefulWidget {
     this.initialDate,
     this.initialCategoryId,
     this.initialKind,
+    this.month,
+    this.loading = false,
+    this.readError,
+    this.onRetry,
+    this.onAdd,
+    this.drillDown = false,
   });
-  final LedgerMonthData data;
+  final LedgerMonthData? data;
+  final CalendarMonth? month;
+  final bool loading, drillDown;
+  final Object? readError;
+  final VoidCallback? onRetry, onAdd;
   final LedgerQueryService query;
   final String asOfLocalDate;
   final ValueChanged<LedgerEntry>? onEntryTap;
@@ -34,6 +45,18 @@ class _LedgerListPageState extends State<LedgerListPage> {
   EntryKind? _kind;
   String? _categoryId, _from, _to;
   int? _min, _max;
+  bool _monthNotice = false;
+  final _scroll = ScrollController();
+  double? _restoreOffset;
+  List<Category> _categories = const [];
+  CalendarMonth get _month => widget.month ?? widget.data!.month;
+  bool get _filtered =>
+      _search.text.isNotEmpty ||
+      _kind != null ||
+      _categoryId != null ||
+      _from != null ||
+      _min != null ||
+      _max != null;
   @override
   void initState() {
     super.initState();
@@ -46,20 +69,38 @@ class _LedgerListPageState extends State<LedgerListPage> {
   @override
   void didUpdateWidget(covariant LedgerListPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.data.month != widget.data.month) {
+    if ((oldWidget.month ?? oldWidget.data?.month) != _month) {
       _from = null;
       _to = null;
+      _monthNotice = true;
+      _restoreOffset = null;
+      if (_scroll.hasClients) _scroll.jumpTo(0);
+    } else if ((widget.loading || widget.readError != null) &&
+        _restoreOffset == null &&
+        _scroll.hasClients) {
+      _restoreOffset = _scroll.offset;
+    } else if (!widget.loading &&
+        widget.readError == null &&
+        _restoreOffset != null) {
+      final offset = _restoreOffset!;
+      _restoreOffset = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scroll.hasClients) {
+          _scroll.jumpTo(offset.clamp(0, _scroll.position.maxScrollExtent));
+        }
+      });
     }
   }
 
   @override
   void dispose() {
     _search.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   Future<void> _range() async {
-    final month = widget.data.month;
+    final month = _month;
     final end = DateTime.utc(month.year, month.month, month.days);
     final last = end.isAfter(parseCalendarDay(widget.asOfLocalDate))
         ? parseCalendarDay(widget.asOfLocalDate)
@@ -72,6 +113,12 @@ class _LedgerListPageState extends State<LedgerListPage> {
       lastDate: DateTime(last.year, last.month, last.day),
       helpText: tr(context, "筛选当前月份日期"),
       saveText: tr(context, "确定"),
+      initialDateRange: _from == null || _to == null
+          ? null
+          : DateTimeRange(
+              start: parseCalendarDay(_from!),
+              end: parseCalendarDay(_to!),
+            ),
     );
     if (picked != null && mounted) {
       setState(() {
@@ -119,15 +166,11 @@ class _LedgerListPageState extends State<LedgerListPage> {
                 ),
                 items: [
                   DropdownMenuItem(value: '', child: Text(tr(context, "全部分类"))),
-                  for (final c in widget.data.categories)
+                  for (final c in _categories)
                     DropdownMenuItem(
                       value: c.id,
                       child: Text(
-                        localizedCategoryPath(
-                          context,
-                          c,
-                          widget.data.categories,
-                        ),
+                        localizedCategoryPath(context, c, _categories),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -210,38 +253,46 @@ class _LedgerListPageState extends State<LedgerListPage> {
   });
   @override
   Widget build(BuildContext context) {
-    final view = widget.query.filter(
-      widget.data,
-      LedgerFilter(
-        query: _search.text,
-        kind: _kind,
-        categoryId: _categoryId,
-        fromDate: _from,
-        toDate: _to,
-        minFen: _min,
-        maxFen: _max,
-      ),
-      asOfLocalDate: widget.asOfLocalDate,
-    );
+    final data = widget.data;
+    if (data != null) _categories = data.categories;
+    final selectedCategory = _categories
+        .where((c) => c.id == _categoryId)
+        .firstOrNull;
+    final view =
+        data == null ||
+            data.month != _month ||
+            widget.loading ||
+            widget.readError != null
+        ? null
+        : widget.query.filter(
+            data,
+            LedgerFilter(
+              query: _search.text,
+              kind: _kind,
+              categoryId: _categoryId,
+              fromDate: _from,
+              toDate: _to,
+              minFen: _min,
+              maxFen: _max,
+            ),
+            asOfLocalDate: widget.asOfLocalDate,
+          );
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(tr(context, "账单")),
+        title: Text(tr(context, widget.drillDown ? "筛选明细" : "账单")),
         actions: [
           TextButton(
             onPressed: widget.onChooseMonth,
-            child: Text(
-              tr(context, "{0}年{1}月 ▾", [
-                widget.data.month.year,
-                widget.data.month.month,
-              ]),
-            ),
+            child: Text(tr(context, "{0}年{1}月 ▾", [_month.year, _month.month])),
           ),
         ],
       ),
       body: SafeArea(
         top: false,
         child: CustomScrollView(
+          controller: _scroll,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
@@ -249,6 +300,8 @@ class _LedgerListPageState extends State<LedgerListPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (_monthNotice)
+                      Text(tr(context, "切换月份后保留分类、收支、搜索和金额条件，日期范围已重置")),
                     TextField(
                       controller: _search,
                       onChanged: (_) => setState(() {}),
@@ -303,33 +356,109 @@ class _LedgerListPageState extends State<LedgerListPage> {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    MetricGrid(
-                      values: [
-                        (tr(context, "筛选支出"), view.expense),
-                        (tr(context, "筛选收入"), view.income),
-                        (tr(context, "收支差额"), view.netFlow),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        if (_categoryId != null)
+                          InputChip(
+                            label: Text(
+                              tr(context, "分类：{0}", [
+                                selectedCategory != null
+                                    ? localizedCategoryPath(
+                                        context,
+                                        selectedCategory,
+                                        _categories,
+                                      )
+                                    : tr(context, "未识别分类"),
+                              ]),
+                            ),
+                            onDeleted: () => setState(() => _categoryId = null),
+                          ),
+                        if (_min != null)
+                          InputChip(
+                            label: Text(
+                              tr(context, "最低 {0}", [
+                                Money.fromFen(_min!).yuan,
+                              ]),
+                            ),
+                            onDeleted: () => setState(() => _min = null),
+                          ),
+                        if (_max != null)
+                          InputChip(
+                            label: Text(
+                              tr(context, "最高 {0}", [
+                                Money.fromFen(_max!).yuan,
+                              ]),
+                            ),
+                            onDeleted: () => setState(() => _max = null),
+                          ),
+                        if (_from != null)
+                          InputChip(
+                            label: Text(tr(context, "{0} 至 {1}", [_from, _to])),
+                            onDeleted: () => setState(() {
+                              _from = null;
+                              _to = null;
+                            }),
+                          ),
+                        if (_kind != null)
+                          InputChip(
+                            label: Text(
+                              tr(
+                                context,
+                                _kind == EntryKind.expense ? "支出" : "收入",
+                              ),
+                            ),
+                            onDeleted: () => setState(() => _kind = null),
+                          ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Text(
-                        tr(context, "共 {0} 笔 · 差额不是账户余额", [
-                          view.entries.length,
-                        ]),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: scheme.onSurfaceVariant,
+                    const SizedBox(height: 10),
+                    if (view != null) ...[
+                      MetricGrid(
+                        values: [
+                          (tr(context, "筛选支出"), view.expense),
+                          (tr(context, "筛选收入"), view.income),
+                          (tr(context, "收支差额"), view.netFlow),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Text(
+                          tr(context, "共 {0} 笔 · 差额不是账户余额", [
+                            view.entries.length,
+                          ]),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
             ),
-            if (view.entries.isEmpty)
+            if (widget.readError != null)
               SliverToBoxAdapter(
-                child: StatusPanel(title: tr(context, "没有符合条件的账单")),
+                child: StatusPanel(
+                  title: tr(context, "无法读取账单"),
+                  message: tr(context, presentationError(widget.readError!)),
+                  actionLabel: tr(context, "重试"),
+                  onAction: widget.onRetry,
+                ),
+              )
+            else if (view == null)
+              SliverToBoxAdapter(
+                child: StatusPanel(title: tr(context, "正在读取账本"), loading: true),
+              )
+            else if (view.entries.isEmpty)
+              SliverToBoxAdapter(
+                child: StatusPanel(
+                  title: tr(context, _filtered ? "没有符合条件的账单" : "本月还没有记录"),
+                  actionLabel: tr(context, _filtered ? "清除筛选" : "记第一笔"),
+                  onAction: _filtered ? _clear : widget.onAdd,
+                ),
               )
             else
               SliverPadding(
@@ -372,7 +501,7 @@ class _LedgerListPageState extends State<LedgerListPage> {
                           ),
                         EntryTile(
                           entry: e,
-                          categories: widget.data.categories,
+                          categories: _categories,
                           onTap: widget.onEntryTap == null
                               ? null
                               : () => widget.onEntryTap!(e),

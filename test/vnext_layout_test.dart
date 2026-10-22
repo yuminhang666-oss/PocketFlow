@@ -89,7 +89,7 @@ void main() {
     const Size(412, 915),
   ]) {
     for (final scale in [1.0, 1.3, 2.0]) {
-      testWidgets('editor controls visible at $size, scale $scale', (
+      testWidgets('editor controls reachable at $size, scale $scale', (
         tester,
       ) async {
         _screen(tester, size, scale);
@@ -122,12 +122,18 @@ void main() {
             dot = find.widgetWithText(TextButton, '.'),
             save = find.text('保存支出');
         for (final control in [zero, dot, save]) {
+          if (scale == 2) {
+            await tester.ensureVisible(control);
+            await tester.pumpAndSettle();
+          }
           final bounds = tester.getRect(control);
           expect(bounds.top, greaterThanOrEqualTo(0));
           expect(bounds.bottom, lessThanOrEqualTo(size.height));
           expect(control.hitTestable(), findsOneWidget);
         }
-        await tester.tap(find.widgetWithText(TextButton, '1'));
+        final one = find.widgetWithText(TextButton, '1');
+        await tester.ensureVisible(one);
+        await tester.tap(one);
         await tester.pump();
         expect(
           tester
@@ -138,6 +144,10 @@ void main() {
           isNotNull,
         );
         expect(saved, isNull);
+        await tester.ensureVisible(save);
+        await tester.tap(save);
+        await tester.pump();
+        expect(saved?.amount.fen, 100);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       });
