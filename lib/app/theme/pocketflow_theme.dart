@@ -4,7 +4,7 @@ import '../routing/pocketflow_page_transitions.dart';
 import 'frosted_glass.dart';
 
 abstract final class PocketFlowTheme {
-  static const primary = Color(0xFF3E63DD);
+  static const primary = Color(0xFF3563E9);
   static const amber = Color(0xFFFFC53D);
   static const heroLight = Color(0xFFEDF2FE);
   static const heroDark = Color(0xFF1B2441);
@@ -15,7 +15,7 @@ abstract final class PocketFlowTheme {
     final base = _build(brightness);
     final dark = brightness == Brightness.dark;
     final scheme = base.colorScheme.copyWith(
-      primary: dark ? const Color(0xFF94C5FF) : const Color(0xFF0063D7),
+      primary: dark ? const Color(0xFF94C5FF) : primary,
       surface: dark ? const Color(0xFF1D3045) : const Color(0xFFF8FCFF),
       primaryContainer: dark
           ? const Color(0xFF243D59)

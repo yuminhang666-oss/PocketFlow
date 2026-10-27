@@ -12,6 +12,7 @@ Future<bool?> showBudgetEditor(
   required CalendarMonth month,
   required Future<MonthlyBudget> Function(Money) onSave,
   Money? initialBudget,
+  Money spent = const Money.fromFen(0),
 }) => showModalBottomSheet<bool>(
   context: context,
   isScrollControlled: true,
@@ -22,6 +23,7 @@ Future<bool?> showBudgetEditor(
     month: month,
     onSave: onSave,
     initialBudget: initialBudget,
+    spent: spent,
   ),
 );
 
@@ -31,9 +33,11 @@ class BudgetEditorSheet extends StatefulWidget {
     required this.month,
     required this.onSave,
     this.initialBudget,
+    this.spent = const Money.fromFen(0),
   });
   final CalendarMonth month;
   final Money? initialBudget;
+  final Money spent;
   final Future<MonthlyBudget> Function(Money) onSave;
   @override
   State<BudgetEditorSheet> createState() => _BudgetEditorSheetState();
@@ -61,6 +65,34 @@ class _BudgetEditorSheetState extends State<BudgetEditorSheet> {
         _saving = true;
         _error = null;
       });
+      if (budget.fen < 0) throw const FormatException('预算不能为负数');
+      if (budget.fen < widget.spent.fen) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (d) => AlertDialog(
+            title: Text(tr(context, "预算低于已支出金额")),
+            content: Text(
+              tr(context, "保存后将显示已超支 {0}，原账单保持不变。", [
+                Money.fromFen(widget.spent.fen - budget.fen).yuan,
+              ]),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(d, false),
+                child: Text(tr(context, "取消")),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(d, true),
+                child: Text(tr(context, "确认保存")),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) {
+          if (mounted) setState(() => _saving = false);
+          return;
+        }
+      }
       await widget.onSave(budget);
       if (mounted) {
         setState(() => _saved = true);
@@ -101,7 +133,7 @@ class _BudgetEditorSheetState extends State<BudgetEditorSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              tr(context, "{0}年{1}月预算", [
+              tr(context, "调整 {0}年{1}月预算", [
                 widget.month.year,
                 widget.month.month,
               ]),

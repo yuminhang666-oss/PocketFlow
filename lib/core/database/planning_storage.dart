@@ -49,6 +49,9 @@ Future<PlanningData> readPlanning(AppDatabase db) async {
             versionId: o.versionId,
             status: OccurrenceStatus.values.byName(o.status),
             entryId: o.entryId,
+            actualLocalDate: o.entryId == null
+                ? null
+                : settings['actualDate:${o.ruleId}:${o.periodKey}'] as String?,
           ),
       ],
       settings: settings['settings'] == null
@@ -121,6 +124,16 @@ Future<void> writePlanning(AppDatabase db, PlanningData data) async {
       ],
       updates: {db.planOccurrences},
     );
+    if (o.actualLocalDate != null) {
+      await db.customInsert(
+        'INSERT INTO plan_settings(key,payload) VALUES (?,?)',
+        variables: [
+          Variable.withString('actualDate:${o.key}'),
+          Variable.withString(jsonEncode(o.actualLocalDate)),
+        ],
+        updates: {db.planSettings},
+      );
+    }
   }
   await db.customInsert(
     "INSERT INTO plan_settings(key,payload) VALUES ('settings',?)",

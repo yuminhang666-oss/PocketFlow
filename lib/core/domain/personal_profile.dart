@@ -95,9 +95,20 @@ final class PersonalProfile {
     Iterable<SavingsGoal> goals = const [],
     Iterable<EntryTemplate> templates = const [],
     Iterable<String> zeroExpenseDays = const [],
+    Map<String, int> categoryColors = const {},
   }) : goals = List.unmodifiable(goals),
        templates = List.unmodifiable(templates),
-       zeroExpenseDays = List.unmodifiable(zeroExpenseDays) {
+       zeroExpenseDays = List.unmodifiable(zeroExpenseDays),
+       categoryColors = Map.unmodifiable(categoryColors) {
+    if (categoryColors.entries.any(
+      (e) =>
+          e.key.isEmpty ||
+          e.key.length > 64 ||
+          e.value < 0xFF000000 ||
+          e.value > 0xFFFFFFFF,
+    )) {
+      throw const FormatException('分类颜色无效');
+    }
     if (!['system', 'light', 'dark'].contains(theme) ||
         !['classic', 'glass'].contains(surfaceStyle) ||
         !['zh_Hans', 'zh_Hant', 'en'].contains(locale) ||
@@ -124,6 +135,7 @@ final class PersonalProfile {
   final List<SavingsGoal> goals;
   final List<EntryTemplate> templates;
   final List<String> zeroExpenseDays;
+  final Map<String, int> categoryColors;
 
   PersonalProfile copyWith({
     String? theme,
@@ -137,6 +149,7 @@ final class PersonalProfile {
     Iterable<SavingsGoal>? goals,
     Iterable<EntryTemplate>? templates,
     Iterable<String>? zeroExpenseDays,
+    Map<String, int>? categoryColors,
   }) => PersonalProfile(
     theme: theme ?? this.theme,
     surfaceStyle: surfaceStyle ?? this.surfaceStyle,
@@ -151,6 +164,7 @@ final class PersonalProfile {
     goals: goals ?? this.goals,
     templates: templates ?? this.templates,
     zeroExpenseDays: zeroExpenseDays ?? this.zeroExpenseDays,
+    categoryColors: categoryColors ?? this.categoryColors,
   );
 
   Map<String, Object?> toJson() => {
@@ -163,6 +177,7 @@ final class PersonalProfile {
     'goals': goals.map((g) => g.toJson()).toList(),
     'templates': templates.map((t) => t.toJson()).toList(),
     'zeroExpenseDays': zeroExpenseDays,
+    if (categoryColors.isNotEmpty) 'categoryColors': categoryColors,
   };
   factory PersonalProfile.fromJson(Map<String, dynamic> row) => PersonalProfile(
     theme: row['theme'] as String,
@@ -178,5 +193,8 @@ final class PersonalProfile {
       (v) => EntryTemplate.fromJson(v as Map<String, dynamic>),
     ),
     zeroExpenseDays: (row['zeroExpenseDays'] as List).cast<String>(),
+    categoryColors: (row['categoryColors'] as Map<String, dynamic>? ?? {}).map(
+      (id, value) => MapEntry(id, value as int),
+    ),
   );
 }

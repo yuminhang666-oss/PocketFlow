@@ -23,7 +23,7 @@ void validateFinancialPlans(BackupDocument document) {
     if (e == null ||
         e.kind != v.kind ||
         e.categoryId != v.categoryId ||
-        e.localDate != v.dueDate(o.period)) {
+        e.localDate != (o.actualLocalDate ?? v.dueDate(o.period))) {
       throw const FormatException('周期处理期与账目关联不一致');
     }
   }

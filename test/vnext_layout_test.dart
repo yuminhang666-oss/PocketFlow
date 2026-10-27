@@ -115,7 +115,7 @@ void main() {
             tester.getRect(grid).bottom,
             lessThanOrEqualTo(tester.getRect(keypad).top),
             reason:
-                'Both fixed root rows must fit above the keypad on a normal phone',
+                'The visible quick category row must fit above the keypad on a normal phone',
           );
         }
         final zero = find.widgetWithText(TextButton, '0'),

@@ -161,6 +161,7 @@ class DriftPlanningStore implements PlanningPort {
   Future<LedgerEntry> confirm(
     PendingOccurrence o, {
     required Money actualAmount,
+    String? actualLocalDate,
   }) => _tx(() async {
     final v = await _pending(o), p = await readPlanning(db);
     final done = p.occurrences
@@ -173,8 +174,10 @@ class DriftPlanningStore implements PlanningPort {
       }
       throw const PocketFlowException(PocketFlowErrorCode.conflict);
     }
-    final date = v.dueDate(o.period);
-    if (date.compareTo(calendarDayKey(clock.now())) > 0) {
+    final due = v.dueDate(o.period), date = actualLocalDate ?? due;
+    parseCalendarDay(date);
+    if (due.compareTo(calendarDayKey(clock.now())) > 0 ||
+        date.compareTo(calendarDayKey(clock.now())) > 0) {
       throw const PocketFlowException(PocketFlowErrorCode.invalidDate);
     }
     final day = parseCalendarDay(date),
@@ -195,6 +198,14 @@ class DriftPlanningStore implements PlanningPort {
         ? await repo.createIncome(draft)
         : await repo.createExpense(draft);
     await _insertOccurrence(v, o.period, OccurrenceStatus.settled, entry.id);
+    await db.customInsert(
+      'INSERT INTO plan_settings(key,payload) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET payload=excluded.payload',
+      variables: [
+        Variable.withString('actualDate:${v.ruleId}:${o.period.key}'),
+        Variable.withString(jsonEncode(date)),
+      ],
+      updates: {db.planSettings},
+    );
     return entry;
   });
   Future<void> _insertOccurrence(

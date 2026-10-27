@@ -142,6 +142,7 @@ final class RecurringOccurrence {
     required this.versionId,
     required this.status,
     this.entryId,
+    this.actualLocalDate,
   }) {
     validatePlanId(ruleId);
     validatePlanId(versionId);
@@ -149,11 +150,13 @@ final class RecurringOccurrence {
       throw const FormatException('周期处理关联无效');
     }
     if (entryId != null) validatePlanId(entryId!);
+    if (actualLocalDate != null) parseCalendarDay(actualLocalDate!);
   }
   final String ruleId, versionId;
   final CalendarMonth period;
   final OccurrenceStatus status;
   final String? entryId;
+  final String? actualLocalDate;
   String get key => '$ruleId:${period.key}';
   Map<String, Object?> toJson() => {
     'ruleId': ruleId,
@@ -161,6 +164,7 @@ final class RecurringOccurrence {
     'versionId': versionId,
     'status': status.name,
     'entryId': entryId,
+    if (actualLocalDate != null) 'actualLocalDate': actualLocalDate,
   };
   factory RecurringOccurrence.fromJson(Map<String, dynamic> j) =>
       RecurringOccurrence(
@@ -169,6 +173,7 @@ final class RecurringOccurrence {
         versionId: j['versionId'] as String,
         status: OccurrenceStatus.values.byName(j['status'] as String),
         entryId: j['entryId'] as String?,
+        actualLocalDate: j['actualLocalDate'] as String?,
       );
 }
 

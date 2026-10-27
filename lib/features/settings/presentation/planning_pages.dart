@@ -2,6 +2,7 @@ import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
 import '../../../contracts/contracts.dart';
+import 'increase_goal_sheet.dart';
 import '../../../shared/widgets/amount_text.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/presentation_errors.dart';
@@ -37,7 +38,7 @@ Future<void> editSavingsGoal(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                initial == null ? tr(context, "新建小目标") : tr(context, "编辑目标进度"),
+                initial == null ? tr(context, "新建小目标") : tr(context, "更正累计值"),
                 style: Theme.of(sheet).textTheme.titleLarge,
               ),
               const SizedBox(height: 14),
@@ -192,6 +193,14 @@ class GoalsPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.tonal(
+                          onPressed: () =>
+                              increaseSavingsGoal(context, goal, onSave),
+                          child: Text(tr(context, "增加进度")),
+                        ),
+                      ),
                       Row(
                         children: [
                           Icon(
@@ -244,7 +253,7 @@ class GoalsPage extends StatelessWidget {
                           TextButton(
                             onPressed: () =>
                                 editSavingsGoal(context, goal, onSave),
-                            child: Text(tr(context, "更新进度")),
+                            child: Text(tr(context, "更正累计值")),
                           ),
                           TextButton(
                             onPressed: () async {

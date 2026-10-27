@@ -163,6 +163,11 @@ Future<String?> showCategoryPicker(
                                         ),
                                         avatar: Icon(
                                           categoryIcon(c.id, categories),
+                                          color: identityColor(
+                                            context,
+                                            c.id,
+                                            categories,
+                                          ),
                                           size: 18,
                                         ),
                                         onSelected: (_) =>
@@ -210,7 +215,10 @@ class CategorySelector extends StatelessWidget {
             return order == 0 ? a.id.compareTo(b.id) : order;
           });
     // Catalog order is stable; saving or selecting never reorders shortcuts.
-    final roots = all.where((c) => c.parentId == null).take(8).toList();
+    final roots = all
+        .where((c) => c.parentId == null)
+        .take(MediaQuery.sizeOf(context).height < 700 ? 4 : 8)
+        .toList();
     final rootId = selected?.parentId ?? selected?.id;
     final children = all.where((c) => c.parentId == rootId).toList();
     final large = MediaQuery.textScalerOf(context).scale(14) > 19;
@@ -265,7 +273,7 @@ class CategorySelector extends StatelessWidget {
                   padding: const EdgeInsets.all(4),
                   backgroundColor: active
                       ? Theme.of(context).colorScheme.primaryContainer
-                      : Theme.of(context).colorScheme.surface,
+                      : categoryColor(c.id, categories).withValues(alpha: .08),
                   side: BorderSide(
                     color: active
                         ? Theme.of(context).colorScheme.primary
@@ -282,7 +290,11 @@ class CategorySelector extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(categoryIcon(c.id, categories), size: 22),
+                        Icon(
+                          categoryIcon(c.id, categories),
+                          size: 28,
+                          color: identityColor(context, c.id, categories),
+                        ),
                         const SizedBox(height: 4),
                         Flexible(
                           child: Text(
@@ -317,7 +329,11 @@ class CategorySelector extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 6),
                     child: ChoiceChip(
                       showCheckmark: true,
-                      avatar: Icon(categoryIcon(c.id, categories), size: 18),
+                      avatar: Icon(
+                        categoryIcon(c.id, categories),
+                        size: 18,
+                        color: identityColor(context, c.id, categories),
+                      ),
                       selected: c.id == selectedId,
                       label: Text(localizedCategoryName(context, c)),
                       onSelected: enabled ? (_) => onSelected(c.id) : null,

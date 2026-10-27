@@ -2,6 +2,7 @@ import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../core/domain/ledger_entry.dart';
 import '../../core/domain/ledger_models.dart';
+import '../../core/domain/money.dart';
 import 'amount_text.dart';
 
 String categoryRoot(String id, List<Category> all) {
@@ -67,52 +68,78 @@ IconData categoryIcon(String id, [List<Category> categories = const []]) =>
     };
 Color categoryColor(String id, [List<Category> categories = const []]) {
   final root = categoryRoot(id, categories);
+  final custom = categories.where((c) => c.id == root).firstOrNull?.colorValue;
+  if (custom != null) return Color(custom);
   const known = {
     'food': 0,
     'drinks': 1,
-    'shopping': 2,
-    'transport': 3,
-    'study': 4,
-    'research': 5,
+    'transport': 2,
+    'shopping': 3,
+    'living': 4,
+    'study': 5,
     'digital': 6,
-    'living': 7,
+    'health': 7,
     'telecom': 8,
+    'work': 9,
+    'fun': 10,
+    'sports': 11,
+    'social': 12,
+    'travel': 13,
+    'other': 14,
+    'research': 5,
     'tutoring': 9,
-    'sports': 10,
-    'fun': 11,
-    'health': 12,
-    'social': 13,
-    'travel': 14,
-    'other': 15,
-    'income_family': 2,
-    'income_tutoring': 4,
-    'income_scholarship': 9,
-    'income_campus': 3,
-    'income_work': 6,
-    'income_gift': 13,
+    'income_family': 4,
+    'income_work': 2,
+    'income_labor': 9,
+    'income_scholarship': 1,
+    'income_gift': 12,
     'income_interest': 8,
-    'income_other': 15,
+    'income_other': 14,
+    'income_tutoring': 9,
+    'income_campus': 9,
   };
-  const palette = [
-    Color(0xFFBF5700),
-    Color(0xFF86621E),
-    Color(0xFF7048E8),
-    Color(0xFF1971C2),
-    Color(0xFF3E63DD),
-    Color(0xFF8E4EC6),
-    Color(0xFF0C8599),
-    Color(0xFF806342),
-    Color(0xFF5372A8),
-    Color(0xFF7659A4),
-    Color(0xFF357E75),
-    Color(0xFFD6336C),
-    Color(0xFFB42335),
-    Color(0xFFAA4D79),
-    Color(0xFF397DA9),
-    Color(0xFF60646C),
-  ];
+  const palette = categoryPalette;
   final hash = root.codeUnits.fold<int>(0, (v, c) => (v * 31 + c) & 0x7fffffff);
   return palette[known[root] ?? hash % palette.length];
+}
+
+const categoryPalette = [
+  Color(0xFFE77A2C),
+  Color(0xFFB98624),
+  Color(0xFF327BCB),
+  Color(0xFFC46891),
+  Color(0xFF338574),
+  Color(0xFF7A64BB),
+  Color(0xFF61708A),
+  Color(0xFFCC6171),
+  Color(0xFF348C9D),
+  Color(0xFF596DB0),
+  Color(0xFF9A6AB3),
+  Color(0xFF7C914B),
+  Color(0xFFB5707E),
+  Color(0xFF3B9094),
+  Color(0xFF7E8793),
+];
+
+Color identityColor(
+  BuildContext context,
+  String id,
+  List<Category> categories,
+) {
+  final color = categoryColor(id, categories);
+  return Theme.of(context).brightness == Brightness.dark
+      ? Color.lerp(color, Colors.white, .28)!
+      : color;
+}
+
+Color flowColor(BuildContext context, EntryKind kind, {Money? amount}) {
+  if (amount?.fen == 0) return Theme.of(context).colorScheme.onSurfaceVariant;
+  final color = kind == EntryKind.income
+      ? const Color(0xFFD74747)
+      : const Color(0xFF168454);
+  return Theme.of(context).brightness == Brightness.dark
+      ? Color.lerp(color, Colors.white, .28)!
+      : color;
 }
 
 class EntryTile extends StatelessWidget {
@@ -141,9 +168,7 @@ class EntryTile extends StatelessWidget {
       style: TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w600,
-        color: entry.kind == EntryKind.income
-            ? scheme.primary
-            : scheme.onSurface,
+        color: flowColor(context, entry.kind, amount: entry.amount),
       ),
     );
     return InkWell(

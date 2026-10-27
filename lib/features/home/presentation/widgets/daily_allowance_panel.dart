@@ -42,16 +42,6 @@ class DailyAllowancePanel extends StatelessWidget {
                     : tr(context, "今起日均参考"),
                 style: TextStyle(color: scheme.onPrimaryContainer),
               ),
-              if (!past)
-                Text(
-                  future
-                      ? tr(context, "整月 {0} 天", [snapshot.remainingDays])
-                      : tr(context, "含今天 · 还剩 {0} 天", [snapshot.remainingDays]),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onPrimaryContainer,
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -67,9 +57,11 @@ class DailyAllowancePanel extends StatelessWidget {
               children: [
                 AmountText(
                   amount,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineLarge?.copyWith(color: scheme.primary),
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: scheme.primary,
+                    fontSize: 46,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 if (!past)
                   Text(
@@ -79,39 +71,45 @@ class DailyAllowancePanel extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 4),
-          Text(
-            past
-                ? tr(context, "历史月份 · 全月消费汇总")
-                : future
-                ? tr(context, "仅用于预算规划")
-                : tr(context, "按剩余预算均分，每次记账后更新"),
-            style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer),
-          ),
+          if (!past)
+            Text(
+              future
+                  ? tr(context, "整月 {0} 天", [snapshot.remainingDays])
+                  : tr(context, "含今天 · 还剩 {0} 天", [snapshot.remainingDays]),
+              style: TextStyle(fontSize: 12, color: scheme.onPrimaryContainer),
+            ),
+          if (past || future)
+            Text(past ? tr(context, "历史月份 · 全月消费汇总") : tr(context, "仅用于预算规划")),
           const SizedBox(height: 14),
           Wrap(
             alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 12,
             runSpacing: 8,
             children: [
-              Text(
-                snapshot.isOverspent
-                    ? tr(context, "本月已超支")
-                    : tr(context, "预算余额"),
-                style: TextStyle(color: scheme.onPrimaryContainer),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tr(context, snapshot.isOverspent ? "本月已超支" : "预算余额")),
+                  if (snapshot.remaining != null)
+                    AmountText(
+                      Money.fromFen(snapshot.remaining!.fen.abs()),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: snapshot.isOverspent
+                            ? scheme.error
+                            : scheme.onPrimaryContainer,
+                      ),
+                    ),
+                ],
               ),
-              if (snapshot.remaining != null)
-                AmountText(
-                  snapshot.isOverspent
-                      ? Money.fromFen(snapshot.remaining!.fen.abs())
-                      : snapshot.remaining!,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: snapshot.isOverspent
-                        ? scheme.error
-                        : scheme.onPrimaryContainer,
-                  ),
+              TextButton(
+                onPressed: onSetBudget,
+                child: Text(
+                  tr(context, snapshot.budget == null ? "设置本月预算" : "调整预算"),
                 ),
+              ),
             ],
           ),
           if (used != null) ...[
@@ -146,20 +144,13 @@ class DailyAllowancePanel extends StatelessWidget {
                   color: scheme.onPrimaryContainer,
                 ),
               ),
-              if (snapshot.budget != null && onSetBudget != null)
-                TextButton(
-                  onPressed: onSetBudget,
-                  child: Text(tr(context, "调整预算")),
+              if (used != null)
+                Text(
+                  tr(context, "已使用 {0}%", [(used * 100).toStringAsFixed(1)]),
                 ),
             ],
           ),
-          if (snapshot.budget == null && onSetBudget != null) ...[
-            const SizedBox(height: 10),
-            FilledButton(
-              onPressed: onSetBudget,
-              child: Text(tr(context, "设置本月预算")),
-            ),
-          ],
+          if (snapshot.remaining?.fen == 0) Text(tr(context, "预算已用完")),
         ],
       ),
     );

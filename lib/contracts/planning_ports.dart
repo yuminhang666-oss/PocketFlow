@@ -11,6 +11,7 @@ abstract interface class PlanningPort {
   Future<LedgerEntry> confirm(
     PendingOccurrence occurrence, {
     required Money actualAmount,
+    String? actualLocalDate,
   });
   Future<void> skip(PendingOccurrence occurrence);
   Future<void> reopen(String ruleId, CalendarMonth period);

@@ -65,3 +65,7 @@ PocketFlowException 保留旧错误码并新增 conflict、feedbackUnavailable�
 ## 手动更新端口 v1（0.2.1候选）
 
 独立接口lib/contracts/app_update_port.dart：AppUpdatePort只读取本机安装信息和打开固定下载链接；AppReleaseSource读取公开版本清单。启动不调用版本源，只有用户点击“检查更新”才请求网络。AppUpdateController负责单次检查、失败和下载状态，不访问LedgerRepository或BackupStore。财务接口候选2.0.0保持不变。
+
+## 0.4.0 合同增量 v3.2.0
+
+可选 PersonalProfile.categoryColors、Category.colorValue、RecurringOccurrence.actualLocalDate 及 confirm(actualLocalDate:) 见 [0.4.0说明](v0.4.0-update.md)。旧字段缺省兼容；颜色复用profile，实际日期复用plan_settings，同一事务保存；不增加依赖或财务表迁移。旧备份期次缺省按dueDate核对，新期次按明确实际日期核对。源定义仍只在core/domain与contracts。

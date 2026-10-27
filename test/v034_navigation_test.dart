@@ -67,8 +67,8 @@ void main() {
       );
       try {
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.text('查看全部'));
-        await hit(find.text('查看全部'));
+        await tester.ensureVisible(find.text('本月账单'));
+        await hit(find.text('本月账单'));
         expect(find.byType(LedgerListPage), findsOneWidget);
         expect(
           find.byType(BackButton),
@@ -111,7 +111,7 @@ void main() {
           shown.amount,
         );
         await hit(find.text('编辑账单'));
-        await hit(find.text('2026-10-20'));
+        await hit(find.text('发生日期 2026-10-20 · 补记'));
         expect(find.byType(CalendarDatePicker), findsOneWidget);
         tester
             .widget<CalendarDatePicker>(find.byType(CalendarDatePicker))

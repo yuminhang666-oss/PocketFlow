@@ -85,7 +85,7 @@ void main() {
       }
       expect(entries.map((e) => e.amount.fen), [100, 200, 300]);
       await key(tester, '4');
-      await tester.tap(find.text('备注（选填）'));
+      await tester.tap(find.byTooltip('备注（选填）'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'synthetic next draft');
       await tester.tap(find.text('完成'));
@@ -127,7 +127,7 @@ void main() {
         return pending.future;
       }, (_) async {});
       await key(tester, '8');
-      await tester.tap(find.text('备注（选填）'));
+      await tester.tap(find.byTooltip('备注（选填）'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'keep me');
       await tester.tap(find.text('完成'));

@@ -12,11 +12,14 @@ final class Category {
     this.isArchived = false,
     this.kind,
     this.parentId,
+    this.colorValue,
   }) {
     if (id.isEmpty ||
         id.length > 64 ||
         name.trim().isEmpty ||
-        name.length > 30) {
+        name.length > 30 ||
+        (colorValue != null &&
+            (colorValue! < 0xFF000000 || colorValue! > 0xFFFFFFFF))) {
       throw ArgumentError('分类 ID 或名称无效');
     }
   }
@@ -28,6 +31,9 @@ final class Category {
   /// Null preserves legacy categories used by either kind of historical entry.
   final EntryKind? kind;
   final String? parentId;
+
+  /// Optional identity color projected from the same profile snapshot.
+  final int? colorValue;
 
   bool accepts(EntryKind value) => kind == null || kind == value;
 }

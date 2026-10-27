@@ -20,6 +20,17 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.4.0',
+    title: '总览、日历与报告改版',
+    additions: [
+      '总览新增小目标进度与四宫格，日历整合到账单标签。',
+      '报告中心支持周报月报切换、趋势、分类排行和账目核对。',
+      '统一分类身份色与收红支绿，自定义分类颜色随备份保留。',
+    ],
+    fixes: ['查询月份与发生日期分开，普通记账始终从今天开始。', '周期计划支持实际发生日期，跨月逾期待办可查看。'],
+    notes: ['沿用原包名与升级签名，旧账本和备份可继续读取。'],
+  ),
+  AppVersionNotes(
     version: '0.3.4',
     title: '记账与返回体验优化',
     fixes: [

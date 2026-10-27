@@ -6,6 +6,7 @@ import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/status_panel.dart';
 import '../../../shared/widgets/presentation_errors.dart';
+import 'ledger_calendar_page.dart';
 
 class LedgerListPage extends StatefulWidget {
   const LedgerListPage({
@@ -24,10 +25,18 @@ class LedgerListPage extends StatefulWidget {
     this.onRetry,
     this.onAdd,
     this.drillDown = false,
+    this.onMoveMonth,
+    this.onCurrentMonth,
+    this.onMarkZero,
+    this.onAddDay,
   });
   final LedgerMonthData? data;
   final CalendarMonth? month;
   final bool loading, drillDown;
+  final ValueChanged<CalendarMonth>? onMoveMonth;
+  final VoidCallback? onCurrentMonth;
+  final Future<void> Function(String, bool)? onMarkZero;
+  final ValueChanged<String>? onAddDay;
   final Object? readError;
   final VoidCallback? onRetry, onAdd;
   final LedgerQueryService query;
@@ -37,10 +46,25 @@ class LedgerListPage extends StatefulWidget {
   final String? initialDate, initialCategoryId;
   final EntryKind? initialKind;
   @override
-  State<LedgerListPage> createState() => _LedgerListPageState();
+  State<LedgerListPage> createState() => LedgerListPageState();
 }
 
-class _LedgerListPageState extends State<LedgerListPage> {
+class LedgerListPageState extends State<LedgerListPage> {
+  bool _calendar = false;
+  String? _calendarDate;
+  void showList() {
+    if (mounted) setState(() => _calendar = false);
+  }
+
+  void resetToMonth({bool calendar = false}) {
+    _clear();
+    setState(() {
+      _calendar = calendar;
+      _monthNotice = false;
+      _calendarDate = widget.asOfLocalDate;
+    });
+  }
+
   final _search = TextEditingController();
   EntryKind? _kind;
   String? _categoryId, _from, _to;
@@ -280,11 +304,20 @@ class _LedgerListPageState extends State<LedgerListPage> {
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(14) > 22
+            ? 80
+            : 56,
         title: Text(tr(context, widget.drillDown ? "筛选明细" : "账单")),
         actions: [
           TextButton(
             onPressed: widget.onChooseMonth,
-            child: Text(tr(context, "{0}年{1}月 ▾", [_month.year, _month.month])),
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width * .55,
+              child: Text(
+                tr(context, "{0}年{1}月 ▾", [_month.year, _month.month]),
+                textAlign: TextAlign.end,
+              ),
+            ),
           ),
         ],
       ),
@@ -294,6 +327,55 @@ class _LedgerListPageState extends State<LedgerListPage> {
           controller: _scroll,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           slivers: [
+            if (!widget.drillDown)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          ChoiceChip(
+                            label: Text(tr(context, "列表")),
+                            selected: !_calendar,
+                            onSelected: (_) =>
+                                setState(() => _calendar = false),
+                          ),
+                          ChoiceChip(
+                            label: Text(tr(context, "日历")),
+                            selected: _calendar,
+                            onSelected: (_) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).removeCurrentSnackBar();
+                              setState(() => _calendar = true);
+                            },
+                          ),
+                        ],
+                      ),
+                      if (_month !=
+                          CalendarMonth.fromDate(
+                            parseCalendarDay(widget.asOfLocalDate),
+                          ))
+                        TextButton(
+                          onPressed: () {
+                            _calendarDate = widget.asOfLocalDate;
+                            widget.onCurrentMonth?.call();
+                          },
+                          child: Text(tr(context, "回到本月")),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -419,13 +501,13 @@ class _LedgerListPageState extends State<LedgerListPage> {
                         values: [
                           (tr(context, "筛选支出"), view.expense),
                           (tr(context, "筛选收入"), view.income),
-                          (tr(context, "收支差额"), view.netFlow),
+                          (tr(context, "净收支"), view.netFlow),
                         ],
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(
-                          tr(context, "共 {0} 笔 · 差额不是账户余额", [
+                          tr(context, "当前范围共 {0} 笔 · 净收支为收入减支出", [
                             view.entries.length,
                           ]),
                           style: TextStyle(
@@ -451,6 +533,22 @@ class _LedgerListPageState extends State<LedgerListPage> {
             else if (view == null)
               SliverToBoxAdapter(
                 child: StatusPanel(title: tr(context, "正在读取账本"), loading: true),
+              )
+            else if (_calendar && widget.onMarkZero != null)
+              SliverToBoxAdapter(
+                child: LedgerCalendarPage(
+                  embedded: true,
+                  selectedDate: _calendarDate,
+                  onSelectedDate: (d) => _calendarDate = d,
+                  data: data!,
+                  view: view,
+                  today: widget.asOfLocalDate,
+                  onOpenDay: (_) {},
+                  onMarkZero: widget.onMarkZero!,
+                  onAddDay: widget.onAddDay,
+                  onEntryTap: widget.onEntryTap,
+                  onMoveMonth: widget.onMoveMonth,
+                ),
               )
             else if (view.entries.isEmpty)
               SliverToBoxAdapter(

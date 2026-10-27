@@ -221,7 +221,19 @@ class LedgerReader {
       });
       return (
         budgets: budgets,
-        categories: categories,
+        categories: categories
+            .map(
+              (c) => Category(
+                id: c.id,
+                name: c.name,
+                sortOrder: c.sortOrder,
+                isArchived: c.isArchived,
+                kind: c.kind,
+                parentId: c.parentId,
+                colorValue: profile.categoryColors[c.parentId ?? c.id],
+              ),
+            )
+            .toList(),
         entries: entries,
         profile: profile,
       );

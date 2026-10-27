@@ -99,6 +99,7 @@ void main() {
         var data = await read();
         expect(data.entries.single.amount.fen, 3000);
         expect(find.textContaining('1,470.00'), findsWidgets);
+        await tester.ensureVisible(find.text('餐饮').last);
         await hit(find.text('餐饮').last);
         await tester.pumpAndSettle();
         expect(find.text('编辑账单'), findsOneWidget);
@@ -151,6 +152,7 @@ void main() {
         await tester.pumpAndSettle();
         await hit(find.text('总览').last);
         await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('餐饮').last);
         await hit(find.text('餐饮').last);
         await tester.pumpAndSettle();
         await hit(find.text('删除账单'));

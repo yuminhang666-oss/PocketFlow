@@ -92,3 +92,7 @@ schemaVersion=4；保留从 1/2 到原严格表约束与 category_kind/parent_id
 ## 当前反馈合同（用户覆盖原方案）
 
 按ADR0009固定邮箱 yuminhang666@gmail.com，预览后由用户在邮件客户端完成发送。FeedbackMailPort.openComposer返回bool，只表示已打开；取消/缺少邮件客户端/异常不伪称送达，本地草稿和复制入口继续可用。反馈状态mailOpened不等于submitted或receipt；保留早期候选FeedbackPort/Receipt的兼容定义及已有本地数据，但生产不调用HTTPS服务，不生成邮件回执。无需服务器、域名、SMTP凭据或云资源。草稿和可能存在的历史回执仍不参与财务替换删除。
+
+## 0.4.0 合同增量 v3.2.0
+
+可选 PersonalProfile.categoryColors、Category.colorValue、RecurringOccurrence.actualLocalDate 及 confirm(actualLocalDate:) 见 [0.4.0说明](v0.4.0-update.md)。旧字段缺省兼容；颜色复用profile，实际日期复用plan_settings，同一事务保存；不增加依赖或财务表迁移。旧备份期次缺省按dueDate核对，新期次按明确实际日期核对。源定义仍只在core/domain与contracts。
