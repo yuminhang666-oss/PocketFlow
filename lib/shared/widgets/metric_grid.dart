@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../app/theme/frosted_glass.dart';
 import '../../core/domain/money.dart';
 import 'amount_text.dart';
+import 'entry_tile.dart';
+import '../../core/domain/ledger_entry.dart';
 
 class MetricGrid extends StatelessWidget {
   const MetricGrid({super.key, required this.values});
@@ -132,8 +134,33 @@ class MetricGrid extends StatelessWidget {
                                     item.$2!,
                                     style: baseStyle.copyWith(
                                       fontSize: size,
-                                      color: item.$1.contains(tr(context, "收入"))
-                                          ? scheme.primary
+                                      color:
+                                          item.$1.toLowerCase().contains(
+                                            tr(context, "净收支").toLowerCase(),
+                                          )
+                                          ? flowColor(
+                                              context,
+                                              item.$2!.fen < 0
+                                                  ? EntryKind.expense
+                                                  : EntryKind.income,
+                                              amount: item.$2,
+                                            )
+                                          : item.$1.toLowerCase().contains(
+                                              tr(context, "收入").toLowerCase(),
+                                            )
+                                          ? flowColor(
+                                              context,
+                                              EntryKind.income,
+                                              amount: item.$2,
+                                            )
+                                          : item.$1.toLowerCase().contains(
+                                              tr(context, "支出").toLowerCase(),
+                                            )
+                                          ? flowColor(
+                                              context,
+                                              EntryKind.expense,
+                                              amount: item.$2,
+                                            )
                                           : scheme.onSurface,
                                     ),
                                   ),

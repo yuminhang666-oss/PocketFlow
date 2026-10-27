@@ -355,6 +355,68 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     super.dispose();
   }
 
+  Future<void> _useTemplate() async {
+    final templates = widget.profile?.templates ?? <EntryTemplate>[];
+    final selected = await showModalBottomSheet<EntryTemplate>(
+      context: context,
+      useSafeArea: true,
+      builder: (sheet) => ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            tr(context, "使用模板"),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          if (templates.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(tr(context, "还没有常用模板")),
+            ),
+          for (final t in templates)
+            ListTile(
+              title: Text(t.name),
+              subtitle: Text(t.amount.yuan),
+              onTap: () => Navigator.pop(sheet, t),
+            ),
+        ],
+      ),
+    );
+    if (selected == null || !mounted) return;
+    if (_amount.value.isNotEmpty || _note.isNotEmpty) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (d) => AlertDialog(
+          title: Text(tr(context, "用模板替换当前输入？")),
+          content: Text(tr(context, "将替换收支类型、金额、分类和备注，发生日期保持不变。")),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(d, false),
+              child: Text(tr(context, "取消")),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(d, true),
+              child: Text(tr(context, "确认替换")),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
+    setState(() {
+      _kind = selected.kind;
+      _amount.value = selected.amount.decimal;
+      _note = selected.note;
+      final available = _available.any(
+        (c) =>
+            c.id == selected.categoryId &&
+            categoryAvailable(c, widget.categories, _kind),
+      );
+      _categoryId = available ? selected.categoryId : null;
+      _error = available ? null : "模板分类已归档或不可用，请重新选择分类";
+    });
+  }
+
   Future<void> _saveTemplate() async {
     try {
       final draft = _draft();
@@ -412,6 +474,24 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
     final fields = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (widget.initialEntry == null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final kind in EntryKind.values)
+                  ChoiceChip(
+                    label: Text(
+                      tr(context, kind == EntryKind.expense ? "支出" : "收入"),
+                    ),
+                    selected: _kind == kind,
+                    onSelected: _saving ? null : (_) => _switch(kind),
+                  ),
+              ],
+            ),
+          ),
         if (widget.initialEntry == null &&
             CalendarMonth.fromDate(_date) !=
                 CalendarMonth.fromDate(widget.clock.now()))
@@ -428,12 +508,6 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _kind == EntryKind.income
-                        ? tr(context, "收入金额")
-                        : tr(context, "支出金额"),
-                    style: Theme.of(context).textTheme.labelMedium,
-                  ),
                   Semantics(
                     liveRegion: true,
                     label: tr(context, "金额 {0} 元", [
@@ -446,21 +520,42 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                       '¥ ${_amount.value.isEmpty ? '0.00' : _amount.value}',
                       softWrap: true,
                       style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(color: scheme.primary, fontSize: 36),
+                          ?.copyWith(color: scheme.onSurface, fontSize: 36),
                     ),
                   ),
                 ],
               ),
             ),
-            if (widget.onSaveTemplate != null)
-              IconButton(
-                tooltip: tr(context, "保存为模板"),
-                onPressed: _saving ? null : _saveTemplate,
-                icon: const Icon(Icons.bookmark_add_outlined),
-              ),
           ],
         ),
         const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(
+              child: TextButton.icon(
+                onPressed: _saving ? null : _chooseDate,
+                icon: const Icon(Icons.today_outlined, size: 18),
+                label: Text(
+                  calendarDayKey(_date) == calendarDayKey(widget.clock.now())
+                      ? tr(context, "发生日期 今天{0}月{1}日", [_date.month, _date.day])
+                      : tr(context, "发生日期 {0} · 补记", [calendarDayKey(_date)]),
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: tr(context, "备注（选填）"),
+              onPressed: _saving ? null : _editNote,
+              icon: const Icon(Icons.edit_note_outlined),
+            ),
+          ],
+        ),
+        if (_note.isNotEmpty)
+          Text(
+            _note,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          ),
         if (_available.isEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -485,35 +580,6 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             }),
           ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 0,
-          children: [
-            TextButton.icon(
-              onPressed: _saving ? null : _chooseDate,
-              icon: const Icon(Icons.today_outlined, size: 18),
-              label: Text(
-                calendarDayKey(_date) == calendarDayKey(widget.clock.now())
-                    ? tr(context, "今天")
-                    : calendarDayKey(_date),
-              ),
-            ),
-            TextButton.icon(
-              onPressed: _saving ? null : _editNote,
-              icon: const Icon(Icons.edit_note_outlined, size: 18),
-              label: Text(
-                _note.isEmpty ? tr(context, "备注（选填）") : tr(context, "已填写备注"),
-              ),
-            ),
-          ],
-        ),
-        if (_note.isNotEmpty)
-          Text(
-            _note,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-          ),
         if (_error != null)
           Semantics(
             liveRegion: true,
@@ -617,27 +683,30 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             onPressed: _saving ? null : _leave,
             icon: const Icon(Icons.arrow_back_rounded),
           ),
-          title: widget.initialEntry != null
-              ? Text(
-                  _kind == EntryKind.income
-                      ? tr(context, "编辑收入")
-                      : tr(context, "编辑账单"),
-                )
-              : SegmentedButton<EntryKind>(
-                  showSelectedIcon: false,
-                  segments: [
-                    ButtonSegment(
-                      value: EntryKind.expense,
-                      label: Text(tr(context, "支出")),
-                    ),
-                    ButtonSegment(
-                      value: EntryKind.income,
-                      label: Text(tr(context, "收入")),
-                    ),
-                  ],
-                  selected: {_kind},
-                  onSelectionChanged: _saving ? null : (v) => _switch(v.first),
-                ),
+          title: Text(tr(context, widget.initialEntry == null ? "记账" : "编辑账单")),
+          actions: [
+            PopupMenuButton<String>(
+              tooltip: tr(context, "更多"),
+              enabled: !_saving,
+              onSelected: (v) {
+                if (v == 'use') {
+                  _useTemplate();
+                } else {
+                  _saveTemplate();
+                }
+              },
+              itemBuilder: (_) => [
+                if (widget.initialEntry == null)
+                  PopupMenuItem(value: 'use', child: Text(tr(context, "使用模板"))),
+                if (widget.onSaveTemplate != null)
+                  PopupMenuItem(
+                    value: 'save',
+                    child: Text(tr(context, "保存为模板")),
+                  ),
+              ],
+              icon: const Icon(Icons.more_horiz),
+            ),
+          ],
         ),
         body: SafeArea(
           top: false,

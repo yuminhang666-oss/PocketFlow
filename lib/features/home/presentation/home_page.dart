@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/metric_grid.dart';
-import '../../../shared/widgets/amount_text.dart';
+import 'widgets/home_actions.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import '../../../shared/widgets/status_panel.dart';
 import 'widgets/daily_allowance_panel.dart';
@@ -30,6 +30,8 @@ class HomePage extends StatelessWidget {
     this.onReports,
     this.onPlans,
     this.onCurrentMonth,
+    this.onMore,
+    this.onIncreaseGoal,
   });
   final CalendarMonth month;
   final AsyncValue<(LedgerMonthData, BudgetSnapshot)> state;
@@ -45,12 +47,12 @@ class HomePage extends StatelessWidget {
   final ValueChanged<EntryTemplate>? onTemplate;
   final ValueChanged<String>? onOpenDate;
   final VoidCallback? onReports, onPlans;
-  final VoidCallback? onCurrentMonth;
+  final VoidCallback? onCurrentMonth, onMore;
+  final ValueChanged<SavingsGoal>? onIncreaseGoal;
   final Future<void> Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final content =
         state.asData?.value ?? (state.hasValue ? state.value : null);
     Widget body;
@@ -95,7 +97,11 @@ class HomePage extends StatelessWidget {
         for (final d in fullDailyTotals(complete)) d.localDate: d,
       };
       final entries = complete.take(5).toList();
-      final goal = data.profile.goals.firstOrNull;
+      final goal =
+          data.profile.goals
+              .where((g) => g.saved.fen < g.target.fen)
+              .firstOrNull ??
+          data.profile.goals.firstOrNull;
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -119,7 +125,6 @@ class HomePage extends StatelessWidget {
           if (snapshot.period != MonthPeriod.future)
             MetricGrid(
               values: [
-                (tr(context, "本月支出"), snapshot.spent),
                 (
                   tr(context, "本月收入"),
                   report?.totalIncome ?? const Money.fromFen(0),
@@ -128,40 +133,35 @@ class HomePage extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 12),
-          if (data.profile.templates.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              tr(context, "常用模板"),
-              style: Theme.of(context).textTheme.titleMedium,
+          if (goal != null) ...[
+            HomeGoal(
+              goal: goal,
+              onGoals: onGoals,
+              onIncrease: onIncreaseGoal == null
+                  ? null
+                  : () => onIncreaseGoal!(goal),
             ),
-            Wrap(
-              spacing: 8,
-              children: [
-                for (final t in data.profile.templates.take(4))
-                  ActionChip(
-                    avatar: Icon(
-                      categoryIcon(t.categoryId, data.categories),
-                      size: 18,
-                    ),
-                    label: Text(t.name),
-                    onPressed: onTemplate == null ? null : () => onTemplate!(t),
-                  ),
-              ],
-            ),
+            const SizedBox(height: 16),
           ],
-          const SizedBox(height: 12),
+          HomeActions(
+            onCalendar: onCalendar,
+            onPlans: onPlans,
+            onReports: onReports,
+            onMore: onMore,
+          ),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  tr(context, "最近记录"),
+                  tr(context, "最近账单"),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               if (onOpenLedger != null)
                 TextButton(
                   onPressed: onOpenLedger,
-                  child: Text(tr(context, "查看全部")),
+                  child: Text(tr(context, "本月账单")),
                 ),
             ],
           ),
@@ -226,99 +226,6 @@ class HomePage extends StatelessWidget {
               ),
             ],
           ],
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              if (onReports != null)
-                TextButton.icon(
-                  onPressed: onReports,
-                  icon: const Icon(Icons.summarize_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "周报与月报")),
-                ),
-              if (onPlans != null)
-                TextButton.icon(
-                  onPressed: onPlans,
-                  icon: const Icon(Icons.event_repeat_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "未来7天待办")),
-                ),
-              if (onCalendar != null)
-                TextButton.icon(
-                  onPressed: onCalendar,
-                  icon: const Icon(Icons.calendar_month_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "记账日历")),
-                ),
-              if (onGoals != null)
-                TextButton.icon(
-                  onPressed: onGoals,
-                  icon: const Icon(Icons.savings_outlined),
-                  style: TextButton.styleFrom(
-                    foregroundColor: scheme.onSurfaceVariant,
-                  ),
-                  label: Text(tr(context, "我的小目标")),
-                ),
-            ],
-          ),
-          if (goal != null) ...[
-            const SizedBox(height: 18),
-            InkWell(
-              onTap: onGoals,
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: scheme.surface,
-                  border: Border.all(color: scheme.outlineVariant),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      goal.name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: (goal.saved.fen / goal.target.fen).clamp(0.0, 1.0),
-                      minHeight: 6,
-                      borderRadius: BorderRadius.circular(8),
-                      color: const Color(0xFFB67A00),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        AmountText(
-                          goal.saved,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Text(tr(context, "/ 目标 {0}", [goal.target.yuan])),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      tr(context, "独立登记进度，不扣减生活费预算"),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
           const SizedBox(height: 14),
           if (report != null)
             Text(
@@ -326,7 +233,10 @@ class HomePage extends StatelessWidget {
                 report!.entries.map((e) => e.localDate).toSet().length,
                 report!.entries.length,
               ]),
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
         ],
       );
@@ -348,11 +258,14 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('PocketFlow'),
         actions: [
-          TextButton.icon(
-            onPressed: onChooseMonth,
-            label: Text(tr(context, "{0}年{1}月", [month.year, month.month])),
-            icon: const Icon(Icons.arrow_drop_down, size: 18),
-            iconAlignment: IconAlignment.end,
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Text(
+                tr(context, "{0}年{1}月", [month.year, month.month]),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
           ),
         ],
       ),

@@ -296,6 +296,16 @@ class DriftLedgerRepository implements LedgerRepository {
         ],
         updates: {database.categories},
       );
+      if (category.parentId == null && category.colorValue != null) {
+        await _writeProfile(
+          data.profile.copyWith(
+            categoryColors: {
+              ...data.profile.categoryColors,
+              category.id: category.colorValue!,
+            },
+          ),
+        );
+      }
     }),
   );
 
@@ -364,7 +374,11 @@ class DriftLedgerRepository implements LedgerRepository {
   );
   @override
   Future<void> saveGoal(SavingsGoal goal) => _changeProfile(
-    (p) => p.copyWith(goals: [...p.goals.where((g) => g.id != goal.id), goal]),
+    (p) => p.copyWith(
+      goals: p.goals.any((g) => g.id == goal.id)
+          ? p.goals.map((g) => g.id == goal.id ? goal : g)
+          : [...p.goals, goal],
+    ),
   );
   @override
   Future<void> deleteGoal(String id) => _changeProfile(

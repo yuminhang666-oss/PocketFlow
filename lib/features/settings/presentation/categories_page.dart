@@ -46,6 +46,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
   Future<void> _edit([Category? initial]) async {
     final name = TextEditingController(text: initial?.name ?? '');
     String? parentId = initial?.parentId;
+    int colorValue = categoryColor(
+      initial?.id ?? "other",
+      widget.categories,
+    ).toARGB32();
     String? error;
     var saving = false;
     final roots = widget.categories
@@ -89,8 +93,38 @@ class _CategoriesPageState extends State<CategoriesPage> {
                             child: Text(localizedCategoryName(context, c)),
                           ),
                       ],
-                      onChanged: (v) => parentId = v == '' ? null : v,
+                      onChanged: (v) =>
+                          setDialog(() => parentId = v == '' ? null : v),
                     ),
+                  if (parentId == null) ...[
+                    Text(tr(context, "分类颜色")),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final color in categoryPalette)
+                          Semantics(
+                            label: tr(context, "颜色 {0}", [
+                              color.toARGB32().toRadixString(16).substring(2),
+                            ]),
+                            selected: color.toARGB32() == colorValue,
+                            child: IconButton(
+                              onPressed: saving
+                                  ? null
+                                  : () => setDialog(
+                                      () => colorValue = color.toARGB32(),
+                                    ),
+                              icon: Icon(
+                                color.toARGB32() == colorValue
+                                    ? Icons.check_circle
+                                    : Icons.circle,
+                                color: color,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                   if (error != null)
                     Text(
                       tr(context, error!),
@@ -120,6 +154,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                 initial?.id ??
                                 'custom-${DateTime.now().microsecondsSinceEpoch}',
                             name: title,
+                            colorValue: parentId == null ? colorValue : null,
                             sortOrder:
                                 initial?.sortOrder ??
                                 (widget.categories.isEmpty

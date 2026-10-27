@@ -16,10 +16,10 @@ import '../../features/home/presentation/home_page.dart';
 import '../../features/home/presentation/widgets/month_picker.dart';
 import '../../features/ledger_list/presentation/entry_details_page.dart';
 import '../../features/ledger_list/presentation/ledger_list_page.dart';
-import '../../features/ledger_list/presentation/ledger_calendar_page.dart';
 import '../../features/settings/presentation/budget_editor_sheet.dart';
 import '../../features/settings/presentation/categories_page.dart';
 import '../../features/settings/presentation/planning_pages.dart';
+import '../../features/settings/presentation/increase_goal_sheet.dart';
 import '../../features/settings/presentation/settings_page.dart';
 import '../../features/settings/presentation/about_pocketflow_page.dart';
 import '../../features/settings/domain/release_history.dart';
@@ -119,7 +119,8 @@ class PocketFlowRoot extends ConsumerStatefulWidget {
 
 class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     with WidgetsBindingObserver {
-  CalendarMonth? _selectedMonth;
+  CalendarMonth? _ledgerMonth, _statisticsMonth;
+  final _ledgerKey = GlobalKey<LedgerListPageState>();
   Timer? _midnight;
   bool _fileBusy = false;
   late final AppUpdateController _updates;
@@ -155,7 +156,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
   }
 
   CalendarMonth get _month =>
-      _selectedMonth ?? CalendarMonth.fromDate(ref.read(clockProvider).now());
+      CalendarMonth.fromDate(ref.read(clockProvider).now());
 
   void _updatesChanged() {
     if (mounted) setState(() {});
@@ -221,24 +222,50 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     }
   }
 
-  Future<void> _chooseMonth(BuildContext context) async {
-    final selected = await showMonthPicker(context, _month);
+  Future<void> _chooseMonth(
+    BuildContext context, {
+    bool statistics = false,
+  }) async {
+    final selected = await showMonthPicker(
+      context,
+      (statistics ? _statisticsMonth : _ledgerMonth) ?? _month,
+    );
     if (selected != null && mounted) {
       setState(() {
-        _selectedMonth =
-            selected == CalendarMonth.fromDate(ref.read(clockProvider).now())
-            ? null
-            : selected;
+        if (statistics) {
+          _statisticsMonth = selected;
+        } else {
+          _ledgerMonth = selected;
+        }
       });
     }
   }
 
+  void _openLedger({bool calendar = false}) {
+    setState(() => _ledgerMonth = null);
+    _shellKey.currentState?.selectDestination(1);
+    // Also runs when the current query month needs a fresh snapshot.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ledgerKey.currentState?.resetToMonth(calendar: calendar);
+    });
+  }
+
   Future<void> _budget(BuildContext context, LedgerMonthData? data) async {
-    final month = _month;
+    final month = data?.month ?? _month;
     final saved = await showBudgetEditor(
       context,
       month: month,
       initialBudget: data?.budget?.amount,
+      spent: data == null
+          ? const Money.fromFen(0)
+          : const BudgetCalculator()
+                .calculate(
+                  month: month,
+                  today: ref.read(clockProvider).now(),
+                  budget: data.budget?.amount,
+                  entries: data.entries,
+                )
+                .spent,
       onSave: (amount) =>
           ref.read(ledgerRepositoryProvider).saveBudget(month, amount),
     );
@@ -255,10 +282,6 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     String? localDate,
   }) async {
     final now = ref.read(clockProvider).now();
-    if (initial == null &&
-        data.month.compareTo(CalendarMonth.fromDate(now)) > 0) {
-      return null;
-    }
     final repository = ref.read(ledgerRepositoryProvider);
     // A previous save notification must not cover the next editor's controls.
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
@@ -274,17 +297,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
               clock: ref.read(clockProvider),
               initialEntry: initial,
               template: template,
-              initialDate:
-                  localDate ??
-                  (data.month == CalendarMonth.fromDate(now)
-                      ? calendarDayKey(now)
-                      : calendarDayKey(
-                          DateTime.utc(
-                            data.month.year,
-                            data.month.month,
-                            data.month.days,
-                          ),
-                        )),
+              initialDate: localDate ?? calendarDayKey(now),
               onSave: (draft) => initial == null
                   ? repository.createExpense(draft)
                   : repository.updateExpense(initial.id, draft),
@@ -465,27 +478,6 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
       ),
     ),
   );
-
-  Future<void> _calendar(BuildContext context, CalendarMonth month) =>
-      Navigator.of(context).push<void>(
-        MaterialPageRoute(
-          builder: (_) => _dataPage(month, (route, data) {
-            final today = calendarDayKey(ref.read(clockProvider).now());
-            return LedgerCalendarPage(
-              data: data,
-              today: today,
-              view: const DefaultLedgerQueryService().filter(
-                data,
-                const LedgerFilter(),
-                asOfLocalDate: today,
-              ),
-              onOpenDay: (date) => _ledger(route, month, date: date),
-              onAddDay: (date) => _edit(route, data, localDate: date),
-              onMarkZero: ref.read(ledgerRepositoryProvider).markZeroExpenseDay,
-            );
-          }),
-        ),
-      );
 
   Future<void> _goals(BuildContext context) => Navigator.of(context).push<void>(
     MaterialPageRoute(
@@ -717,6 +709,11 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     final month = _month;
     final state = ref.watch(monthDataProvider(month));
     final current = state.asData?.value;
+    final ledgerMonth = _ledgerMonth ?? month;
+    final ledgerState = ref.watch(monthDataProvider(ledgerMonth));
+    final ledgerData = ledgerState.asData?.value;
+    final statisticsMonth = _statisticsMonth ?? month;
+    final statisticsState = ref.watch(monthDataProvider(statisticsMonth));
     if (current != null) _appearance = current.profile;
     final today = ref.read(clockProvider).now();
     final themeMode = ThemeMode.values.byName(_appearance.theme);
@@ -752,6 +749,10 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                 PocketFlowShell(
                   key: _shellKey,
                   onTabChanged: (index) {
+                    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                    if (index == 1 && _tab != 1) {
+                      _ledgerKey.currentState?.showList();
+                    }
                     _tab = index;
                     _schedulePrompt();
                   },
@@ -761,20 +762,29 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                       ? null
                       : () => _edit(context, current),
                   ledger: LedgerListPage(
-                    data: current,
-                    month: month,
-                    loading: state.isLoading,
-                    readError: state.hasError ? state.error : null,
-                    onRetry: () => ref.invalidate(monthDataProvider(month)),
+                    key: _ledgerKey,
+                    data: ledgerData,
+                    month: ledgerMonth,
+                    loading: ledgerState.isLoading,
+                    readError: ledgerState.hasError ? ledgerState.error : null,
+                    onRetry: () =>
+                        ref.invalidate(monthDataProvider(ledgerMonth)),
                     query: const DefaultLedgerQueryService(),
                     asOfLocalDate: calendarDayKey(today),
                     onChooseMonth: () => _chooseMonth(context),
-                    onEntryTap: current == null
+                    onMoveMonth: (value) =>
+                        setState(() => _ledgerMonth = value),
+                    onCurrentMonth: () => setState(() => _ledgerMonth = null),
+                    onMarkZero: ref
+                        .read(ledgerRepositoryProvider)
+                        .markZeroExpenseDay,
+                    onAddDay: ledgerData == null
                         ? null
-                        : (entry) => _details(context, current, entry),
-                    onAdd:
-                        current == null ||
-                            month.compareTo(CalendarMonth.fromDate(today)) > 0
+                        : (date) => _edit(context, ledgerData, localDate: date),
+                    onEntryTap: ledgerData == null
+                        ? null
+                        : (entry) => _details(context, ledgerData, entry),
+                    onAdd: current == null
                         ? null
                         : () => _edit(context, current),
                   ),
@@ -783,7 +793,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     state: pair,
                     report: report,
                     todayKey: calendarDayKey(today),
-                    onCalendar: () => _calendar(context, month),
+                    onCalendar: () => _openLedger(calendar: true),
                     onGoals: () => _goals(context),
                     onTemplate: current == null
                         ? null
@@ -795,9 +805,13 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                         ? null
                         : () => _edit(context, current),
                     onSetBudget: () => _budget(context, current),
-                    onOpenLedger: () =>
-                        _shellKey.currentState?.selectDestination(1),
-                    onCurrentMonth: () => setState(() => _selectedMonth = null),
+                    onOpenLedger: () => _openLedger(),
+                    onMore: () => _shellKey.currentState?.selectDestination(3),
+                    onIncreaseGoal: (goal) => increaseSavingsGoal(
+                      context,
+                      goal,
+                      ref.read(ledgerRepositoryProvider).saveGoal,
+                    ),
                     onOpenDate: (date) => _ledger(context, month, date: date),
                     onReports: () => _reports(context),
                     onPlans: current == null
@@ -806,21 +820,29 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     onEntryTap: current == null
                         ? null
                         : (entry) => _details(context, current, entry),
-                    onChooseMonth: () => _chooseMonth(context),
                     onRefresh: () async {
                       ref.invalidate(monthDataProvider(month));
                     },
                   ),
                   statistics: StatisticsPage(
                     onReports: () => _reports(context),
-                    month: month,
-                    state: state,
+                    month: statisticsMonth,
+                    state: statisticsState,
                     clock: ref.read(clockProvider),
-                    onOpenCategory: (id, kind) =>
-                        _ledger(context, month, categoryId: id, kind: kind),
-                    onOpenDate: (date, kind) =>
-                        _ledger(context, month, date: date, kind: kind),
-                    onChooseMonth: () => _chooseMonth(context),
+                    onOpenCategory: (id, kind) => _ledger(
+                      context,
+                      statisticsMonth,
+                      categoryId: id,
+                      kind: kind,
+                    ),
+                    onOpenDate: (date, kind) => _ledger(
+                      context,
+                      statisticsMonth,
+                      date: date,
+                      kind: kind,
+                    ),
+                    onChooseMonth: () =>
+                        _chooseMonth(context, statistics: true),
                   ),
                   settings: SettingsPage(
                     lastExportUtcMs: _lastExport,
@@ -848,7 +870,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     feedback: current?.profile.feedback ?? true,
                     onFeedbackChanged: (value) =>
                         _preferences(context, feedback: value),
-                    onCalendar: () => _calendar(context, month),
+                    onCalendar: () => _openLedger(calendar: true),
                     onGoals: () => _goals(context),
                     onCategories: () => _categories(context),
                     onTemplates: () => _templates(context),
@@ -908,6 +930,20 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           clock: ref.read(clockProvider),
           initialStart: start,
           initialEnd: end,
+          onAdd: () async {
+            final data = await ref
+                .read(ledgerRepositoryProvider)
+                .watchMonth(_month)
+                .first;
+            if (context.mounted) await _edit(context, data);
+          },
+          onEntryTap: (entry) async {
+            final data = await ref
+                .read(ledgerRepositoryProvider)
+                .watchMonth(CalendarMonth.fromDate(entry.date))
+                .first;
+            if (context.mounted) await _details(context, data, entry);
+          },
         ),
       ),
     );
@@ -922,15 +958,24 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
       await _budget(context, data);
       return;
     }
+    var selected = data.month;
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => _dataPage(
-          data.month,
-          (route, live) => CategoryBudgetsPage(
-            data: live,
-            port: port,
-            today: ref.read(clockProvider).now(),
-            onTotalBudget: () => _budget(route, live),
+        builder: (_) => StatefulBuilder(
+          builder: (route, update) => _dataPage(
+            selected,
+            (context, live) => CategoryBudgetsPage(
+              data: live,
+              port: port,
+              today: ref.read(clockProvider).now(),
+              onTotalBudget: () => _budget(context, live),
+              onChooseMonth: () async {
+                final picked = await showMonthPicker(context, selected);
+                if (picked != null && route.mounted) {
+                  update(() => selected = picked);
+                }
+              },
+            ),
           ),
         ),
       ),

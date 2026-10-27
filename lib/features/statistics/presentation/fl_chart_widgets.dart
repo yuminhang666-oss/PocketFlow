@@ -183,8 +183,8 @@ class DailyExpenseBars extends StatelessWidget {
                         color: day > report.asOf.day
                             ? Colors.transparent
                             : (income
-                                  ? scheme.primary
-                                  : const Color(0xFFBF5700)),
+                                  ? flowColor(context, EntryKind.income)
+                                  : flowColor(context, EntryKind.expense)),
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(2),
                         ),

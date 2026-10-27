@@ -75,7 +75,9 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.widgetWithText(TextButton, '1'));
       await t.pump();
-      await t.tap(find.byTooltip('保存为模板'));
+      await t.tap(find.byTooltip('更多'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('保存为模板'));
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField), 'Fixture template');
       await t.tap(find.text('保存模板'));

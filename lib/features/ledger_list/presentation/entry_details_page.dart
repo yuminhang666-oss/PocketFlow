@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/domain/ledger_entry.dart';
 import '../../../core/domain/ledger_models.dart';
 import '../../../shared/widgets/amount_text.dart';
+import '../../../shared/widgets/entry_tile.dart';
 
 class EntryDetailsPage extends StatelessWidget {
   const EntryDetailsPage({
@@ -42,7 +43,13 @@ class EntryDetailsPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   AmountText(
                     entry.amount,
-                    style: Theme.of(context).textTheme.headlineLarge,
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: flowColor(
+                        context,
+                        entry.kind,
+                        amount: entry.amount,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   const Divider(),

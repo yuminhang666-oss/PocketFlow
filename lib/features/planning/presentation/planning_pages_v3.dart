@@ -5,6 +5,7 @@ import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import '../../reports/domain/range_report_service.dart';
 import '../../transactions/data/entry_id.dart';
+import 'confirm_occurrence_sheet.dart';
 
 Future<bool> confirmPlanningAction(
   BuildContext context,
@@ -88,11 +89,13 @@ class CategoryBudgetsPage extends StatelessWidget {
     required this.port,
     required this.today,
     required this.onTotalBudget,
+    this.onChooseMonth,
   });
   final LedgerMonthData data;
   final PlanningPort port;
   final DateTime today;
   final VoidCallback onTotalBudget;
+  final VoidCallback? onChooseMonth;
   @override
   Widget build(BuildContext context) {
     final planned = data.categoryBudgets.fold<int>(
@@ -108,7 +111,12 @@ class CategoryBudgetsPage extends StatelessWidget {
     );
     final spent = {for (final e in expense) e.categoryId: e.amount.fen};
     return Scaffold(
-      appBar: AppBar(title: Text(tr(context, "{0} 预算计划", [data.month.key]))),
+      appBar: AppBar(
+        title: Text(tr(context, "预算设置")),
+        actions: [
+          TextButton(onPressed: onChooseMonth, child: Text(data.month.key)),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -351,7 +359,7 @@ class RecurringPlansPage extends StatefulWidget {
 class _RecurringPlansPageState extends State<RecurringPlansPage> {
   late CalendarMonth month = CalendarMonth.fromDate(widget.clock.now());
   late final Stream<PlanningData> stream = widget.port.watchPlans();
-  bool busy = false;
+  bool busy = false, rulesOnly = false, allOverdue = false;
   Future<void> action(Future<void> Function() task) async {
     if (busy) return;
     setState(() => busy = true);
@@ -378,7 +386,7 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: Text(tr(context, "周期账单与收入")),
+      title: Text(tr(context, "周期计划")),
       actions: [
         IconButton(
           tooltip: tr(context, "新增月度规则"),
@@ -395,34 +403,34 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
         }
         if (!s.hasData) return const Center(child: CircularProgressIndicator());
         final p = s.data!, now = calendarDay(widget.clock.now());
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(tr(context, "待办不会自动入账。只有确认后才计入收支；未确认收入不增加预算。")),
-            Row(
-              children: [
-                IconButton(
-                  tooltip: tr(context, "上月"),
-                  onPressed: () => setState(
-                    () => month = CalendarMonth.fromDate(
-                      DateTime.utc(month.year, month.month - 1),
-                    ),
-                  ),
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Expanded(child: Text(month.key, textAlign: TextAlign.center)),
-                IconButton(
-                  tooltip: tr(context, "下月"),
-                  onPressed: () => setState(
-                    () => month = CalendarMonth.fromDate(
-                      DateTime.utc(month.year, month.month + 1),
-                    ),
-                  ),
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
-            ),
-            for (final item in [
+        final overdue = <(CalendarMonth, RecurringRule)>[];
+        final processed = {for (final o in p.occurrences) o.key};
+        for (final rule in p.rules) {
+          final versions = p.versions
+              .where((v) => v.ruleId == rule.id)
+              .toList();
+          if (versions.isEmpty) continue;
+          versions.sort((a, b) => a.startMonth.compareTo(b.startMonth));
+          for (
+            var period = versions.first.startMonth;
+            period.compareTo(CalendarMonth.fromDate(now)) <= 0;
+            period = CalendarMonth.fromDate(
+              DateTime.utc(period.year, period.month + 1),
+            )
+          ) {
+            final v = p.versionFor(rule.id, period);
+            if (v != null &&
+                v.applies(period) &&
+                !processed.contains('${rule.id}:${period.key}') &&
+                v.dueDate(period).compareTo(calendarDayKey(now)) < 0 &&
+                period != month) {
+              overdue.add((period, rule));
+            }
+          }
+        }
+        final items =
+            <(CalendarMonth, RecurringRule)>[
+              if (allOverdue) ...overdue,
               for (final period in [
                 month,
                 if (month == CalendarMonth.fromDate(now))
@@ -431,193 +439,261 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                   ),
               ])
                 for (final rule in p.rules) (period, rule),
-            ])
-              Builder(
-                builder: (context) {
-                  final month = item.$1, rule = item.$2;
-                  final v = p.versionFor(rule.id, month);
-                  if (v == null || !v.applies(month)) {
-                    return const SizedBox.shrink();
-                  }
-                  final occurrence = p.occurrences
-                      .where((o) => o.ruleId == rule.id && o.period == month)
-                      .firstOrNull;
-                  final due = parseCalendarDay(v.dueDate(month)),
-                      pending = PendingOccurrence(v, month),
-                      future = due.isAfter(now);
-                  final visible = !now.isBefore(
-                    due.subtract(Duration(days: v.leadDays)),
-                  );
-                  if (month != this.month &&
-                      (!visible ||
-                          due.isAfter(now.add(const Duration(days: 7))))) {
-                    return const SizedBox.shrink();
-                  }
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            tr(context, "{0} · {1} · {2}", [
-                              v.kind == EntryKind.income
-                                  ? tr(context, "收入")
-                                  : tr(context, "支出"),
-                              v.amount.yuan,
-                              v.dueDate(month),
-                            ]),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(
-                            '${localizedCategoryById(context, v.categoryId, widget.categories)} · ${v.note}',
-                          ),
-                          Text(
-                            occurrence == null
-                                ? (future
-                                      ? (visible
-                                            ? tr(context, "未来7天待办")
-                                            : tr(context, "尚未到提前展示日期"))
-                                      : tr(context, "待处理"))
-                                : (occurrence.status == OccurrenceStatus.settled
-                                      ? tr(context, "已确认")
-                                      : tr(context, "已跳过")),
-                          ),
-                          if (occurrence == null)
-                            Wrap(
-                              spacing: 8,
-                              children: [
-                                FilledButton(
-                                  onPressed: busy || future
-                                      ? null
-                                      : () => action(() async {
-                                          final amount =
-                                              await editPlanningAmount(
-                                                context,
-                                                tr(context, "确认实际{0}", [
-                                                  v.kind == EntryKind.income
-                                                      ? tr(context, "收入")
-                                                      : tr(context, "支出"),
-                                                ]),
-                                                initial: v.amount,
-                                              );
-                                          if (amount != null) {
-                                            await widget.port.confirm(
-                                              pending,
-                                              actualAmount: amount,
-                                            );
-                                          }
-                                        }),
-                                  child: Text(tr(context, "确认入账")),
-                                ),
-                                TextButton(
-                                  onPressed: busy
-                                      ? null
-                                      : () => action(() async {
-                                          if (await confirmPlanningAction(
-                                            context,
-                                            tr(context, "跳过本期？"),
-                                            tr(context, "不会生成账目；以后可以主动恢复待处理。"),
-                                          )) {
-                                            await widget.port.skip(pending);
-                                          }
-                                        }),
-                                  child: Text(tr(context, "跳过本期")),
-                                ),
-                              ],
-                            ),
-                          if (occurrence?.status == OccurrenceStatus.skipped)
-                            TextButton(
-                              onPressed: busy
-                                  ? null
-                                  : () => action(() async {
-                                      if (await confirmPlanningAction(
-                                        context,
-                                        tr(context, "恢复待处理？"),
-                                        tr(context, "本期将重新显示待确认，不会自动入账。"),
-                                      )) {
-                                        await widget.port.reopen(
-                                          rule.id,
-                                          month,
-                                        );
-                                      }
-                                    }),
-                              child: Text(tr(context, "恢复待处理")),
-                            ),
-                        ],
+            ]..sort((a, b) {
+              final va = p.versionFor(a.$2.id, a.$1),
+                  vb = p.versionFor(b.$2.id, b.$1);
+              final da = va?.dueDate(a.$1) ?? '${a.$1.key}-01',
+                  db = vb?.dueDate(b.$1) ?? '${b.$1.key}-01';
+              final order = da.compareTo(db);
+              return order == 0 ? a.$2.id.compareTo(b.$2.id) : order;
+            });
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                ChoiceChip(
+                  label: Text(tr(context, "待处理")),
+                  selected: !rulesOnly,
+                  onSelected: (_) => setState(() => rulesOnly = false),
+                ),
+                ChoiceChip(
+                  label: Text(tr(context, "规则管理")),
+                  selected: rulesOnly,
+                  onSelected: (_) => setState(() => rulesOnly = true),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(tr(context, "待办不会自动入账。只有确认后才计入收支；未确认收入不增加预算。")),
+            if (!rulesOnly && overdue.isNotEmpty)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(tr(context, "还有 {0} 项逾期待处理", [overdue.length])),
+                trailing: TextButton(
+                  onPressed: () => setState(() => allOverdue = !allOverdue),
+                  child: Text(tr(context, allOverdue ? "收起" : "查看全部")),
+                ),
+              ),
+            if (!rulesOnly)
+              Row(
+                children: [
+                  IconButton(
+                    tooltip: tr(context, "上月"),
+                    onPressed: () => setState(
+                      () => month = CalendarMonth.fromDate(
+                        DateTime.utc(month.year, month.month - 1),
                       ),
                     ),
-                  );
-                },
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Expanded(child: Text(month.key, textAlign: TextAlign.center)),
+                  IconButton(
+                    tooltip: tr(context, "下月"),
+                    onPressed: () => setState(
+                      () => month = CalendarMonth.fromDate(
+                        DateTime.utc(month.year, month.month + 1),
+                      ),
+                    ),
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
               ),
-            const Divider(),
-            Text(
-              tr(context, "规则与版本"),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (p.rules.isEmpty)
+            if (!rulesOnly)
+              for (final item in items)
+                Builder(
+                  builder: (context) {
+                    final month = item.$1, rule = item.$2;
+                    final v = p.versionFor(rule.id, month);
+                    if (v == null || !v.applies(month)) {
+                      return const SizedBox.shrink();
+                    }
+                    final occurrence = p.occurrences
+                        .where((o) => o.ruleId == rule.id && o.period == month)
+                        .firstOrNull;
+                    final due = parseCalendarDay(v.dueDate(month)),
+                        pending = PendingOccurrence(v, month),
+                        future = due.isAfter(now);
+                    final visible = !now.isBefore(
+                      due.subtract(Duration(days: v.leadDays)),
+                    );
+                    if (future &&
+                        due.isAfter(now.add(const Duration(days: 7)))) {
+                      return const SizedBox.shrink();
+                    }
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              tr(context, "{0} · {1} · {2}", [
+                                v.kind == EntryKind.income
+                                    ? tr(context, "收入")
+                                    : tr(context, "支出"),
+                                v.amount.yuan,
+                                v.dueDate(month),
+                              ]),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            Text(
+                              '${localizedCategoryById(context, v.categoryId, widget.categories)} · ${v.note}',
+                            ),
+                            Text(
+                              occurrence == null
+                                  ? (future
+                                        ? (visible
+                                              ? tr(context, "未来7天待办")
+                                              : tr(context, "尚未到提前展示日期"))
+                                        : tr(context, "待处理"))
+                                  : (occurrence.status ==
+                                            OccurrenceStatus.settled
+                                        ? tr(context, "已确认")
+                                        : tr(context, "已跳过")),
+                            ),
+                            if (occurrence == null)
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  FilledButton(
+                                    onPressed: busy || future
+                                        ? null
+                                        : () => action(() async {
+                                            final actual =
+                                                await confirmOccurrenceSheet(
+                                                  context,
+                                                  v,
+                                                  pending.period,
+                                                  widget.clock,
+                                                );
+                                            if (actual != null) {
+                                              await widget.port.confirm(
+                                                pending,
+                                                actualAmount: actual.$1,
+                                                actualLocalDate: actual.$2,
+                                              );
+                                            }
+                                          }),
+                                    child: Text(tr(context, "确认入账")),
+                                  ),
+                                  TextButton(
+                                    onPressed: busy
+                                        ? null
+                                        : () => action(() async {
+                                            if (await confirmPlanningAction(
+                                              context,
+                                              tr(context, "跳过本期？"),
+                                              tr(
+                                                context,
+                                                "不会生成账目；以后可以主动恢复待处理。",
+                                              ),
+                                            )) {
+                                              await widget.port.skip(pending);
+                                            }
+                                          }),
+                                    child: Text(tr(context, "跳过本期")),
+                                  ),
+                                ],
+                              ),
+                            if (occurrence?.status == OccurrenceStatus.skipped)
+                              TextButton(
+                                onPressed: busy
+                                    ? null
+                                    : () => action(() async {
+                                        if (await confirmPlanningAction(
+                                          context,
+                                          tr(context, "恢复待处理？"),
+                                          tr(context, "本期将重新显示待确认，不会自动入账。"),
+                                        )) {
+                                          await widget.port.reopen(
+                                            rule.id,
+                                            month,
+                                          );
+                                        }
+                                      }),
+                                child: Text(tr(context, "恢复待处理")),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            if (rulesOnly) const Divider(),
+            if (rulesOnly)
+              Text(
+                tr(context, "规则与版本"),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            if (rulesOnly && p.rules.isEmpty)
               Padding(
                 padding: EdgeInsets.all(16),
                 child: Text(tr(context, "还没有月度规则，可添加房租、订阅或固定收入。")),
               ),
-            for (final rule in p.rules)
-              Builder(
-                builder: (context) {
-                  final versions =
-                      p.versions.where((v) => v.ruleId == rule.id).toList()
-                        ..sort(
-                          (a, b) =>
-                              b.effectiveMonth.compareTo(a.effectiveMonth),
-                        );
-                  final latest = versions.first;
-                  return ListTile(
-                    title: Text(
-                      tr(context, "{0} · 每月{1}日{2}{3}", [
-                        latest.amount.yuan,
-                        latest.day,
-                        !latest.enabled ? tr(context, " · 已暂停") : '',
-                        latest.archived ? tr(context, " · 已归档") : '',
-                      ]),
-                    ),
-                    subtitle: Text(
-                      tr(context, "最新版本从 {0} 生效", [latest.effectiveMonth.key]),
-                    ),
-                    trailing: IconButton(
-                      tooltip: tr(context, "修改规则"),
-                      icon: const Icon(Icons.edit_outlined),
-                      onPressed: busy ? null : () => editor(latest),
-                    ),
-                    onTap: () => showDialog<void>(
-                      context: context,
-                      builder: (d) => AlertDialog(
-                        title: Text(tr(context, "不可变规则版本")),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              for (final v in versions)
-                                ListTile(
-                                  title: Text(
-                                    '${v.effectiveMonth.key} · ${v.amount.yuan}',
-                                  ),
-                                  subtitle: Text(
-                                    '${v.kind.name} · ${v.categoryId}\n${v.note}',
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(d),
-                            child: Text(tr(context, "关闭")),
-                          ),
-                        ],
+            if (rulesOnly)
+              for (final rule in p.rules)
+                Builder(
+                  builder: (context) {
+                    final versions =
+                        p.versions.where((v) => v.ruleId == rule.id).toList()
+                          ..sort(
+                            (a, b) =>
+                                b.effectiveMonth.compareTo(a.effectiveMonth),
+                          );
+                    final latest = versions.first;
+                    return ListTile(
+                      title: Text(
+                        tr(context, "{0} · 每月{1}日{2}{3}", [
+                          latest.amount.yuan,
+                          latest.day,
+                          !latest.enabled ? tr(context, " · 已暂停") : '',
+                          latest.archived ? tr(context, " · 已归档") : '',
+                        ]),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      subtitle: Text(
+                        tr(context, "最新版本从 {0} 生效 · 短月取月末", [
+                          latest.effectiveMonth.key,
+                        ]),
+                      ),
+                      trailing: IconButton(
+                        tooltip: tr(context, "修改规则"),
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: busy ? null : () => editor(latest),
+                      ),
+                      onTap: () => showDialog<void>(
+                        context: context,
+                        builder: (d) => AlertDialog(
+                          title: Text(tr(context, "不可变规则版本")),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (final v in versions)
+                                  ListTile(
+                                    title: Text(
+                                      '${v.effectiveMonth.key} · ${v.amount.yuan}',
+                                    ),
+                                    subtitle: Text(
+                                      '${v.kind.name} · ${v.categoryId}\n${v.note}',
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(d),
+                              child: Text(tr(context, "关闭")),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
           ],
         );
       },
