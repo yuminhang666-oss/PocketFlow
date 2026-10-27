@@ -209,7 +209,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     Widget tile(Category c, {bool root = false, int? index}) => ListTile(
       leading: Icon(
         categoryIcon(c.id, widget.categories),
-        color: categoryColor(c.id, widget.categories),
+        color: identityColor(context, c.id, widget.categories),
       ),
       title: Text(localizedCategoryName(context, c)),
       subtitle: c.isArchived ? Text(tr(context, "已归档，历史账单仍保留")) : null,
@@ -310,7 +310,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   title: Text(localizedCategoryName(context, roots[i])),
                   leading: Icon(
                     categoryIcon(roots[i].id, widget.categories),
-                    color: categoryColor(roots[i].id, widget.categories),
+                    color: identityColor(
+                      context,
+                      roots[i].id,
+                      widget.categories,
+                    ),
                   ),
                   children: [
                     tile(roots[i], root: true, index: i),

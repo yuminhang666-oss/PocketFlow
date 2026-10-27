@@ -353,6 +353,7 @@ class CategorySelector extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: enabled ? () => onSelected(c.id) : null,
                 style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   padding: const EdgeInsets.all(2),
                   backgroundColor: active
                       ? Theme.of(context).colorScheme.primaryContainer
@@ -390,10 +391,14 @@ class CategorySelector extends StatelessWidget {
                       ],
                     ),
                     if (active)
-                      const Positioned(
+                      Positioned(
                         top: 0,
                         right: 0,
-                        child: Icon(Icons.check_circle, size: 13),
+                        child: Icon(
+                          Icons.check_circle,
+                          size: 13,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                   ],
                 ),

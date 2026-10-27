@@ -193,7 +193,7 @@ class EntryTile extends StatelessWidget {
               ),
               child: Icon(
                 categoryIcon(entry.categoryId, categories),
-                color: dark ? Color.lerp(color, Colors.white, .4) : color,
+                color: identityColor(context, entry.categoryId, categories),
                 size: 22,
               ),
             ),

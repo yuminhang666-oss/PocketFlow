@@ -2,7 +2,7 @@
 import {execFileSync} from 'node:child_process';
 import {mkdirSync, writeFileSync, appendFileSync} from 'node:fs';
 import {resolve} from 'node:path';
-const serial = 'emulator-5592';
+const serial = 'emulator-5584';
 const out = process.env.PF041_EVIDENCE;
 if (!out) throw Error('Set PF041_EVIDENCE to this version’s evidence folder.');
 mkdirSync(out, {recursive:true});

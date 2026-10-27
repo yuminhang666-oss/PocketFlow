@@ -217,7 +217,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                               data.categories,
                                             ),
                                             size: 20,
-                                            color: categoryColor(
+                                            color: identityColor(
+                                              context,
                                               c.categoryId,
                                               data.categories,
                                             ),
@@ -242,7 +243,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                         value: c.amount.fen / total.fen,
                                         minHeight: 5,
                                         borderRadius: BorderRadius.circular(5),
-                                        color: categoryColor(
+                                        color: identityColor(
+                                          context,
                                           c.categoryId,
                                           data.categories,
                                         ),
