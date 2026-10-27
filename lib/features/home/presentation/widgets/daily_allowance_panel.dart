@@ -131,13 +131,9 @@ class DailyAllowancePanel extends StatelessWidget {
               Text(
                 snapshot.budget == null
                     ? tr(context, "设置预算后查看日均参考")
-                    : tr(context, "预算 {0} · {1}", [
+                    : tr(context, "已支出 {0} / 总预算 {1}", [
+                        snapshot.spent.yuan,
                         snapshot.budget!.yuan,
-                        snapshot.budget!.fen == 0
-                            ? tr(context, "本月预算为零")
-                            : tr(context, "已用 {0}%", [
-                                (used! * 100).toStringAsFixed(0),
-                              ]),
                       ]),
                 style: TextStyle(
                   fontSize: 12,

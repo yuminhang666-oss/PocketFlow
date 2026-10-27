@@ -1623,5 +1623,8 @@
   "v040_067": "Consistent category colors; income is red and expenses green. Custom colors are included in backups.",
   "v040_068": "Query months and entry dates are separate. New entries start with today.",
   "v040_069": "Recurring confirmation supports actual dates and shows overdue items from other months.",
-  "v040_070": "Keeps the existing app identity and signing certificate; older ledgers and backups remain readable."
+  "v040_070": "Keeps the existing app identity and signing certificate; older ledgers and backups remain readable.",
+  "v040_budget_totals": "Spent {p0} / Budget {p1}",
+  "v040_calendar_filters": "Search and filters",
+  "v040_filters_active": "Filters active"
 }

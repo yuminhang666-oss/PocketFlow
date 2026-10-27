@@ -133,14 +133,16 @@ class HomePage extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 12),
-          HomeGoal(
-            goal: goal,
-            onGoals: onGoals,
-            onIncrease: goal == null || onIncreaseGoal == null
-                ? null
-                : () => onIncreaseGoal!(goal),
-          ),
-          const SizedBox(height: 16),
+          if (goal != null) ...[
+            HomeGoal(
+              goal: goal,
+              onGoals: onGoals,
+              onIncrease: onIncreaseGoal == null
+                  ? null
+                  : () => onIncreaseGoal!(goal),
+            ),
+            const SizedBox(height: 16),
+          ],
           HomeActions(
             onCalendar: onCalendar,
             onPlans: onPlans,

@@ -164,6 +164,8 @@ void main() {
         await hit(find.text('总览').last);
         await hit(find.text('记账日历'), reveal: true);
         expect(find.byType(LedgerCalendarPage), findsOneWidget);
+        expect(find.byType(TextField), findsNothing);
+        await hit(find.text('搜索与筛选'));
         expect(
           t.widget<TextField>(find.byType(TextField)).controller!.text,
           isEmpty,

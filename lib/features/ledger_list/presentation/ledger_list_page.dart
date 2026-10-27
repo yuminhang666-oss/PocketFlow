@@ -50,7 +50,7 @@ class LedgerListPage extends StatefulWidget {
 }
 
 class LedgerListPageState extends State<LedgerListPage> {
-  bool _calendar = false;
+  bool _calendar = false, _calendarFilters = false;
   String? _calendarDate;
   void showList() {
     if (mounted) setState(() => _calendar = false);
@@ -384,126 +384,152 @@ class LedgerListPageState extends State<LedgerListPage> {
                   children: [
                     if (_monthNotice)
                       Text(tr(context, "切换月份后保留分类、收支、搜索和金额条件，日期范围已重置")),
-                    TextField(
-                      controller: _search,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        hintText: tr(context, "搜索备注或分类"),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 2,
-                      children: [
-                        ChoiceChip(
-                          label: Text(tr(context, "全部")),
-                          selected: _kind == null,
-                          onSelected: (_) => setState(() => _kind = null),
-                        ),
-                        ChoiceChip(
-                          label: Text(tr(context, "支出")),
-                          selected: _kind == EntryKind.expense,
-                          onSelected: (_) =>
-                              setState(() => _kind = EntryKind.expense),
-                        ),
-                        ChoiceChip(
-                          label: Text(tr(context, "收入")),
-                          selected: _kind == EntryKind.income,
-                          onSelected: (_) =>
-                              setState(() => _kind = EntryKind.income),
-                        ),
-                        ActionChip(
-                          label: Text(tr(context, "分类 / 金额")),
-                          onPressed: _advanced,
-                        ),
-                        ActionChip(
-                          label: Text(
-                            _from == null
-                                ? tr(context, "日期")
-                                : tr(context, "{0} 至 {1}", [_from, _to]),
-                          ),
-                          onPressed: _range,
-                        ),
-                        if (_search.text.isNotEmpty ||
-                            _kind != null ||
-                            _categoryId != null ||
-                            _from != null ||
-                            _min != null ||
-                            _max != null)
-                          ActionChip(
-                            label: Text(tr(context, "清除筛选")),
-                            onPressed: _clear,
-                          ),
-                      ],
-                    ),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        if (_categoryId != null)
-                          InputChip(
-                            label: Text(
-                              tr(context, "分类：{0}", [
-                                selectedCategory != null
-                                    ? localizedCategoryPath(
-                                        context,
-                                        selectedCategory,
-                                        _categories,
-                                      )
-                                    : tr(context, "未识别分类"),
-                              ]),
+                    if (_calendar)
+                      Wrap(
+                        spacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () => setState(
+                              () => _calendarFilters = !_calendarFilters,
                             ),
-                            onDeleted: () => setState(() => _categoryId = null),
+                            icon: const Icon(Icons.tune),
+                            label: Text(tr(context, "搜索与筛选")),
                           ),
-                        if (_min != null)
-                          InputChip(
-                            label: Text(
-                              tr(context, "最低 {0}", [
-                                Money.fromFen(_min!).yuan,
-                              ]),
+                          if (_filtered)
+                            TextButton(
+                              onPressed: _clear,
+                              child: Text(tr(context, "清除筛选")),
                             ),
-                            onDeleted: () => setState(() => _min = null),
-                          ),
-                        if (_max != null)
-                          InputChip(
-                            label: Text(
-                              tr(context, "最高 {0}", [
-                                Money.fromFen(_max!).yuan,
-                              ]),
-                            ),
-                            onDeleted: () => setState(() => _max = null),
-                          ),
-                        if (_from != null)
-                          InputChip(
-                            label: Text(tr(context, "{0} 至 {1}", [_from, _to])),
-                            onDeleted: () => setState(() {
-                              _from = null;
-                              _to = null;
-                            }),
-                          ),
-                        if (_kind != null)
-                          InputChip(
-                            label: Text(
-                              tr(
-                                context,
-                                _kind == EntryKind.expense ? "支出" : "收入",
-                              ),
-                            ),
-                            onDeleted: () => setState(() => _kind = null),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    if (view != null) ...[
-                      MetricGrid(
-                        values: [
-                          (tr(context, "筛选支出"), view.expense),
-                          (tr(context, "筛选收入"), view.income),
-                          (tr(context, "净收支"), view.netFlow),
+                          if (_filtered) Text(tr(context, "已启用筛选")),
                         ],
                       ),
+                    if (!_calendar || _calendarFilters) ...[
+                      TextField(
+                        controller: _search,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          hintText: tr(context, "搜索备注或分类"),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 2,
+                        children: [
+                          ChoiceChip(
+                            label: Text(tr(context, "全部")),
+                            selected: _kind == null,
+                            onSelected: (_) => setState(() => _kind = null),
+                          ),
+                          ChoiceChip(
+                            label: Text(tr(context, "支出")),
+                            selected: _kind == EntryKind.expense,
+                            onSelected: (_) =>
+                                setState(() => _kind = EntryKind.expense),
+                          ),
+                          ChoiceChip(
+                            label: Text(tr(context, "收入")),
+                            selected: _kind == EntryKind.income,
+                            onSelected: (_) =>
+                                setState(() => _kind = EntryKind.income),
+                          ),
+                          ActionChip(
+                            label: Text(tr(context, "分类 / 金额")),
+                            onPressed: _advanced,
+                          ),
+                          ActionChip(
+                            label: Text(
+                              _from == null
+                                  ? tr(context, "日期")
+                                  : tr(context, "{0} 至 {1}", [_from, _to]),
+                            ),
+                            onPressed: _range,
+                          ),
+                          if (_search.text.isNotEmpty ||
+                              _kind != null ||
+                              _categoryId != null ||
+                              _from != null ||
+                              _min != null ||
+                              _max != null)
+                            ActionChip(
+                              label: Text(tr(context, "清除筛选")),
+                              onPressed: _clear,
+                            ),
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          if (_categoryId != null)
+                            InputChip(
+                              label: Text(
+                                tr(context, "分类：{0}", [
+                                  selectedCategory != null
+                                      ? localizedCategoryPath(
+                                          context,
+                                          selectedCategory,
+                                          _categories,
+                                        )
+                                      : tr(context, "未识别分类"),
+                                ]),
+                              ),
+                              onDeleted: () =>
+                                  setState(() => _categoryId = null),
+                            ),
+                          if (_min != null)
+                            InputChip(
+                              label: Text(
+                                tr(context, "最低 {0}", [
+                                  Money.fromFen(_min!).yuan,
+                                ]),
+                              ),
+                              onDeleted: () => setState(() => _min = null),
+                            ),
+                          if (_max != null)
+                            InputChip(
+                              label: Text(
+                                tr(context, "最高 {0}", [
+                                  Money.fromFen(_max!).yuan,
+                                ]),
+                              ),
+                              onDeleted: () => setState(() => _max = null),
+                            ),
+                          if (_from != null)
+                            InputChip(
+                              label: Text(
+                                tr(context, "{0} 至 {1}", [_from, _to]),
+                              ),
+                              onDeleted: () => setState(() {
+                                _from = null;
+                                _to = null;
+                              }),
+                            ),
+                          if (_kind != null)
+                            InputChip(
+                              label: Text(
+                                tr(
+                                  context,
+                                  _kind == EntryKind.expense ? "支出" : "收入",
+                                ),
+                              ),
+                              onDeleted: () => setState(() => _kind = null),
+                            ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 10),
+                    if (view != null) ...[
+                      if (!_calendar)
+                        MetricGrid(
+                          values: [
+                            (tr(context, "筛选支出"), view.expense),
+                            (tr(context, "筛选收入"), view.income),
+                            (tr(context, "净收支"), view.netFlow),
+                          ],
+                        ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Text(

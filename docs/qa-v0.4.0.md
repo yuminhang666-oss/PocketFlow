@@ -8,7 +8,7 @@
 | N01–N05 | v040_navigation、v034_navigation、prompt_coordination | 既有标签重置、日历/列表、更多直达我的、报告共用与详情返回 |
 | E01–E06 | v040_navigation、v034_entry、vnext_modal、vnext_layout、user_flow_widget | 标题、更多模板、覆盖取消/确认、忙碌/失败草稿、连续保存与小屏操作 |
 | B01–B05 | budget_calculator、budget_mvp_regression、v040_data、user_flow_widget、v031_ui | 整数分、剩余日含今天、零/超支、分类预算和同步刷新；低于已支出额新增确认面板 |
-| G01–G03 | v040_data、vnext_modal；设备首页与目标面板 | 登记不写账、不扣预算、顺序保留、真实超过目标金额；目标入口在最近账单前 |
+| G01–G03 | app_foundation、v040_data、vnext_modal；设备首页与目标面板 | 登记不写账、不扣预算、顺序保留、真实超过目标金额；仅设置目标后显示首页目标区，清空后隐藏；管理入口保留在我的 |
 | K01–K03 | v040_calendar、v040_navigation、storage_integration | 闰年、31日夹取、回今天、七列布局、显式补记及零支出；筛选不能绕过已有支出 |
 | R01–R04 | planning_storage、v040_data、v030_pages | 周期原子确认/幂等、实际日期、跨月归属、跳过/撤回、短月/版本/暂停历史；确认和账单仅一份 |
 | R05 | 周期计划源码与设备入口；待处理跨月计数 | 从已有版本生成其他月份逾期项，显式展开并按到期日排序 |

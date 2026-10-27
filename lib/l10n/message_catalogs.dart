@@ -809,6 +809,9 @@ const messageCatalogs = <String, Map<String, String>>{
     "v040_068": "查询月份与发生日期分开，普通记账始终从今天开始。",
     "v040_069": "周期计划支持实际发生日期，跨月逾期待办可查看。",
     "v040_070": "沿用原包名与升级签名，旧账本和备份可继续读取。",
+    "v040_budget_totals": "已支出 {p0} / 总预算 {p1}",
+    "v040_calendar_filters": "搜索与筛选",
+    "v040_filters_active": "已启用筛选",
   },
   "zh_Hant": {
     "m0000": "預算已保存",
@@ -1619,6 +1622,9 @@ const messageCatalogs = <String, Map<String, String>>{
     "v040_068": "查詢月份與發生日期分開，一般記帳一律從今天開始。",
     "v040_069": "週期計畫支援實際發生日期，跨月逾期待辦可查看。",
     "v040_070": "沿用原套件名稱與升級簽章，舊帳本和備份可繼續讀取。",
+    "v040_budget_totals": "已支出 {p0} / 總預算 {p1}",
+    "v040_calendar_filters": "搜尋與篩選",
+    "v040_filters_active": "已啟用篩選",
   },
   "en": {
     "m0000": "Budget saved",
@@ -2531,5 +2537,8 @@ const messageCatalogs = <String, Map<String, String>>{
         "Recurring confirmation supports actual dates and shows overdue items from other months.",
     "v040_070":
         "Keeps the existing app identity and signing certificate; older ledgers and backups remain readable.",
+    "v040_budget_totals": "Spent {p0} / Budget {p1}",
+    "v040_calendar_filters": "Search and filters",
+    "v040_filters_active": "Filters active",
   },
 };

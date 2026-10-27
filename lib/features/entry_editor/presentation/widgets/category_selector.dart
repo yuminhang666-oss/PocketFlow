@@ -147,6 +147,21 @@ Future<String?> showCategoryPicker(
                                             .toLowerCase()
                                             .contains(query.toLowerCase()))
                                       ChoiceChip(
+                                        selectedColor: Theme.of(
+                                          context,
+                                        ).colorScheme.primaryContainer,
+                                        checkmarkColor: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        side: BorderSide(
+                                          color: c.id == selectedId
+                                              ? Theme.of(
+                                                  context,
+                                                ).colorScheme.primary
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.outlineVariant,
+                                        ),
                                         selected: c.id == selectedId,
                                         label: Text(
                                           c.id == root.id
@@ -329,6 +344,15 @@ class CategorySelector extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 6),
                     child: ChoiceChip(
                       showCheckmark: true,
+                      selectedColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
+                      checkmarkColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(
+                        color: c.id == selectedId
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outlineVariant,
+                      ),
                       avatar: Icon(
                         categoryIcon(c.id, categories),
                         size: 18,
