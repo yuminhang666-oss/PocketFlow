@@ -148,10 +148,12 @@ class EntryTile extends StatelessWidget {
     required this.entry,
     required this.categories,
     this.onTap,
+    this.compact = false,
   });
   final LedgerEntry entry;
   final List<Category> categories;
   final VoidCallback? onTap;
+  final bool compact;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -175,7 +177,10 @@ class EntryTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+        padding: EdgeInsets.symmetric(
+          vertical: compact ? 8 : 12,
+          horizontal: 2,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -203,7 +208,7 @@ class EntryTile extends StatelessWidget {
                               ? tr(context, "未识别分类")
                               : localizedCategoryName(context, c))
                         : entry.note,
-                    maxLines: 2,
+                    maxLines: compact ? 1 : 2,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),

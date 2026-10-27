@@ -68,7 +68,7 @@ void main() {
             );
             expect(grid.physics, isA<NeverScrollableScrollPhysics>());
             final pageContext = tester.element(find.byType(QuickEntryPage));
-            final picker = find.text(tr(pageContext, '搜索全部分类'));
+            final picker = find.byKey(const ValueKey('all-categories'));
             await tester.ensureVisible(picker);
             await tester.pumpAndSettle();
             await tester.tap(picker);
@@ -107,6 +107,18 @@ void main() {
                   initialCategoryId: 'food',
                   onAdd: () {},
                 ),
+              ),
+            );
+            await tester.pumpAndSettle();
+            expect(
+              find.text(
+                tr(tester.element(find.byType(LedgerListPage)), '已启用筛选'),
+              ),
+              findsOneWidget,
+            );
+            await tester.tap(
+              find.byTooltip(
+                tr(tester.element(find.byType(LedgerListPage)), '搜索与筛选'),
               ),
             );
             await tester.pumpAndSettle();

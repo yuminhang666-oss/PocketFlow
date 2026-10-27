@@ -1626,5 +1626,21 @@
   "v040_070": "Keeps the existing app identity and signing certificate; older ledgers and backups remain readable.",
   "v040_budget_totals": "Spent {p0} / Budget {p1}",
   "v040_calendar_filters": "Search and filters",
-  "v040_filters_active": "Filters active"
+  "v040_filters_active": "Filters active",
+  "v041_viewMonth": "Viewing month",
+  "v041_zeroBudget": "This month’s budget is zero",
+  "v041_goals": "My goals ({p0})",
+  "v041_allCategories": "All {p0} categories",
+  "v041_rangeCount": "{p0} entries in this range",
+  "v041_net": "Net flow {p0}",
+  "v041_overdue": "Overdue",
+  "v041_due": "Due this period",
+  "v041_processed": "Processed",
+  "v041_rankJump": "Category ranking ↓",
+  "v041_reviewJump": "Review ↓",
+  "v041_title": "Bills and design review fixes",
+  "v041_notes1": "Group bills by date and expand search and filters when needed to give entries priority.",
+  "v041_notes2": "Use shorter calendar cells and scroll to the selected day’s entries.",
+  "v041_notes3": "Make all categories easier to reach, tighten goals and reports, and group recurring plans clearly.",
+  "v041_notes4": "Distinguish zero budgets from exhausted budgets and calculate category shares from integer cents."
 }

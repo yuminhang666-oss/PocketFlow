@@ -7,6 +7,7 @@ import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import '../../../shared/widgets/status_panel.dart';
 import '../domain/monthly_report_service.dart';
+import '../domain/report_arithmetic.dart';
 import 'fl_chart_widgets.dart';
 
 class StatisticsPage extends StatefulWidget {
@@ -232,7 +233,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                             ).textTheme.titleSmall,
                                           ),
                                           Text(
-                                            '${c.amount.yuan} · ${(c.amount.fen / total.fen * 100).toStringAsFixed(1)}%',
+                                            '${c.amount.yuan} · ${reportPercent(c.amount.fen, total.fen, decimalPlaces: 1)}',
                                           ),
                                         ],
                                       ),

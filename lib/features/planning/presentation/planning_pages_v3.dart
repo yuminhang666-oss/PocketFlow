@@ -447,6 +447,29 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
               final order = da.compareTo(db);
               return order == 0 ? a.$2.id.compareTo(b.$2.id) : order;
             });
+        final groups = <String, List<(CalendarMonth, RecurringRule)>>{
+          '逾期待处理': [],
+          '本期到期': [],
+          '未来7天待办': [],
+          '已处理': [],
+        };
+        for (final item in items) {
+          final v = p.versionFor(item.$2.id, item.$1);
+          if (v == null || !v.applies(item.$1)) continue;
+          final due = parseCalendarDay(v.dueDate(item.$1));
+          if (due.isAfter(now.add(const Duration(days: 7)))) continue;
+          final done = p.occurrences.any(
+            (o) => o.ruleId == item.$2.id && o.period == item.$1,
+          );
+          final group = done
+              ? '已处理'
+              : due.isBefore(now)
+              ? '逾期待处理'
+              : due.isAfter(now)
+              ? '未来7天待办'
+              : '本期到期';
+          groups[group]!.add(item);
+        }
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -502,126 +525,140 @@ class _RecurringPlansPageState extends State<RecurringPlansPage> {
                 ],
               ),
             if (!rulesOnly)
-              for (final item in items)
-                Builder(
-                  builder: (context) {
-                    final month = item.$1, rule = item.$2;
-                    final v = p.versionFor(rule.id, month);
-                    if (v == null || !v.applies(month)) {
-                      return const SizedBox.shrink();
-                    }
-                    final occurrence = p.occurrences
-                        .where((o) => o.ruleId == rule.id && o.period == month)
-                        .firstOrNull;
-                    final due = parseCalendarDay(v.dueDate(month)),
-                        pending = PendingOccurrence(v, month),
-                        future = due.isAfter(now);
-                    final visible = !now.isBefore(
-                      due.subtract(Duration(days: v.leadDays)),
-                    );
-                    if (future &&
-                        due.isAfter(now.add(const Duration(days: 7)))) {
-                      return const SizedBox.shrink();
-                    }
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              tr(context, "{0} · {1} · {2}", [
-                                v.kind == EntryKind.income
-                                    ? tr(context, "收入")
-                                    : tr(context, "支出"),
-                                v.amount.yuan,
-                                v.dueDate(month),
-                              ]),
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              '${localizedCategoryById(context, v.categoryId, widget.categories)} · ${v.note}',
-                            ),
-                            Text(
-                              occurrence == null
-                                  ? (future
-                                        ? (visible
-                                              ? tr(context, "未来7天待办")
-                                              : tr(context, "尚未到提前展示日期"))
-                                        : tr(context, "待处理"))
-                                  : (occurrence.status ==
-                                            OccurrenceStatus.settled
-                                        ? tr(context, "已确认")
-                                        : tr(context, "已跳过")),
-                            ),
-                            if (occurrence == null)
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  FilledButton(
-                                    onPressed: busy || future
-                                        ? null
-                                        : () => action(() async {
-                                            final actual =
-                                                await confirmOccurrenceSheet(
-                                                  context,
-                                                  v,
-                                                  pending.period,
-                                                  widget.clock,
-                                                );
-                                            if (actual != null) {
-                                              await widget.port.confirm(
-                                                pending,
-                                                actualAmount: actual.$1,
-                                                actualLocalDate: actual.$2,
-                                              );
-                                            }
-                                          }),
-                                    child: Text(tr(context, "确认入账")),
-                                  ),
-                                  TextButton(
-                                    onPressed: busy
-                                        ? null
-                                        : () => action(() async {
-                                            if (await confirmPlanningAction(
-                                              context,
-                                              tr(context, "跳过本期？"),
-                                              tr(
-                                                context,
-                                                "不会生成账目；以后可以主动恢复待处理。",
-                                              ),
-                                            )) {
-                                              await widget.port.skip(pending);
-                                            }
-                                          }),
-                                    child: Text(tr(context, "跳过本期")),
-                                  ),
-                                ],
-                              ),
-                            if (occurrence?.status == OccurrenceStatus.skipped)
-                              TextButton(
-                                onPressed: busy
-                                    ? null
-                                    : () => action(() async {
-                                        if (await confirmPlanningAction(
-                                          context,
-                                          tr(context, "恢复待处理？"),
-                                          tr(context, "本期将重新显示待确认，不会自动入账。"),
-                                        )) {
-                                          await widget.port.reopen(
-                                            rule.id,
-                                            month,
-                                          );
-                                        }
-                                      }),
-                                child: Text(tr(context, "恢复待处理")),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              for (final group in groups.entries.where(
+                (g) => g.value.isNotEmpty,
+              )) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 4),
+                  child: Text(
+                    tr(context, group.key),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
+                for (final item in group.value)
+                  Builder(
+                    builder: (context) {
+                      final month = item.$1, rule = item.$2;
+                      final v = p.versionFor(rule.id, month);
+                      if (v == null || !v.applies(month)) {
+                        return const SizedBox.shrink();
+                      }
+                      final occurrence = p.occurrences
+                          .where(
+                            (o) => o.ruleId == rule.id && o.period == month,
+                          )
+                          .firstOrNull;
+                      final due = parseCalendarDay(v.dueDate(month)),
+                          pending = PendingOccurrence(v, month),
+                          future = due.isAfter(now);
+                      final visible = !now.isBefore(
+                        due.subtract(Duration(days: v.leadDays)),
+                      );
+                      if (future &&
+                          due.isAfter(now.add(const Duration(days: 7)))) {
+                        return const SizedBox.shrink();
+                      }
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                tr(context, "{0} · {1} · {2}", [
+                                  v.kind == EntryKind.income
+                                      ? tr(context, "收入")
+                                      : tr(context, "支出"),
+                                  v.amount.yuan,
+                                  v.dueDate(month),
+                                ]),
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                '${localizedCategoryById(context, v.categoryId, widget.categories)} · ${v.note}',
+                              ),
+                              Text(
+                                occurrence == null
+                                    ? (future
+                                          ? (visible
+                                                ? tr(context, "未来7天待办")
+                                                : tr(context, "尚未到提前展示日期"))
+                                          : tr(context, "待处理"))
+                                    : (occurrence.status ==
+                                              OccurrenceStatus.settled
+                                          ? tr(context, "已确认")
+                                          : tr(context, "已跳过")),
+                              ),
+                              if (occurrence == null)
+                                Wrap(
+                                  spacing: 8,
+                                  children: [
+                                    FilledButton(
+                                      onPressed: busy || future
+                                          ? null
+                                          : () => action(() async {
+                                              final actual =
+                                                  await confirmOccurrenceSheet(
+                                                    context,
+                                                    v,
+                                                    pending.period,
+                                                    widget.clock,
+                                                  );
+                                              if (actual != null) {
+                                                await widget.port.confirm(
+                                                  pending,
+                                                  actualAmount: actual.$1,
+                                                  actualLocalDate: actual.$2,
+                                                );
+                                              }
+                                            }),
+                                      child: Text(tr(context, "确认入账")),
+                                    ),
+                                    TextButton(
+                                      onPressed: busy
+                                          ? null
+                                          : () => action(() async {
+                                              if (await confirmPlanningAction(
+                                                context,
+                                                tr(context, "跳过本期？"),
+                                                tr(
+                                                  context,
+                                                  "不会生成账目；以后可以主动恢复待处理。",
+                                                ),
+                                              )) {
+                                                await widget.port.skip(pending);
+                                              }
+                                            }),
+                                      child: Text(tr(context, "跳过本期")),
+                                    ),
+                                  ],
+                                ),
+                              if (occurrence?.status ==
+                                  OccurrenceStatus.skipped)
+                                TextButton(
+                                  onPressed: busy
+                                      ? null
+                                      : () => action(() async {
+                                          if (await confirmPlanningAction(
+                                            context,
+                                            tr(context, "恢复待处理？"),
+                                            tr(context, "本期将重新显示待确认，不会自动入账。"),
+                                          )) {
+                                            await widget.port.reopen(
+                                              rule.id,
+                                              month,
+                                            );
+                                          }
+                                        }),
+                                  child: Text(tr(context, "恢复待处理")),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+              ],
             if (rulesOnly) const Divider(),
             if (rulesOnly)
               Text(

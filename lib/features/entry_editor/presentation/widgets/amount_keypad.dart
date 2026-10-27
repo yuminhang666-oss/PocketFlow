@@ -21,7 +21,7 @@ class AmountKeypad extends StatelessWidget {
             for (final key in row)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(3),
+                  padding: const EdgeInsets.all(1),
                   child: Semantics(
                     label: key == 'backspace'
                         ? tr(context, "删除一位")

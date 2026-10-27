@@ -476,7 +476,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       children: [
         if (widget.initialEntry == null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 0),
             child: Wrap(
               spacing: 8,
               runSpacing: 4,
@@ -520,7 +520,11 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                       '¥ ${_amount.value.isEmpty ? '0.00' : _amount.value}',
                       softWrap: true,
                       style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(color: scheme.onSurface, fontSize: 36),
+                          ?.copyWith(
+                            color: scheme.onSurface,
+                            fontSize: 36,
+                            height: 1.0,
+                          ),
                     ),
                   ),
                 ],
@@ -528,7 +532,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 2),
         Row(
           children: [
             Expanded(
@@ -579,7 +583,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               _error = null;
             }),
           ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         if (_error != null)
           Semantics(
             liveRegion: true,
@@ -619,7 +623,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             ),
           ),
         AmountKeypad(onKey: _key, enabled: !_saving),
-        const SizedBox(height: 6),
+        const SizedBox(height: 0),
         Row(
           children: [
             if (widget.initialEntry == null) ...[
@@ -723,7 +727,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                     );
                   }
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

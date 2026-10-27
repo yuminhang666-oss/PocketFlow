@@ -76,6 +76,7 @@ void main() {
           reason: 'full ledger is a bottom destination',
         );
         final listState = tester.state(find.byType(LedgerListPage));
+        await hit(find.byTooltip('搜索与筛选'));
         await tester.enterText(find.byType(TextField), 'synthetic');
         await tester.pump();
         final scroll = find
@@ -151,7 +152,8 @@ void main() {
         await tester.pumpAndSettle();
         await hit(category);
         expect(find.text('筛选明细'), findsOneWidget);
-        expect(find.text('分类：餐饮'), findsOneWidget);
+        expect(find.text('已启用筛选'), findsOneWidget);
+        expect(find.text('餐饮'), findsWidgets);
         await hit(find.byType(BackButton).last);
         expect(tester.state(find.byType(StatisticsPage)), same(statsState));
         await hit(find.text('账单').last);

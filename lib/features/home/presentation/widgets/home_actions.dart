@@ -18,7 +18,7 @@ class HomeActions extends StatelessWidget {
       child: InkWell(
         onTap: action,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
               Icon(icon, color: scheme.primary, size: 24),
@@ -64,72 +64,93 @@ class HomeActions extends StatelessWidget {
 }
 
 class HomeGoal extends StatelessWidget {
-  const HomeGoal({super.key, this.goal, this.onGoals, this.onIncrease});
+  const HomeGoal({
+    super.key,
+    this.goal,
+    this.goalCount = 1,
+    this.onGoals,
+    this.onIncrease,
+  });
   final SavingsGoal? goal;
+  final int goalCount;
   final VoidCallback? onGoals, onIncrease;
   @override
   Widget build(BuildContext context) {
-    final g = goal, scheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: onGoals,
-                  child: Text(tr(context, '我的小目标')),
-                ),
-                if (g != null)
-                  FilledButton.tonal(
-                    onPressed: onIncrease,
-                    child: Text(tr(context, '增加进度')),
+    final g = goal;
+    if (g == null) return const SizedBox.shrink();
+    return Semantics(
+      label: tr(context, '独立登记进度，不扣减生活费预算'),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: onGoals,
+                      style: TextButton.styleFrom(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            goalCount > 1
+                                ? tr(context, '我的小目标（{0}）', [goalCount])
+                                : tr(context, '我的小目标'),
+                            style: const TextStyle(fontSize: 12, height: 1.1),
+                          ),
+                          Text(
+                            g.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(height: 1.2),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-              ],
-            ),
-            if (g == null) ...[
-              Text(tr(context, '还没有目标，可以从一个小计划开始。')),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton.icon(
-                  onPressed: onGoals,
-                  icon: const Icon(Icons.add),
-                  label: Text(tr(context, '新建目标')),
-                ),
+                  Flexible(
+                    child: TextButton.icon(
+                      onPressed: onIncrease,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text(tr(context, '增加进度')),
+                    ),
+                  ),
+                ],
               ),
-            ] else ...[
-              Text(g.name, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: (g.saved.fen / g.target.fen).clamp(0, 1),
-                minHeight: 6,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              const SizedBox(height: 8),
               Wrap(
                 alignment: WrapAlignment.spaceBetween,
                 spacing: 8,
-                runSpacing: 4,
                 children: [
-                  Text('${g.saved.yuan} / ${g.target.yuan}'),
+                  Text(
+                    '${g.saved.yuan} / ${g.target.yuan}',
+                    style: const TextStyle(fontSize: 12, height: 1.2),
+                  ),
                   Text(
                     g.saved.fen >= g.target.fen
                         ? tr(context, '已完成')
                         : '${(g.saved.fen / g.target.fen * 100).toStringAsFixed(0)}%',
+                    style: const TextStyle(fontSize: 12, height: 1.2),
                   ),
                 ],
               ),
-              Text(
-                tr(context, '独立登记进度，不扣减生活费预算'),
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: (g.saved.fen / g.target.fen).clamp(0, 1),
+                minHeight: 4,
+                borderRadius: BorderRadius.circular(8),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

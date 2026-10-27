@@ -241,101 +241,54 @@ class CategorySelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          selected == null
-              ? tr(context, "请选择分类")
-              : tr(context, "已选：{0}", [
-                  localizedCategoryPath(context, selected, categories),
-                ]),
-          key: const ValueKey('selected-category-path'),
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 8),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          key: ValueKey('category-grid-${kind.name}'),
-          itemCount: roots.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: large
-                ? 2
-                : medium
-                ? 3
-                : 4,
-            mainAxisExtent: large
-                ? 130
-                : medium
-                ? 96
-                : 76,
-            crossAxisSpacing: 6,
-            mainAxisSpacing: 6,
-          ),
-          itemBuilder: (context, index) {
-            final c = roots[index], active = c.id == rootId;
-            return Semantics(
-              selected: active,
-              button: true,
-              enabled: enabled,
-              excludeSemantics: true,
-              onTap: enabled ? () => onSelected(c.id) : null,
-              label: tr(context, "{0}{1}", [
-                localizedCategoryName(context, c),
-                active ? tr(context, "，已选") : '',
-              ]),
-              child: OutlinedButton(
-                onPressed: enabled ? () => onSelected(c.id) : null,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(4),
-                  backgroundColor: active
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : categoryColor(c.id, categories).withValues(alpha: .08),
-                  side: BorderSide(
-                    color: active
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.transparent,
-                    width: active ? 1.5 : 1,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          categoryIcon(c.id, categories),
-                          size: 28,
-                          color: identityColor(context, c.id, categories),
-                        ),
-                        const SizedBox(height: 4),
-                        Flexible(
-                          child: Text(
-                            localizedCategoryName(context, c),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (active)
-                      const Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Icon(Icons.check_circle, size: 13),
-                      ),
-                  ],
-                ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                selected == null
+                    ? tr(context, '请选择分类')
+                    : tr(context, '已选：{0}', [
+                        localizedCategoryPath(context, selected, categories),
+                      ]),
+                key: const ValueKey('selected-category-path'),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-            );
-          },
+            ),
+            Flexible(
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(44, 44),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                key: const ValueKey('all-categories'),
+                icon: const Icon(Icons.apps, size: 18),
+                label: Text(
+                  tr(context, "全部 {0} 个分类", [
+                    all.where((c) => c.parentId == null).length,
+                  ]),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                onPressed: !enabled
+                    ? null
+                    : () async {
+                        final id = await showCategoryPicker(
+                          context,
+                          categories,
+                          kind,
+                          selectedId,
+                        );
+                        if (id != null) onSelected(id);
+                      },
+              ),
+            ),
+          ],
         ),
+        const SizedBox(height: 0),
         if (children.isNotEmpty)
           SizedBox(
-            height: large ? 70 : 52,
+            height: large ? 70 : 48,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
@@ -366,23 +319,87 @@ class CategorySelector extends StatelessWidget {
               ],
             ),
           ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            icon: const Icon(Icons.search, size: 18),
-            label: Text(tr(context, "搜索全部分类")),
-            onPressed: !enabled
-                ? null
-                : () async {
-                    final id = await showCategoryPicker(
-                      context,
-                      categories,
-                      kind,
-                      selectedId,
-                    );
-                    if (id != null) onSelected(id);
-                  },
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          key: ValueKey('category-grid-${kind.name}'),
+          itemCount: roots.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: large
+                ? 2
+                : medium
+                ? 3
+                : 4,
+            mainAxisExtent: large
+                ? 130
+                : medium
+                ? 96
+                : 48,
+            crossAxisSpacing: 6,
+            mainAxisSpacing: 6,
           ),
+          itemBuilder: (context, index) {
+            final c = roots[index], active = c.id == rootId;
+            return Semantics(
+              selected: active,
+              button: true,
+              enabled: enabled,
+              excludeSemantics: true,
+              onTap: enabled ? () => onSelected(c.id) : null,
+              label: tr(context, "{0}{1}", [
+                localizedCategoryName(context, c),
+                active ? tr(context, "，已选") : '',
+              ]),
+              child: OutlinedButton(
+                onPressed: enabled ? () => onSelected(c.id) : null,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.all(2),
+                  backgroundColor: active
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : categoryColor(c.id, categories).withValues(alpha: .08),
+                  side: BorderSide(
+                    color: active
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.transparent,
+                    width: active ? 1.5 : 1,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          categoryIcon(c.id, categories),
+                          size: 22,
+                          color: identityColor(context, c.id, categories),
+                        ),
+                        const SizedBox(height: 2),
+                        Flexible(
+                          child: Text(
+                            localizedCategoryName(context, c),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (active)
+                      const Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Icon(Icons.check_circle, size: 13),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ],
     );
