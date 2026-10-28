@@ -186,6 +186,8 @@ void main() {
         ),
       );
       await t.pumpAndSettle();
+      await t.tap(find.byTooltip('搜索与筛选'));
+      await t.pumpAndSettle();
       await t.tap(find.text('分类 / 金额'));
       await t.pumpAndSettle();
       await t.enterText(find.widgetWithText(TextField, '最低金额（元，选填）'), '10');

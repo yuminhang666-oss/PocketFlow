@@ -38,6 +38,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
   String? _selected;
   bool _busy = false;
   String? _error;
+  final _detailKey = GlobalKey();
   String get selected {
     final month = widget.data.month;
     final previous = _selected ?? widget.selectedDate;
@@ -98,27 +99,28 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              IconButton(
-                tooltip: tr(context, '上月'),
-                onPressed: () => move(-1),
-                icon: const Icon(Icons.chevron_left),
-              ),
-              Expanded(
-                child: Text(
-                  month.key,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
+          if (!widget.embedded)
+            Row(
+              children: [
+                IconButton(
+                  tooltip: tr(context, '上月'),
+                  onPressed: () => move(-1),
+                  icon: const Icon(Icons.chevron_left),
                 ),
-              ),
-              IconButton(
-                tooltip: tr(context, '下月'),
-                onPressed: () => move(1),
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
+                Expanded(
+                  child: Text(
+                    month.key,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  tooltip: tr(context, '下月'),
+                  onPressed: () => move(1),
+                  icon: const Icon(Icons.chevron_right),
+                ),
+              ],
+            ),
           GestureDetector(
             onHorizontalDragEnd: (d) {
               final speed = d.primaryVelocity ?? 0;
@@ -138,7 +140,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7,
-                    mainAxisExtent: math.max(88, 72 * scale),
+                    mainAxisExtent: math.max(48, 48 * scale),
                   ),
                   itemCount: offset + month.days,
                   itemBuilder: (context, i) {
@@ -167,6 +169,16 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                         onTap: () {
                           setState(() => _selected = key);
                           widget.onSelectedDate?.call(key);
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final detail = _detailKey.currentContext;
+                            if (mounted && detail != null) {
+                              Scrollable.ensureVisible(
+                                detail,
+                                alignment: .12,
+                                duration: const Duration(milliseconds: 200),
+                              );
+                            }
+                          });
                         },
                         borderRadius: BorderRadius.circular(10),
                         child: Container(
@@ -174,13 +186,18 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                           margin: const EdgeInsets.all(1),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 2,
-                            vertical: 6,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color: active ? scheme.primaryContainer : null,
-                            border: active
-                                ? Border.all(color: scheme.primary, width: 1.5)
-                                : null,
+                            border: Border.all(
+                              color: active
+                                  ? scheme.primary
+                                  : scheme.outlineVariant.withValues(
+                                      alpha: .45,
+                                    ),
+                              width: active ? 1.5 : .5,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Column(
@@ -188,6 +205,8 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                               Text(
                                 key == widget.today ? tr(context, '今') : '$day',
                                 style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.1,
                                   fontWeight: key == widget.today
                                       ? FontWeight.w700
                                       : null,
@@ -203,6 +222,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                                     '${tr(context, "支")} ${short(t!.expense)}',
                                     style: TextStyle(
                                       fontSize: 10,
+                                      height: 1.0,
                                       color: flowColor(
                                         context,
                                         EntryKind.expense,
@@ -217,6 +237,7 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
                                     '${tr(context, "收")} ${short(t!.income)}',
                                     style: TextStyle(
                                       fontSize: 10,
+                                      height: 1.0,
                                       color: flowColor(
                                         context,
                                         EntryKind.income,
@@ -250,13 +271,12 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
             },
             child: Text(tr(context, '回到今天')),
           ),
-          const SizedBox(height: 12),
+          const Divider(height: 12),
           Text(
-            tr(context, '没有记录的日期保持“尚未记录”，不等同于没有消费。'),
-            style: Theme.of(context).textTheme.bodySmall,
+            date,
+            key: _detailKey,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          const Divider(height: 28),
-          Text(date, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           if (future)
             Text(tr(context, '未来日期尚无实际记录'))
@@ -328,6 +348,11 @@ class _LedgerCalendarPageState extends State<LedgerCalendarPage> {
           ],
           if (_error != null)
             Text(_error!, style: TextStyle(color: scheme.error)),
+          const SizedBox(height: 8),
+          Text(
+            tr(context, '没有记录的日期保持“尚未记录”，不等同于没有消费。'),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );

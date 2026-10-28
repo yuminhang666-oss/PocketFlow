@@ -16,11 +16,18 @@ abstract final class PocketFlowTheme {
     final dark = brightness == Brightness.dark;
     final scheme = base.colorScheme.copyWith(
       primary: dark ? const Color(0xFF94C5FF) : primary,
+      secondary: dark ? const Color(0xFF94C5FF) : primary,
       surface: dark ? const Color(0xFF1D3045) : const Color(0xFFF8FCFF),
       primaryContainer: dark
           ? const Color(0xFF243D59)
           : const Color(0xFFE6F2FF),
+      secondaryContainer: dark
+          ? const Color(0xFF243D59)
+          : const Color(0xFFE6F2FF),
       onPrimaryContainer: dark
+          ? const Color(0xFFE0EDFC)
+          : const Color(0xFF20364D),
+      onSecondaryContainer: dark
           ? const Color(0xFFE0EDFC)
           : const Color(0xFF20364D),
       onSurface: dark ? const Color(0xFFF1F6FC) : const Color(0xFF172B40),
@@ -39,6 +46,7 @@ abstract final class PocketFlowTheme {
         },
       ),
       colorScheme: scheme,
+      segmentedButtonTheme: _segments(scheme),
       scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: base.appBarTheme.copyWith(
         backgroundColor: Colors.transparent,
@@ -76,6 +84,8 @@ abstract final class PocketFlowTheme {
         ).copyWith(
           primary: dark ? const Color(0xFFADBFFF) : primary,
           onPrimary: dark ? const Color(0xFF14224B) : Colors.white,
+          secondary: dark ? const Color(0xFFADBFFF) : primary,
+          onSecondary: dark ? const Color(0xFF14224B) : Colors.white,
           surface: dark ? const Color(0xFF1C1F28) : Colors.white,
           onSurface: dark ? const Color(0xFFF0F2F8) : const Color(0xFF1C2024),
           onSurfaceVariant: dark
@@ -83,6 +93,8 @@ abstract final class PocketFlowTheme {
               : const Color(0xFF60646C),
           primaryContainer: dark ? heroDark : heroLight,
           onPrimaryContainer: dark ? const Color(0xFFD6E1FF) : onHero,
+          secondaryContainer: dark ? heroDark : heroLight,
+          onSecondaryContainer: dark ? const Color(0xFFD6E1FF) : onHero,
           outlineVariant: dark
               ? const Color(0xFF353A48)
               : const Color(0xFFE3E7EF),
@@ -98,6 +110,7 @@ abstract final class PocketFlowTheme {
         },
       ),
       scaffoldBackgroundColor: background,
+      segmentedButtonTheme: _segments(scheme),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         foregroundColor: scheme.onSurface,
@@ -212,4 +225,26 @@ abstract final class PocketFlowTheme {
       ),
     );
   }
+
+  static SegmentedButtonThemeData _segments(ColorScheme scheme) =>
+      SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.primary
+                : scheme.surface,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.onPrimary
+                : scheme.onSurface,
+          ),
+          side: WidgetStatePropertyAll(
+            BorderSide(color: scheme.outlineVariant),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      );
 }

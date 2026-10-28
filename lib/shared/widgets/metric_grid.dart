@@ -7,8 +7,9 @@ import 'entry_tile.dart';
 import '../../core/domain/ledger_entry.dart';
 
 class MetricGrid extends StatelessWidget {
-  const MetricGrid({super.key, required this.values});
+  const MetricGrid({super.key, required this.values, this.compact = false});
   final List<(String, Money?)> values;
+  final bool compact;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, box) {
@@ -109,9 +110,9 @@ class MetricGrid extends StatelessWidget {
                           final item = values[row + column];
                           return FrostedSurface(
                             radius: 18,
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: horizontalPadding,
-                              vertical: 14,
+                              vertical: compact ? 8 : 14,
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +123,7 @@ class MetricGrid extends StatelessWidget {
                                   ),
                                   child: Text(item.$1, style: labelStyle),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: compact ? 3 : 6),
                                 const Spacer(),
                                 if (item.$2 == null)
                                   Text(

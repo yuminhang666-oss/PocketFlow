@@ -59,6 +59,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('搜索与筛选'));
+      await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'synthetic');
       await tester.tap(find.text('分类 / 金额'));
       await tester.pumpAndSettle();
@@ -143,6 +145,8 @@ void main() {
     );
     expect(find.text('本月还没有记录'), findsOneWidget);
     expect(find.text('记第一笔'), findsOneWidget);
+    await tester.tap(find.byTooltip('搜索与筛选'));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'no match');
     await tester.pump();
     expect(find.text('没有符合条件的账单'), findsOneWidget);

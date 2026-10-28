@@ -24,12 +24,16 @@ void main() {
     ('Net cash flow', Money.fromFen(-15888)),
   ];
 
-  void checkAmounts(WidgetTester tester, {bool singleLine = true}) {
+  void checkAmounts(
+    WidgetTester tester, {
+    bool singleLine = true,
+    int count = 3,
+  }) {
     final amounts = find.descendant(
       of: find.byType(MetricGrid),
       matching: find.byType(AmountText),
     );
-    expect(amounts, findsNWidgets(3));
+    expect(amounts, findsNWidgets(count));
     final sizes = <double?>{};
     final rows = <double, List<double>>{};
     for (final element in amounts.evaluate()) {
@@ -221,8 +225,13 @@ void main() {
         ]) {
           await tester.pumpWidget(app(page));
           await tester.pumpAndSettle();
-          expect(find.text('¥-158.88'), findsOneWidget);
-          checkAmounts(tester);
+          if (page is LedgerListPage) {
+            expect(find.textContaining('¥-158.88'), findsOneWidget);
+            checkAmounts(tester, count: 2);
+          } else {
+            expect(find.text('¥-158.88'), findsOneWidget);
+            checkAmounts(tester);
+          }
           await tester.pumpWidget(const SizedBox());
         }
       });

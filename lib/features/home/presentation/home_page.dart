@@ -121,9 +121,10 @@ class HomePage extends StatelessWidget {
               child: Text(tr(context, "更新失败，当前显示上次结果")),
             ),
           DailyAllowancePanel(snapshot: snapshot, onSetBudget: onSetBudget),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (snapshot.period != MonthPeriod.future)
             MetricGrid(
+              compact: true,
               values: [
                 (
                   tr(context, "本月收入"),
@@ -132,16 +133,17 @@ class HomePage extends StatelessWidget {
                 (tr(context, "今日支出"), todayExpense),
               ],
             ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           if (goal != null) ...[
             HomeGoal(
               goal: goal,
+              goalCount: data.profile.goals.length,
               onGoals: onGoals,
               onIncrease: onIncreaseGoal == null
                   ? null
                   : () => onIncreaseGoal!(goal),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
           ],
           HomeActions(
             onCalendar: onCalendar,
@@ -149,7 +151,7 @@ class HomePage extends StatelessWidget {
             onReports: onReports,
             onMore: onMore,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(

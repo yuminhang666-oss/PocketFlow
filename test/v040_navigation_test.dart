@@ -159,13 +159,14 @@ void main() {
           CalendarMonth(2026, 10),
         );
         expect(find.byType(LedgerCalendarPage), findsNothing);
+        await hit(find.byTooltip('搜索与筛选'));
         await t.enterText(find.byType(TextField), '没有匹配的词');
         await settle(t);
         await hit(find.text('总览').last);
         await hit(find.text('记账日历'), reveal: true);
         expect(find.byType(LedgerCalendarPage), findsOneWidget);
         expect(find.byType(TextField), findsNothing);
-        await hit(find.text('搜索与筛选'));
+        await hit(find.byTooltip('搜索与筛选'));
         expect(
           t.widget<TextField>(find.byType(TextField)).controller!.text,
           isEmpty,

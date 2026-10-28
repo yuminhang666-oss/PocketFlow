@@ -4,6 +4,7 @@ import '../../../shared/widgets/completed_modal.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/metric_grid.dart';
+import '../../../shared/widgets/amount_text.dart';
 import '../../../shared/widgets/status_panel.dart';
 import '../../../shared/widgets/presentation_errors.dart';
 import 'ledger_calendar_page.dart';
@@ -50,7 +51,7 @@ class LedgerListPage extends StatefulWidget {
 }
 
 class LedgerListPageState extends State<LedgerListPage> {
-  bool _calendar = false, _calendarFilters = false;
+  bool _calendar = false, _filters = false;
   String? _calendarDate;
   void showList() {
     if (mounted) setState(() => _calendar = false);
@@ -60,6 +61,7 @@ class LedgerListPageState extends State<LedgerListPage> {
     _clear();
     setState(() {
       _calendar = calendar;
+      _filters = false;
       _monthNotice = false;
       _calendarDate = widget.asOfLocalDate;
     });
@@ -302,22 +304,25 @@ class LedgerListPageState extends State<LedgerListPage> {
             asOfLocalDate: widget.asOfLocalDate,
           );
     final scheme = Theme.of(context).colorScheme;
+    final historical =
+        _month !=
+        CalendarMonth.fromDate(parseCalendarDay(widget.asOfLocalDate));
+    void move(int delta) {
+      final date = DateTime.utc(_month.year, _month.month + delta);
+      if (date.year >= 1900 && date.year <= 9999) {
+        widget.onMoveMonth?.call(CalendarMonth.fromDate(date));
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: MediaQuery.textScalerOf(context).scale(14) > 22
-            ? 80
-            : 56,
-        title: Text(tr(context, widget.drillDown ? "筛选明细" : "账单")),
+        title: Text(tr(context, widget.drillDown ? '筛选明细' : '账单')),
         actions: [
-          TextButton(
-            onPressed: widget.onChooseMonth,
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width * .55,
-              child: Text(
-                tr(context, "{0}年{1}月 ▾", [_month.year, _month.month]),
-                textAlign: TextAlign.end,
-              ),
-            ),
+          IconButton(
+            tooltip: tr(context, '搜索与筛选'),
+            isSelected: _filters,
+            onPressed: () => setState(() => _filters = !_filters),
+            icon: Icon(_filtered ? Icons.filter_alt : Icons.search),
           ),
         ],
       ),
@@ -330,81 +335,157 @@ class LedgerListPageState extends State<LedgerListPage> {
             if (!widget.drillDown)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Wrap(
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: [
-                          ChoiceChip(
-                            label: Text(tr(context, "列表")),
-                            selected: !_calendar,
-                            onSelected: (_) =>
-                                setState(() => _calendar = false),
-                          ),
-                          ChoiceChip(
-                            label: Text(tr(context, "日历")),
-                            selected: _calendar,
-                            onSelected: (_) {
-                              ScaffoldMessenger.of(
-                                context,
-                              ).removeCurrentSnackBar();
-                              setState(() => _calendar = true);
-                            },
-                          ),
-                        ],
-                      ),
-                      if (_month !=
-                          CalendarMonth.fromDate(
-                            parseCalendarDay(widget.asOfLocalDate),
-                          ))
-                        TextButton(
-                          onPressed: () {
-                            _calendarDate = widget.asOfLocalDate;
-                            widget.onCurrentMonth?.call();
-                          },
-                          child: Text(tr(context, "回到本月")),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Center(
+                    child: SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          label: Text(tr(context, '列表')),
+                          icon: const Icon(Icons.view_list_outlined),
                         ),
-                    ],
+                        ButtonSegment(
+                          value: true,
+                          label: Text(tr(context, '日历')),
+                          icon: const Icon(Icons.calendar_month_outlined),
+                        ),
+                      ],
+                      selected: {_calendar},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (value) {
+                        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                        setState(() => _calendar = value.single);
+                      },
+                    ),
                   ),
                 ),
               ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (_monthNotice)
-                      Text(tr(context, "切换月份后保留分类、收支、搜索和金额条件，日期范围已重置")),
-                    if (_calendar)
-                      Wrap(
-                        spacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          TextButton.icon(
-                            onPressed: () => setState(
-                              () => _calendarFilters = !_calendarFilters,
-                            ),
-                            icon: const Icon(Icons.tune),
-                            label: Text(tr(context, "搜索与筛选")),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                    child: Column(
+                      children: [
+                        if (historical)
+                          Text(
+                            tr(context, '查看月份'),
+                            style: Theme.of(context).textTheme.labelSmall,
                           ),
-                          if (_filtered)
-                            TextButton(
-                              onPressed: _clear,
-                              child: Text(tr(context, "清除筛选")),
+                        Row(
+                          children: [
+                            IconButton(
+                              tooltip: tr(context, '上月'),
+                              onPressed: widget.onMoveMonth == null
+                                  ? null
+                                  : () => move(-1),
+                              icon: const Icon(Icons.chevron_left),
                             ),
-                          if (_filtered) Text(tr(context, "已启用筛选")),
-                        ],
-                      ),
-                    if (!_calendar || _calendarFilters) ...[
+                            Expanded(
+                              child: TextButton(
+                                onPressed: widget.onChooseMonth,
+                                child: Text(
+                                  tr(context, '{0}年{1}月 ▾', [
+                                    _month.year,
+                                    _month.month,
+                                  ]),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: tr(context, '下月'),
+                              onPressed: widget.onMoveMonth == null
+                                  ? null
+                                  : () => move(1),
+                              icon: const Icon(Icons.chevron_right),
+                            ),
+                          ],
+                        ),
+                        if (historical)
+                          TextButton(
+                            onPressed: () {
+                              _calendarDate = widget.asOfLocalDate;
+                              widget.onCurrentMonth?.call();
+                            },
+                            child: Text(tr(context, '回到本月')),
+                          ),
+                        if (view != null && _calendar)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            child: Wrap(
+                              spacing: 16,
+                              runSpacing: 4,
+                              children: [
+                                Wrap(
+                                  spacing: 4,
+                                  children: [
+                                    Text(tr(context, '支出')),
+                                    AmountText(
+                                      view.expense,
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: flowColor(
+                                          context,
+                                          EntryKind.expense,
+                                          amount: view.expense,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Wrap(
+                                  spacing: 4,
+                                  children: [
+                                    Text(tr(context, '收入')),
+                                    AmountText(
+                                      view.income,
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: flowColor(
+                                          context,
+                                          EntryKind.income,
+                                          amount: view.income,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (view != null && !_calendar)
+                          MetricGrid(
+                            compact: true,
+                            values: [
+                              (
+                                tr(context, _filtered ? '筛选支出' : '支出'),
+                                view.expense,
+                              ),
+                              (
+                                tr(context, _filtered ? '筛选收入' : '收入'),
+                                view.income,
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (_filters)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       TextField(
                         controller: _search,
                         onChanged: (_) => setState(() {}),
@@ -520,45 +601,115 @@ class LedgerListPageState extends State<LedgerListPage> {
                         ],
                       ),
                     ],
-                    const SizedBox(height: 10),
-                    if (view != null) ...[
-                      if (!_calendar)
-                        MetricGrid(
-                          values: [
-                            (tr(context, "筛选支出"), view.expense),
-                            (tr(context, "筛选收入"), view.income),
-                            (tr(context, "净收支"), view.netFlow),
-                          ],
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          tr(context, "当前范围共 {0} 笔 · 净收支为收入减支出", [
-                            view.entries.length,
-                          ]),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
-            ),
+            if (view != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_monthNotice && _filtered)
+                        Text(
+                          tr(context, '切换月份后保留分类、收支、搜索和金额条件，日期范围已重置'),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      if (_filtered && !_filters)
+                        Wrap(
+                          spacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              tr(context, '已启用筛选'),
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            if (_search.text.isNotEmpty) Text(_search.text),
+                            if (_kind != null)
+                              Text(
+                                tr(
+                                  context,
+                                  _kind == EntryKind.expense ? '支出' : '收入',
+                                ),
+                              ),
+                            if (selectedCategory != null)
+                              Text(
+                                localizedCategoryPath(
+                                  context,
+                                  selectedCategory,
+                                  _categories,
+                                ),
+                              ),
+                            if (_from != null)
+                              Text(tr(context, '{0} 至 {1}', [_from, _to])),
+                            if (_min != null)
+                              Text(
+                                tr(context, '最低 {0}', [
+                                  Money.fromFen(_min!).yuan,
+                                ]),
+                              ),
+                            if (_max != null)
+                              Text(
+                                tr(context, '最高 {0}', [
+                                  Money.fromFen(_max!).yuan,
+                                ]),
+                              ),
+                            TextButton(
+                              onPressed: _clear,
+                              child: Text(tr(context, '清除筛选')),
+                            ),
+                          ],
+                        ),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 8,
+                        runSpacing: 2,
+                        children: [
+                          Text(
+                            tr(context, '当前范围共 {0} 笔', [view.entries.length]),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Wrap(
+                            spacing: 4,
+                            children: [
+                              Text(
+                                tr(context, '净收支'),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              AmountText(
+                                view.netFlow,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: flowColor(
+                                        context,
+                                        view.netFlow.fen < 0
+                                            ? EntryKind.expense
+                                            : EntryKind.income,
+                                        amount: view.netFlow,
+                                      ),
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (widget.readError != null)
               SliverToBoxAdapter(
                 child: StatusPanel(
-                  title: tr(context, "无法读取账单"),
+                  title: tr(context, '无法读取账单'),
                   message: tr(context, presentationError(widget.readError!)),
-                  actionLabel: tr(context, "重试"),
+                  actionLabel: tr(context, '重试'),
                   onAction: widget.onRetry,
                 ),
               )
             else if (view == null)
               SliverToBoxAdapter(
-                child: StatusPanel(title: tr(context, "正在读取账本"), loading: true),
+                child: StatusPanel(title: tr(context, '正在读取账本'), loading: true),
               )
             else if (_calendar && widget.onMarkZero != null)
               SliverToBoxAdapter(
@@ -579,8 +730,8 @@ class LedgerListPageState extends State<LedgerListPage> {
             else if (view.entries.isEmpty)
               SliverToBoxAdapter(
                 child: StatusPanel(
-                  title: tr(context, _filtered ? "没有符合条件的账单" : "本月还没有记录"),
-                  actionLabel: tr(context, _filtered ? "清除筛选" : "记第一笔"),
+                  title: tr(context, _filtered ? '没有符合条件的账单' : '本月还没有记录'),
+                  actionLabel: tr(context, _filtered ? '清除筛选' : '记第一笔'),
                   onAction: _filtered ? _clear : widget.onAdd,
                 ),
               )
@@ -588,50 +739,66 @@ class LedgerListPageState extends State<LedgerListPage> {
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 sliver: SliverList.builder(
-                  itemCount: view.entries.length,
+                  itemCount: view.days.length,
                   itemBuilder: (context, i) {
-                    final e = view.entries[i];
-                    final start =
-                        i == 0 || e.localDate != view.entries[i - 1].localDate;
-                    final totals = view.days[e.localDate]!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (start)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12, bottom: 6),
+                    final day = view.days.keys.toList()
+                      ..sort((a, b) => b.compareTo(a));
+                    final date = day[i], totals = view.days[date]!;
+                    final entries = view.entries
+                        .where((e) => e.localDate == date)
+                        .toList();
+                    return Card(
+                      key: ValueKey('ledger-day-$date'),
+                      margin: const EdgeInsets.only(bottom: 10),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            color: scheme.surfaceContainerLow,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             child: Wrap(
                               alignment: WrapAlignment.spaceBetween,
                               spacing: 8,
                               runSpacing: 4,
                               children: [
                                 Text(
-                                  e.localDate,
+                                  date,
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                                 Text(
-                                  tr(context, "支出 {0} · 收入 {1} · {2}笔", [
+                                  tr(context, '支出 {0} · 收入 {1}', [
                                     totals.expense.yuan,
                                     totals.income.yuan,
-                                    totals.count,
                                   ]),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
                           ),
-                        EntryTile(
-                          entry: e,
-                          categories: _categories,
-                          onTap: widget.onEntryTap == null
-                              ? null
-                              : () => widget.onEntryTap!(e),
-                        ),
-                        const Divider(height: 1),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              children: [
+                                for (var j = 0; j < entries.length; j++) ...[
+                                  if (j > 0) const Divider(height: 1),
+                                  EntryTile(
+                                    compact: true,
+                                    entry: entries[j],
+                                    categories: _categories,
+                                    onTap: widget.onEntryTap == null
+                                        ? null
+                                        : () => widget.onEntryTap!(entries[j]),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

@@ -1,5 +1,9 @@
 # 项目状态
 
+## 0.4.1 设计与主题复查发布集成（2026-10-27）
+
+基于本轮实查远程 main ccdbc965798d6133f662fa5e3a7ba7cf1f1296a8，独立 integration/v0.4.1-theme-review。按用户提供的两份复查报告及原设计修正账单列表/筛选、日历、分类、目标、报告和周期分组，版本0.4.1+12；合同3.2.0/schema4/JSON3/recovery3和依赖不变。实际结果见 [本轮 QA](qa-v0.4.1.md)；用户已追加授权主题复查后将全部源码、安装包与打包源码经PR/CI集成并发布。发布与CI最终结果以GitHub实际记录及交付publication-report为准。[主控交接](handoffs/controller-v041.md)。下文保留发布历史。
+
 ## 0.4.0 设计改版集成（2026-10-27）
 
 本轮基于真实远程 main 171194f30b3873f93edf090f29773e9a099e16ad（0.3.4），独立 integration/v0.4.0-design。用户已授权执行设计、PR集成与GitHub发布。版本0.4.0+11，合同增量v3.2.0，schema4/JSON3/recovery3及原签名保持；可选分类颜色和周期实际日期见 docs/v0.4.0-update.md。最终验证、覆盖安装、CI和发布以该版本交付证据与GitHub实际记录为准。下文保留历史状态，不覆盖本段基线。

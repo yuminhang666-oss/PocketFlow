@@ -20,6 +20,17 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.4.1',
+    title: '账单布局与设计复查修正',
+    fixes: [
+      '账单按日期分组，搜索筛选按需展开，优先展示记录。',
+      '日历缩短日格，选择日期后直接定位当天明细。',
+      '完整分类入口前置，压缩首页目标和报告布局，明确周期分组。',
+      '区分预算为零与预算用完，统一分类占比的整数分计算。',
+    ],
+    notes: ['沿用原包名与升级签名，旧账本和备份可继续读取。'],
+  ),
+  AppVersionNotes(
     version: '0.4.0',
     title: '总览、日历与报告改版',
     additions: [

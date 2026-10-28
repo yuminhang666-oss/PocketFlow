@@ -97,7 +97,7 @@ class CategoryExpenseDonut extends StatelessWidget {
                     for (final c in items)
                       PieChartSectionData(
                         value: c.amount.fen.toDouble(),
-                        color: categoryColor(c.categoryId, categories),
+                        color: identityColor(context, c.categoryId, categories),
                         radius: 28,
                         showTitle: false,
                       ),
@@ -118,7 +118,11 @@ class CategoryExpenseDonut extends StatelessWidget {
                 Icon(
                   Icons.circle,
                   size: 10,
-                  color: categoryColor(items[i].categoryId, categories),
+                  color: identityColor(
+                    context,
+                    items[i].categoryId,
+                    categories,
+                  ),
                 ),
                 Text(
                   '${i + 1}. ${localizedCategoryLabel(context, items[i].categoryId, items[i].categoryName)}',
