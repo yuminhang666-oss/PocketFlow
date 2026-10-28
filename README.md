@@ -1,6 +1,6 @@
 # PocketFlow · 离线收支与预算
 
-**0.4.2+13 源码审阅候选**：修正报告重复点击重置期间和月初日期筛选的时区边界；改善备注、细分类和保存反馈。[更新说明](docs/v0.4.2-update.md) · [本轮验证](docs/qa-v0.4.2.md) · [上传复核](docs/source-upload-v0.4.2.md)。本分支经PR交付，尚未合并或发布安装包更新；线上版本仍以 Releases 为准。
+**0.4.2+13**：修正报告重复点击重置期间和月初日期筛选的时区边界；改善备注、细分类和保存反馈。[更新说明](docs/v0.4.2-update.md) · [本轮验证](docs/qa-v0.4.2.md) · [上传复核](docs/source-upload-v0.4.2.md)。源码通过 [PR #18](https://github.com/yuminhang666-oss/PocketFlow/pull/18) 集成；安装包、完整源码与校验和见 [0.4.2发布页](https://github.com/yuminhang666-oss/PocketFlow/releases/tag/v0.4.2)。
 
 **0.4.1+12**：按两份设计复查报告完善账单、日历、分类入口、首页目标与报告，并统一三主题选中状态和分类颜色。[更新说明](docs/v0.4.1-update.md) · [实际验证](docs/qa-v0.4.1.md)。安装包、完整源码及校验和见 Releases。
 

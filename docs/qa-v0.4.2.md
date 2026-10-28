@@ -1,6 +1,6 @@
 # PocketFlow 0.4.2 验证记录
 
-日期：2026-10-28；本地候选，未发布。基线：远程main `dd71ccbe00bb9377a02658ee8114d7bdcb86ccc4`，分支 `integration/v0.4.2-experience`，版本 `0.4.2+13`。
+日期：2026-10-28；以下为发布前验证记录，后续发布状态以GitHub Release为准。基线：远程main `dd71ccbe00bb9377a02658ee8114d7bdcb86ccc4`，分支 `integration/v0.4.2-experience`，版本 `0.4.2+13`。
 
 ## 环境与命令
 
