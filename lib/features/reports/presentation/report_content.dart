@@ -75,7 +75,9 @@ class ReportContent extends StatelessWidget {
       if (target != null) {
         Scrollable.ensureVisible(
           target,
-          duration: const Duration(milliseconds: 200),
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : const Duration(milliseconds: 200),
         );
       }
     }
@@ -178,92 +180,99 @@ class ReportContent extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              height: MediaQuery.sizeOf(context).height < 700 ? 128 : 160,
-              child: BarChart(
-                BarChartData(
-                  maxY: math.max(1.0, peak / 100 * 1.15),
-                  minY: 0,
-                  borderData: FlBorderData(show: false),
-                  gridData: FlGridData(
-                    drawVerticalLine: false,
-                    getDrawingHorizontalLine: (_) =>
-                        FlLine(color: scheme.outlineVariant, strokeWidth: .5),
-                  ),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
+            Semantics(
+              label: tr(context, '每日趋势：支出 {0}，收入 {1}。展开逐日金额与账单可查看每天数值。', [
+                report.expense.yuan,
+                report.income.yuan,
+              ]),
+              excludeSemantics: true,
+              child: SizedBox(
+                height: MediaQuery.sizeOf(context).height < 700 ? 128 : 160,
+                child: BarChart(
+                  BarChartData(
+                    maxY: math.max(1.0, peak / 100 * 1.15),
+                    minY: 0,
+                    borderData: FlBorderData(show: false),
+                    gridData: FlGridData(
+                      drawVerticalLine: false,
+                      getDrawingHorizontalLine: (_) =>
+                          FlLine(color: scheme.outlineVariant, strokeWidth: .5),
                     ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 28,
-                        getTitlesWidget: (v, m) {
-                          final i = v.toInt();
-                          if (i < 0 ||
-                              i >= report.daily.length ||
-                              (monthly &&
-                                  i != 0 &&
-                                  i != report.daily.length - 1 &&
-                                  (i + 1) % 7 != 0)) {
-                            return const SizedBox.shrink();
-                          }
-                          return Text(
-                            '${parseCalendarDay(report.daily[i].localDate).day}',
-                            style: const TextStyle(fontSize: 10),
-                          );
-                        },
+                    titlesData: FlTitlesData(
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      leftTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 28,
+                          getTitlesWidget: (v, m) {
+                            final i = v.toInt();
+                            if (i < 0 ||
+                                i >= report.daily.length ||
+                                (monthly &&
+                                    i != 0 &&
+                                    i != report.daily.length - 1 &&
+                                    (i + 1) % 7 != 0)) {
+                              return const SizedBox.shrink();
+                            }
+                            return Text(
+                              '${parseCalendarDay(report.daily[i].localDate).day}',
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  barGroups: [
-                    for (var i = 0; i < report.daily.length; i++)
-                      BarChartGroupData(
-                        x: i,
-                        barRods: [
-                          BarChartRodData(
-                            toY: report.daily[i].expense.fen / 100,
-                            width: monthly ? 4 : 9,
-                            color: flowColor(context, EntryKind.expense),
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(2),
+                    barGroups: [
+                      for (var i = 0; i < report.daily.length; i++)
+                        BarChartGroupData(
+                          x: i,
+                          barRods: [
+                            BarChartRodData(
+                              toY: report.daily[i].expense.fen / 100,
+                              width: monthly ? 4 : 9,
+                              color: flowColor(context, EntryKind.expense),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(2),
+                              ),
                             ),
-                          ),
-                          BarChartRodData(
-                            toY: report.daily[i].income.fen / 100,
-                            width: monthly ? 4 : 9,
-                            color: flowColor(context, EntryKind.income),
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ],
-                      ),
-                  ],
-                  barTouchData: BarTouchData(
-                    touchCallback: (event, response) {
-                      if (event is FlTapUpEvent && response?.spot != null) {
-                        final day = report
-                            .daily[response!.spot!.touchedBarGroup.x]
-                            .localDate;
-                        entries(
-                          context,
-                          day,
-                          data.entries.where((e) => e.localDate == day),
-                        );
-                      }
-                    },
-                    touchTooltipData: BarTouchTooltipData(
-                      fitInsideHorizontally: true,
-                      fitInsideVertically: true,
-                      getTooltipColor: (_) => scheme.inverseSurface,
-                      getTooltipItem: (g, gi, r, ri) => BarTooltipItem(
-                        '${report.daily[g.x].localDate}\n${tr(context, ri == 0 ? "支出" : "收入")} ${(ri == 0 ? report.daily[g.x].expense : report.daily[g.x].income).yuan}',
-                        TextStyle(color: scheme.onInverseSurface),
+                            BarChartRodData(
+                              toY: report.daily[i].income.fen / 100,
+                              width: monthly ? 4 : 9,
+                              color: flowColor(context, EntryKind.income),
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ],
+                        ),
+                    ],
+                    barTouchData: BarTouchData(
+                      touchCallback: (event, response) {
+                        if (event is FlTapUpEvent && response?.spot != null) {
+                          final day = report
+                              .daily[response!.spot!.touchedBarGroup.x]
+                              .localDate;
+                          entries(
+                            context,
+                            day,
+                            data.entries.where((e) => e.localDate == day),
+                          );
+                        }
+                      },
+                      touchTooltipData: BarTouchTooltipData(
+                        fitInsideHorizontally: true,
+                        fitInsideVertically: true,
+                        getTooltipColor: (_) => scheme.inverseSurface,
+                        getTooltipItem: (g, gi, r, ri) => BarTooltipItem(
+                          '${report.daily[g.x].localDate}\n${tr(context, ri == 0 ? "支出" : "收入")} ${(ri == 0 ? report.daily[g.x].expense : report.daily[g.x].income).yuan}',
+                          TextStyle(color: scheme.onInverseSurface),
+                        ),
                       ),
                     ),
                   ),

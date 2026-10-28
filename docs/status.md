@@ -1,5 +1,9 @@
 # 项目状态
 
+## 0.4.2 体验优化本地候选（2026-10-28）
+
+本轮读取远程 main `dd71ccbe00bb9377a02658ee8114d7bdcb86ccc4` 及规范，从同一 Git 对象建立独立 clone，分支 `integration/v0.4.2-experience`。按两份0.4.2建议修正报告期间、日期边界、备注与细分类入口、保存及读屏提示。主控统一集成界面、装配与验证，未启动其他代理。版本0.4.2+13；合同3.2.0/schema4/JSON3/recovery3、依赖锁和升级签名保持。297项Flutter、17项Node及另行运行的1项合成性能测量通过。最终APK、模拟器升级与页面检查范围见 [本轮QA](qa-v0.4.2.md) 和本地交付目录；用户已追加授权再次复核并上传源码，经独立分支与PR交付；不合并main或发布Release/APK更新，实际提交和CI以GitHub记录为准。[上传复核](source-upload-v0.4.2.md) · [主控交接](handoffs/controller-v042.md)。
+
 ## 0.4.1 设计与主题复查发布集成（2026-10-27）
 
 基于本轮实查远程 main ccdbc965798d6133f662fa5e3a7ba7cf1f1296a8，独立 integration/v0.4.1-theme-review。按用户提供的两份复查报告及原设计修正账单列表/筛选、日历、分类、目标、报告和周期分组，版本0.4.1+12；合同3.2.0/schema4/JSON3/recovery3和依赖不变。实际结果见 [本轮 QA](qa-v0.4.1.md)；用户已追加授权主题复查后将全部源码、安装包与打包源码经PR/CI集成并发布。发布与CI最终结果以GitHub实际记录及交付publication-report为准。[主控交接](handoffs/controller-v041.md)。下文保留发布历史。

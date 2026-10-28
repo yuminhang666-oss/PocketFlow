@@ -112,7 +112,7 @@ void main() {
           shown.amount,
         );
         await hit(find.text('编辑账单'));
-        await hit(find.text('发生日期 2026-10-20 · 补记'));
+        await hit(find.text('2026-10-20 · 补记'));
         expect(find.byType(CalendarDatePicker), findsOneWidget);
         tester
             .widget<CalendarDatePicker>(find.byType(CalendarDatePicker))
