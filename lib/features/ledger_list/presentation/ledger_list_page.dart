@@ -83,6 +83,14 @@ class LedgerListPageState extends State<LedgerListPage> {
       _from != null ||
       _min != null ||
       _max != null;
+  int get _filterCount => [
+    _search.text.isNotEmpty,
+    _kind != null,
+    _categoryId != null,
+    _from != null,
+    _min != null,
+    _max != null,
+  ].where((active) => active).length;
   @override
   void initState() {
     super.initState();
@@ -131,11 +139,12 @@ class LedgerListPageState extends State<LedgerListPage> {
     final last = end.isAfter(parseCalendarDay(widget.asOfLocalDate))
         ? parseCalendarDay(widget.asOfLocalDate)
         : end;
-    final first = DateTime(month.year, month.month, 1);
+    // Compare calendar containers, then give the picker local date components.
+    final first = month.firstDay;
     if (last.isBefore(first)) return;
     final picked = await showDateRangePicker(
       context: context,
-      firstDate: first,
+      firstDate: DateTime(first.year, first.month, first.day),
       lastDate: DateTime(last.year, last.month, last.day),
       helpText: tr(context, "筛选当前月份日期"),
       saveText: tr(context, "确定"),
@@ -526,7 +535,12 @@ class LedgerListPageState extends State<LedgerListPage> {
                                   ? tr(context, "日期")
                                   : tr(context, "{0} 至 {1}", [_from, _to]),
                             ),
-                            onPressed: _range,
+                            onPressed:
+                                _month.firstDay.isAfter(
+                                  parseCalendarDay(widget.asOfLocalDate),
+                                )
+                                ? null
+                                : _range,
                           ),
                           if (_search.text.isNotEmpty ||
                               _kind != null ||
@@ -666,9 +680,17 @@ class LedgerListPageState extends State<LedgerListPage> {
                         spacing: 8,
                         runSpacing: 2,
                         children: [
-                          Text(
-                            tr(context, '当前范围共 {0} 笔', [view.entries.length]),
-                            style: Theme.of(context).textTheme.bodySmall,
+                          Semantics(
+                            liveRegion: true,
+                            label: tr(context, '已启用 {0} 项筛选，当前范围 {1} 笔', [
+                              _filterCount,
+                              view.entries.length,
+                            ]),
+                            excludeSemantics: true,
+                            child: Text(
+                              tr(context, '当前范围共 {0} 笔', [view.entries.length]),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ),
                           Wrap(
                             spacing: 4,

@@ -12,13 +12,14 @@ class ReportsPage extends StatefulWidget {
     required this.port,
     required this.clock,
     this.initialStart,
-    this.initialEnd,
     this.onEntryTap,
     this.onAdd,
   });
   final PlanningPort port;
   final Clock clock;
-  final String? initialStart, initialEnd;
+
+  /// A calendar-day anchor for its natural week, never an arbitrary range.
+  final String? initialStart;
   final ValueChanged<LedgerEntry>? onEntryTap;
   final VoidCallback? onAdd;
   @override
@@ -67,6 +68,16 @@ class _ReportsPageState extends State<ReportsPage> {
     if (allowed(date)) setState(() => anchor = date);
   }
 
+  void switchPeriod(bool value) {
+    if (monthly == value) return;
+    setState(() {
+      monthly = value;
+      // Keep the viewed date when changing type. Old months outside the
+      // retained weekly window return to this week when switching to weekly.
+      if (!allowed(anchor)) anchor = now;
+    });
+  }
+
   Future<void> choose() async {
     DateTime? date;
     if (monthly) {
@@ -85,7 +96,7 @@ class _ReportsPageState extends State<ReportsPage> {
     }
     if (!mounted || date == null) return;
     if (allowed(date)) {
-      setState(() => anchor = date!);
+      setState(() => anchor = calendarDay(date!));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(tr(context, '该期间尚未提供或已超过周报范围，请选择历史月报'))),
@@ -137,19 +148,18 @@ class _ReportsPageState extends State<ReportsPage> {
                   ChoiceChip(
                     label: Text(tr(context, '周报')),
                     selected: !monthly,
-                    onSelected: (_) => setState(() {
-                      monthly = false;
-                      anchor = now;
-                    }),
+                    onSelected: (_) => switchPeriod(false),
                   ),
                   ChoiceChip(
                     label: Text(tr(context, '月报')),
                     selected: monthly,
-                    onSelected: (_) => setState(() {
-                      monthly = true;
-                      anchor = now;
-                    }),
+                    onSelected: (_) => switchPeriod(true),
                   ),
+                  if (!monthly)
+                    TextButton(
+                      onPressed: () => switchPeriod(true),
+                      child: Text(tr(context, '切换到月报')),
+                    ),
                 ],
               ),
             ),
@@ -161,9 +171,20 @@ class _ReportsPageState extends State<ReportsPage> {
                   icon: const Icon(Icons.chevron_left),
                 ),
                 Expanded(
-                  child: TextButton(
+                  child: TextButton.icon(
+                    key: const ValueKey('report-period-picker'),
                     onPressed: choose,
-                    child: Text('$start — $end', textAlign: TextAlign.center),
+                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                    label: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('$start — $end', textAlign: TextAlign.center),
+                        Text(
+                          tr(context, monthly ? '选择月份' : '选择日期'),
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 IconButton(
@@ -174,11 +195,6 @@ class _ReportsPageState extends State<ReportsPage> {
               ],
             ),
             if (ongoing) Text(tr(context, '截至 {0}', [end])),
-            if (!monthly)
-              TextButton(
-                onPressed: () => setState(() => monthly = true),
-                child: Text(tr(context, '选择历史月报')),
-              ),
             Expanded(
               child: StreamBuilder<LedgerRangeData>(
                 key: ValueKey(key),

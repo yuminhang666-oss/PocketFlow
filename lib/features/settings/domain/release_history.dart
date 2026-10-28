@@ -20,6 +20,17 @@ class AppVersionNotes {
 
 const pocketFlowVersionHistory = <AppVersionNotes>[
   AppVersionNotes(
+    version: '0.4.2',
+    title: '报告期间与记账体验优化',
+    fixes: [
+      '重复点击周报或月报保留查看期间，切换类型保留日期，较早月报切回周报时回到本周。',
+      '明确切换月报与选择月份的操作，修正月初日期筛选的时区边界。',
+      '备注入口显示文字，细分类提供滚动按钮，保存失败明确保留输入。',
+      '完善筛选与报告的读屏提示，页内跳转遵循系统减少动画设置。',
+    ],
+    notes: ['沿用原包名与升级签名，旧账本和备份可继续读取。'],
+  ),
+  AppVersionNotes(
     version: '0.4.1',
     title: '账单布局与设计复查修正',
     fixes: [

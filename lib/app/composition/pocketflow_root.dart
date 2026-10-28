@@ -323,7 +323,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
             content: Text(
               tr(context, "{0} {1} · {2} · {3}", [
                 initial == null ? tr(context, "已保存") : tr(context, "已更新"),
-                entry.amount.yuan,
+                '${tr(context, entry.kind == EntryKind.expense ? "支出" : "收入")} ${entry.amount.yuan}',
                 localizedCategoryById(
                   context,
                   entry.categoryId,
@@ -916,11 +916,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     );
   }
 
-  Future<void> _reports(
-    BuildContext context, {
-    String? start,
-    String? end,
-  }) async {
+  Future<void> _reports(BuildContext context, {String? start}) async {
     final port = ref.read(planningPortProvider);
     if (port == null) return;
     await Navigator.of(context).push<void>(
@@ -929,7 +925,6 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           port: port,
           clock: ref.read(clockProvider),
           initialStart: start,
-          initialEnd: end,
           onAdd: () async {
             final data = await ref
                 .read(ledgerRepositoryProvider)
@@ -1118,7 +1113,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
             ),
           );
           if (view == true && context.mounted) {
-            await _reports(context, start: range.$1, end: range.$2);
+            await _reports(context, start: range.$1);
           }
           return;
         }

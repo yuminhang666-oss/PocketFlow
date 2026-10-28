@@ -259,7 +259,7 @@ class CategorySelector extends StatelessWidget {
             Flexible(
               child: TextButton.icon(
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 44),
+                  minimumSize: const Size(48, 48),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 key: const ValueKey('all-categories'),
@@ -287,37 +287,36 @@ class CategorySelector extends StatelessWidget {
         ),
         const SizedBox(height: 0),
         if (children.isNotEmpty)
-          SizedBox(
+          _SubcategoryStrip(
+            key: ValueKey('subcategory-strip-$rootId'),
+            enabled: enabled,
             height: large ? 70 : 48,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                for (final c in children)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      showCheckmark: true,
-                      selectedColor: Theme.of(
-                        context,
-                      ).colorScheme.primaryContainer,
-                      checkmarkColor: Theme.of(context).colorScheme.primary,
-                      side: BorderSide(
-                        color: c.id == selectedId
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      avatar: Icon(
-                        categoryIcon(c.id, categories),
-                        size: 18,
-                        color: identityColor(context, c.id, categories),
-                      ),
-                      selected: c.id == selectedId,
-                      label: Text(localizedCategoryName(context, c)),
-                      onSelected: enabled ? (_) => onSelected(c.id) : null,
+            children: [
+              for (final c in children)
+                Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: ChoiceChip(
+                    showCheckmark: true,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
+                    checkmarkColor: Theme.of(context).colorScheme.primary,
+                    side: BorderSide(
+                      color: c.id == selectedId
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outlineVariant,
                     ),
+                    avatar: Icon(
+                      categoryIcon(c.id, categories),
+                      size: 18,
+                      color: identityColor(context, c.id, categories),
+                    ),
+                    selected: c.id == selectedId,
+                    label: Text(localizedCategoryName(context, c)),
+                    onSelected: enabled ? (_) => onSelected(c.id) : null,
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         GridView.builder(
           shrinkWrap: true,
@@ -409,4 +408,101 @@ class CategorySelector extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Keep every category reachable, with explicit controls only while clipped.
+class _SubcategoryStrip extends StatefulWidget {
+  const _SubcategoryStrip({
+    super.key,
+    required this.children,
+    required this.height,
+    required this.enabled,
+  });
+  final List<Widget> children;
+  final double height;
+  final bool enabled;
+
+  @override
+  State<_SubcategoryStrip> createState() => _SubcategoryStripState();
+}
+
+class _SubcategoryStripState extends State<_SubcategoryStrip> {
+  final _scroll = ScrollController();
+  bool _before = false, _after = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_update);
+  }
+
+  void _update() {
+    if (!mounted ||
+        !_scroll.hasClients ||
+        !_scroll.position.hasContentDimensions) {
+      return;
+    }
+    final before = _scroll.position.extentBefore > 1;
+    final after = _scroll.position.extentAfter > 1;
+    if (before != _before || after != _after) {
+      setState(() {
+        _before = before;
+        _after = after;
+      });
+    }
+  }
+
+  void _move(int direction) {
+    final position = _scroll.position;
+    _scroll.animateTo(
+      (_scroll.offset + direction * position.viewportDimension * .8).clamp(
+        0.0,
+        position.maxScrollExtent,
+      ),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: widget.height,
+    child: Row(
+      children: [
+        if (_before)
+          IconButton(
+            tooltip: tr(context, '前面的细分类'),
+            onPressed: widget.enabled ? () => _move(-1) : null,
+            icon: const Icon(Icons.chevron_left),
+          ),
+        Expanded(
+          child: NotificationListener<ScrollMetricsNotification>(
+            onNotification: (_) {
+              WidgetsBinding.instance.addPostFrameCallback((_) => _update());
+              return false;
+            },
+            child: ListView(
+              controller: _scroll,
+              scrollDirection: Axis.horizontal,
+              children: widget.children,
+            ),
+          ),
+        ),
+        if (_after)
+          IconButton(
+            tooltip: tr(context, '更多细分类'),
+            onPressed: widget.enabled ? () => _move(1) : null,
+            icon: const Icon(Icons.chevron_right),
+          ),
+      ],
+    ),
+  );
 }

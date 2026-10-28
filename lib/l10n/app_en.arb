@@ -1642,5 +1642,22 @@
   "v041_notes1": "Group bills by date and expand search and filters when needed to give entries priority.",
   "v041_notes2": "Use shorter calendar cells and scroll to the selected day’s entries.",
   "v041_notes3": "Make all categories easier to reach, tighten goals and reports, and group recurring plans clearly.",
-  "v041_notes4": "Distinguish zero budgets from exhausted budgets and calculate category shares from integer cents."
+  "v041_notes4": "Distinguish zero budgets from exhausted budgets and calculate category shares from integer cents.",
+  "v042_switchMonthly": "Switch to monthly",
+  "v042_chooseMonth": "Choose month",
+  "v042_chooseDate": "Choose date",
+  "v042_earlierChildren": "Previous subcategories",
+  "v042_moreChildren": "More subcategories",
+  "v042_unsaved": "Not saved. Your input is kept. {p0}",
+  "v042_savedKind": "Saved {p0} entries · {p4} {p1} · {p2} · {p3}",
+  "v042_title": "Report periods and entry improvements",
+  "v042_notes1": "Keep the viewed period when reselecting a report type. Switching types keeps the date; older months return to this week when weekly reports are unavailable.",
+  "v042_notes2": "Clarify switching to monthly reports and choosing a month; fix date-filter timezone boundaries at the start of a month.",
+  "v042_notes3": "Label the note action, add subcategory scroll buttons, and explain that failed saves keep your input.",
+  "v042_notes4": "Improve screen-reader cues for filters and reports; respect reduced motion for section jumps.",
+  "v042_filterCount": "{p0} filters active, {p1} entries in this range",
+  "v042_chartSummary": "Daily trend: expenses {p0}, income {p1}. Expand Daily amounts and entries to read each day.",
+  "v042_entryDate": "Entry date",
+  "v042_todayDate": "Today {p0}/{p1}",
+  "v042_backfillDate": "{p0} · Backfill"
 }

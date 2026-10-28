@@ -289,11 +289,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
           _note = '';
           _time = TimeOfDay.fromDateTime(widget.clock.now());
           _savedCount++;
-          _savedFeedback = tr(context, "已保存 {0} 笔 · {1} · {2} · {3}", [
+          _savedFeedback = tr(context, "已保存 {0} 笔 · {4} {1} · {2} · {3}", [
             _savedCount,
             entry.amount.yuan,
             localizedCategoryById(context, entry.categoryId, widget.categories),
             entry.localDate,
+            tr(context, entry.kind == EntryKind.expense ? "支出" : "收入"),
           ]);
           _markClean();
         });
@@ -319,7 +320,9 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = tr(context, presentationError(e));
+          _error = tr(context, '未保存，内容仍在。{0}', [
+            tr(context, presentationError(e)),
+          ]);
         });
       }
     }
@@ -532,24 +535,39 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             ),
           ],
         ),
+        if (_error != null)
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              tr(context, _error!),
+              style: TextStyle(color: scheme.error),
+            ),
+          ),
         const SizedBox(height: 2),
-        Row(
+        Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
+            Semantics(
+              label: tr(context, '发生日期'),
               child: TextButton.icon(
                 onPressed: _saving ? null : _chooseDate,
                 icon: const Icon(Icons.today_outlined, size: 18),
                 label: Text(
                   calendarDayKey(_date) == calendarDayKey(widget.clock.now())
-                      ? tr(context, "发生日期 今天{0}月{1}日", [_date.month, _date.day])
-                      : tr(context, "发生日期 {0} · 补记", [calendarDayKey(_date)]),
+                      ? tr(context, "今天{0}月{1}日", [_date.month, _date.day])
+                      : tr(context, "{0} · 补记", [calendarDayKey(_date)]),
                 ),
               ),
             ),
-            IconButton(
-              tooltip: tr(context, "备注（选填）"),
-              onPressed: _saving ? null : _editNote,
-              icon: const Icon(Icons.edit_note_outlined),
+            Tooltip(
+              message: tr(context, "备注（选填）"),
+              child: TextButton.icon(
+                key: const ValueKey('entry-note'),
+                onPressed: _saving ? null : _editNote,
+                icon: const Icon(Icons.edit_note_outlined),
+                label: Text(tr(context, "备注（选填）")),
+              ),
             ),
           ],
         ),
@@ -582,15 +600,6 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               _categoryId = id;
               _error = null;
             }),
-          ),
-        const SizedBox(height: 4),
-        if (_error != null)
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              tr(context, _error!),
-              style: TextStyle(color: scheme.error),
-            ),
           ),
         if (_notice != null)
           Semantics(
@@ -727,7 +736,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                     );
                   }
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
