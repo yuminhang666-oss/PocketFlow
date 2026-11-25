@@ -1,4 +1,10 @@
-# 模块接口 v3.1.0（0.3.1 集成候选）
+# 模块接口
+
+## 0.5.0 只读报告增量（候选 v3.3.0）
+
+`PlanningPort.watchRange(start, end)` 继续提供事务快照。新增 `ReportDateRange` 校验用户选取的日期范围和 `WeeklyReport.averageDailyExpense`。文件层沿用 `FileTransferPort` 的保存与分享接口，Android 增加 `text/csv` MIME，JSON 恢复入口继续按原有合同工作。
+
+## v3.1.0 历史集成候选
 
 2026-10-20：基于已经合并的0.3.0 main cce2a22。`savePreferences` 新增可选 surfaceStyle、locale 参数，兼容策略见 data-contracts.md。更新能力新增独立可选 `AppPackageUpdatePort`：流式下载、进度、取消及系统安装交接；旧 AppUpdatePort 与浏览器发布页入口保留。下载/安装只在用户主动点击后执行，不读写账目。接口保持业务与平台分离；UI 改造不增加其他业务合同。以下0.3候选基线描述为历史记录。
 

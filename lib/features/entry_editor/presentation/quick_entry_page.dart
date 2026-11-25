@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../contracts/contracts.dart';
 import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/presentation_errors.dart';
+import '../../../shared/widgets/ios_controls.dart';
 import 'amount_buffer.dart';
 import 'widgets/amount_keypad.dart';
 import 'widgets/category_selector.dart';
@@ -26,8 +27,10 @@ class QuickEntryPage extends StatefulWidget {
     this.initialKind = EntryKind.expense,
     this.initialDate,
     this.onUndo,
+    this.sheet = false,
   });
   final List<Category> categories;
+  final bool sheet;
   final Future<LedgerEntry> Function(EntryDraft) onSave;
   final Future<LedgerEntry> Function(EntryDraft)? onSaveIncome;
   final Future<void> Function()? onAddRecommended;
@@ -289,11 +292,12 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
           _note = '';
           _time = TimeOfDay.fromDateTime(widget.clock.now());
           _savedCount++;
-          _savedFeedback = tr(context, "已保存 {0} 笔 · {1} · {2} · {3}", [
+          _savedFeedback = tr(context, "已保存 {0} 笔 · {4} {1} · {2} · {3}", [
             _savedCount,
             entry.amount.yuan,
             localizedCategoryById(context, entry.categoryId, widget.categories),
             entry.localDate,
+            tr(context, entry.kind == EntryKind.expense ? "支出" : "收入"),
           ]);
           _markClean();
         });
@@ -319,7 +323,9 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = tr(context, presentationError(e));
+          _error = tr(context, '未保存，内容仍在。{0}', [
+            tr(context, presentationError(e)),
+          ]);
         });
       }
     }
@@ -476,20 +482,14 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       children: [
         if (widget.initialEntry == null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final kind in EntryKind.values)
-                  ChoiceChip(
-                    label: Text(
-                      tr(context, kind == EntryKind.expense ? "支出" : "收入"),
-                    ),
-                    selected: _kind == kind,
-                    onSelected: _saving ? null : (_) => _switch(kind),
-                  ),
-              ],
+            padding: const EdgeInsets.only(bottom: 8),
+            child: IosSegmentedControl<EntryKind>(
+              labels: {
+                EntryKind.expense: tr(context, '支出'),
+                EntryKind.income: tr(context, '收入'),
+              },
+              value: _kind,
+              onChanged: _saving ? null : _switch,
             ),
           ),
         if (widget.initialEntry == null &&
@@ -532,24 +532,39 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
             ),
           ],
         ),
+        if (_error != null)
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              tr(context, _error!),
+              style: TextStyle(color: scheme.error),
+            ),
+          ),
         const SizedBox(height: 2),
-        Row(
+        Wrap(
+          spacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Expanded(
+            Semantics(
+              label: tr(context, '发生日期'),
               child: TextButton.icon(
                 onPressed: _saving ? null : _chooseDate,
                 icon: const Icon(Icons.today_outlined, size: 18),
                 label: Text(
                   calendarDayKey(_date) == calendarDayKey(widget.clock.now())
-                      ? tr(context, "发生日期 今天{0}月{1}日", [_date.month, _date.day])
-                      : tr(context, "发生日期 {0} · 补记", [calendarDayKey(_date)]),
+                      ? tr(context, "今天{0}月{1}日", [_date.month, _date.day])
+                      : tr(context, "{0} · 补记", [calendarDayKey(_date)]),
                 ),
               ),
             ),
-            IconButton(
-              tooltip: tr(context, "备注（选填）"),
-              onPressed: _saving ? null : _editNote,
-              icon: const Icon(Icons.edit_note_outlined),
+            Tooltip(
+              message: tr(context, "备注（选填）"),
+              child: TextButton.icon(
+                key: const ValueKey('entry-note'),
+                onPressed: _saving ? null : _editNote,
+                icon: const Icon(Icons.edit_note_outlined),
+                label: Text(tr(context, "备注（选填）")),
+              ),
             ),
           ],
         ),
@@ -582,15 +597,6 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
               _categoryId = id;
               _error = null;
             }),
-          ),
-        const SizedBox(height: 4),
-        if (_error != null)
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              tr(context, _error!),
-              style: TextStyle(color: scheme.error),
-            ),
           ),
         if (_notice != null)
           Semantics(
@@ -682,6 +688,28 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       },
       child: Scaffold(
         appBar: AppBar(
+          bottom: widget.sheet
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(24),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onVerticalDragEnd: (details) {
+                      if ((details.primaryVelocity ?? 0) > 150) _leave();
+                    },
+                    child: Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: scheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : null,
           leading: IconButton(
             tooltip: tr(context, "返回"),
             onPressed: _saving ? null : _leave,
@@ -727,7 +755,7 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
                     );
                   }
                   return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

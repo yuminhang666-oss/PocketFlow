@@ -26,6 +26,12 @@ class PocketFlowApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: 'PocketFlow',
     debugShowCheckedModeBanner: false,
+    scrollBehavior: const MaterialScrollBehavior().copyWith(
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      ),
+      overscroll: false,
+    ),
     // Glass changes structure as well as colors; apply the selected appearance
     // atomically, including routes opened immediately after a preference write.
     themeAnimationDuration: Duration.zero,

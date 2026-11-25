@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pocketflow/l10n/app_strings.dart';
 import '../../../../contracts/contracts.dart';
+import '../../../../shared/widgets/ios_controls.dart';
 
 class HomeActions extends StatelessWidget {
   const HomeActions({
@@ -15,8 +16,8 @@ class HomeActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     Widget item(String label, IconData icon, VoidCallback? action) => Expanded(
-      child: InkWell(
-        onTap: action,
+      child: IosPressable(
+        onPressed: action,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
@@ -33,7 +34,7 @@ class HomeActions extends StatelessWidget {
       color: scheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(color: scheme.outlineVariant),
+        side: BorderSide.none,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -42,17 +43,15 @@ class HomeActions extends StatelessWidget {
             child: Row(
               children: [
                 item('记账日历', Icons.calendar_month_outlined, onCalendar),
-                const VerticalDivider(width: 1),
                 item('周期计划', Icons.event_repeat_outlined, onPlans),
               ],
             ),
           ),
-          const Divider(height: 1),
+          const SizedBox(height: 2),
           IntrinsicHeight(
             child: Row(
               children: [
                 item('周报月报', Icons.summarize_outlined, onReports),
-                const VerticalDivider(width: 1),
                 item('更多', Icons.grid_view_outlined, onMore),
               ],
             ),

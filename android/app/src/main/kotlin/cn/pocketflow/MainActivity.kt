@@ -101,7 +101,7 @@ class MainActivity : FlutterActivity() {
         require(name.isNotBlank() && name.length <= 180 && !name.contains('/') &&
             !name.contains('\\') && !name.contains("..") && name.none { it.code < 32 })
         val mime = requireNotNull(call.argument<String>("mimeType"))
-        require(mime == "application/json" || mime == "text/markdown" || mime == "text/plain")
+        require(mime == "application/json" || mime == "text/markdown" || mime == "text/plain" || mime == "text/csv")
         val bytes = requireNotNull(call.argument<ByteArray>("bytes"))
         require(bytes.size <= limit)
         return Triple(name, mime, bytes)

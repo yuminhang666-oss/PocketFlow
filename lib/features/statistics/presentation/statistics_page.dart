@@ -1,5 +1,6 @@
 import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/ios_controls.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
@@ -118,33 +119,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: scheme.surface,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (var i = 0; i < 3; i++)
-                              ChoiceChip(
-                                label: Text(
-                                  [
-                                    tr(context, "支出分析"),
-                                    tr(context, "收入分析"),
-                                    tr(context, "预算趋势"),
-                                  ][i],
-                                ),
-                                selected: _section == i,
-                                onSelected: (_) => setState(() {
-                                  _section = i;
-                                  _all = false;
-                                }),
-                              ),
-                          ],
-                        ),
+                      IosSegmentedControl<int>(
+                        labels: {
+                          0: tr(context, '支出分析'),
+                          1: tr(context, '收入分析'),
+                          2: tr(context, '预算趋势'),
+                        },
+                        value: _section,
+                        onChanged: (section) => setState(() {
+                          _section = section;
+                          _all = false;
+                        }),
                       ),
                       const SizedBox(height: 18),
                       if (_section == 2) ...[

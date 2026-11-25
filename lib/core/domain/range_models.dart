@@ -3,6 +3,36 @@ import 'ledger_entry.dart';
 import 'ledger_models.dart';
 import 'money.dart';
 
+/// User-selectable inclusive calendar bounds for an ad hoc report.
+final class ReportDateRange {
+  ReportDateRange(String start, String end, {required DateTime now})
+    : start = parseCalendarDay(start),
+      end = parseCalendarDay(end) {
+    if (days < 1 || days > maxDays || this.end.isAfter(calendarDay(now))) {
+      throw const FormatException('日期范围须为 1 至 366 天，且不晚于今天');
+    }
+  }
+
+  factory ReportDateRange.recent(int days, {required DateTime now}) {
+    if (days < 1 || days > maxDays) throw ArgumentError.value(days);
+    final end = calendarDay(now);
+    final candidate = end.subtract(Duration(days: days - 1));
+    final earliest = DateTime.utc(1900);
+    return ReportDateRange(
+      calendarDayKey(candidate.isBefore(earliest) ? earliest : candidate),
+      calendarDayKey(end),
+      now: now,
+    );
+  }
+
+  static const maxDays = 366;
+  final DateTime start, end;
+
+  String get startKey => calendarDayKey(start);
+  String get endKey => calendarDayKey(end);
+  int get days => end.difference(start).inDays + 1;
+}
+
 final class LedgerRangeData {
   LedgerRangeData({
     required this.start,
@@ -70,6 +100,17 @@ final class WeeklyReport {
   final LedgerRangeData data;
   final Money expense, income;
   Money get net => income - expense;
+
+  Money get averageDailyExpense {
+    final days =
+        parseCalendarDay(
+          data.end,
+        ).difference(parseCalendarDay(data.start)).inDays +
+        1;
+    final fen = expense.fen;
+    return Money.fromFen(fen ~/ days + ((fen % days) * 2 >= days ? 1 : 0));
+  }
+
   final List<DailyTotals> daily;
   final List<CategoryBreakdown> categories;
   final LedgerEntry? largestExpense;

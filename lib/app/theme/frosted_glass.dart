@@ -54,12 +54,13 @@ class FrostedSurface extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.color,
     this.accent = false,
+    this.blur = false,
   });
   final Widget child;
   final double radius;
   final EdgeInsetsGeometry padding;
   final Color? color;
-  final bool accent;
+  final bool accent, blur;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context), scheme = theme.colorScheme;
@@ -96,14 +97,12 @@ class FrostedSurface extends StatelessWidget {
       );
     }
     return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(radius)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: BackdropFilter(
-          enabled: !highContrast,
-          filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          enabled: blur && !highContrast,
+          filter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -115,14 +114,18 @@ class FrostedSurface extends StatelessWidget {
                         ? 1
                         : dark
                         ? .88
-                        : .82,
+                        : blur
+                        ? .80
+                        : .93,
                   ),
                   fill.withValues(
                     alpha: highContrast
                         ? 1
                         : dark
                         ? .72
-                        : .60,
+                        : blur
+                        ? .68
+                        : .86,
                   ),
                 ],
               ),

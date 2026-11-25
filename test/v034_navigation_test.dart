@@ -88,7 +88,7 @@ void main() {
         await tester.drag(scroll, const Offset(0, -450));
         await tester.pumpAndSettle();
         final position = tester.state<ScrollableState>(scroll).position.pixels;
-        await hit(find.byType(EntryTile).first);
+        await hit(find.byType(EntryTile).hitTestable().first);
         await hit(find.text('编辑账单'));
         await hit(find.byIcon(Icons.arrow_back_rounded));
         expect(find.byType(EntryDetailsPage), findsOneWidget);
@@ -112,7 +112,7 @@ void main() {
           shown.amount,
         );
         await hit(find.text('编辑账单'));
-        await hit(find.text('发生日期 2026-10-20 · 补记'));
+        await hit(find.text('2026-10-20 · 补记'));
         expect(find.byType(CalendarDatePicker), findsOneWidget);
         tester
             .widget<CalendarDatePicker>(find.byType(CalendarDatePicker))

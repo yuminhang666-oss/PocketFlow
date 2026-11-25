@@ -174,3 +174,54 @@ final class DefaultMarkdownExporter implements MarkdownExporter {
     return out.toString();
   }
 }
+
+String renderRangeMarkdown(WeeklyReport report) {
+  final data = report.data;
+  final catalog = {
+    for (final category in data.categories) category.id: category.name,
+  };
+  final out = StringBuffer()
+    ..writeln('# PocketFlow 区间收支报告')
+    ..writeln()
+    ..writeln('- 统计范围：${data.start} 至 ${data.end}（含首尾）')
+    ..writeln('- 共 ${data.entries.length} 笔。金额单位：元（CNY）')
+    ..writeln(
+      '- 支出 ${report.expense.decimal} · 收入 ${report.income.decimal} · '
+      '净收支 ${report.net.decimal} · 日均支出 ${report.averageDailyExpense.decimal}',
+    )
+    ..writeln()
+    ..writeln('## 支出分类')
+    ..writeln('| 一级分类 | 金额（元） |')
+    ..writeln('| --- | ---: |');
+  for (final group in report.categories) {
+    out.writeln('| ${markdownCell(group.name)} | ${group.amount.decimal} |');
+  }
+  out
+    ..writeln()
+    ..writeln('## 逐日收支')
+    ..writeln('| 日期 | 支出（元） | 收入（元） |')
+    ..writeln('| --- | ---: | ---: |');
+  for (final day in report.daily) {
+    out.writeln(
+      '| ${day.localDate} | ${day.expense.decimal} | ${day.income.decimal} |',
+    );
+  }
+  out
+    ..writeln()
+    ..writeln('## 交易明细')
+    ..writeln('| 日期 | 发生时间（UTC） | 类型 | 分类 | 金额（元） | 备注 | ID |')
+    ..writeln('| --- | --- | --- | --- | ---: | --- | --- |');
+  for (final entry in data.entries) {
+    final time = DateTime.fromMillisecondsSinceEpoch(
+      entry.occurredAtUtcMs,
+      isUtc: true,
+    );
+    out.writeln(
+      '| ${entry.localDate} | ${time.toIso8601String()} | '
+      '${entry.kind == EntryKind.expense ? '支出' : '收入'} | '
+      '${markdownCell(catalog[entry.categoryId] ?? entry.categoryId)} | '
+      '${entry.amount.decimal} | ${markdownCell(entry.note)} | ${markdownCell(entry.id)} |',
+    );
+  }
+  return out.toString();
+}

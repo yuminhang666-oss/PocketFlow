@@ -5,17 +5,24 @@ import '../../../../core/domain/calendar_month.dart';
 
 Future<CalendarMonth?> showMonthPicker(
   BuildContext context,
-  CalendarMonth selected,
-) => showModalBottomSheet<CalendarMonth>(
+  CalendarMonth selected, {
+  CalendarMonth? maxMonth,
+}) => showModalBottomSheet<CalendarMonth>(
   context: context,
   useSafeArea: true,
   isScrollControlled: true,
-  builder: (context) => _MonthPicker(selected: selected),
+  builder: (context) => _MonthPicker(
+    selected: maxMonth != null && selected.compareTo(maxMonth) > 0
+        ? maxMonth
+        : selected,
+    maxMonth: maxMonth,
+  ),
 );
 
 class _MonthPicker extends StatefulWidget {
-  const _MonthPicker({required this.selected});
+  const _MonthPicker({required this.selected, this.maxMonth});
   final CalendarMonth selected;
+  final CalendarMonth? maxMonth;
   @override
   State<_MonthPicker> createState() => _MonthPickerState();
 }
@@ -45,7 +52,9 @@ class _MonthPickerState extends State<_MonthPicker> {
               ),
               IconButton(
                 tooltip: tr(context, "下一年"),
-                onPressed: _year >= 9999 ? null : () => setState(() => _year++),
+                onPressed: _year >= (widget.maxMonth?.year ?? 9999)
+                    ? null
+                    : () => setState(() => _year++),
                 icon: const Icon(Icons.chevron_right_rounded),
               ),
             ],
@@ -78,10 +87,14 @@ class _MonthPickerState extends State<_MonthPicker> {
                                     ).colorScheme.primaryContainer
                                   : null,
                             ),
-                            onPressed: () => Navigator.pop(
-                              context,
-                              CalendarMonth(_year, month),
-                            ),
+                            onPressed:
+                                _year == widget.maxMonth?.year &&
+                                    month > widget.maxMonth!.month
+                                ? null
+                                : () => Navigator.pop(
+                                    context,
+                                    CalendarMonth(_year, month),
+                                  ),
                             child: Text(tr(context, "{0}月", [month])),
                           ),
                         ),

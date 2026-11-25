@@ -139,7 +139,7 @@ void main() {
           '2026-09-08',
         );
         await template();
-        expect(find.text('发生日期 2026-09-08 · 补记'), findsOneWidget);
+        expect(find.text('2026-09-08 · 补记'), findsOneWidget);
         await hit(find.text('保存并继续'));
         await hit(find.widgetWithText(TextButton, '2'));
         await hit(find.text('保存支出'));
@@ -220,7 +220,6 @@ void main() {
             port: plans,
             clock: clock,
             initialStart: '2026-10-19',
-            initialEnd: '2026-10-25',
           ),
         ),
       );

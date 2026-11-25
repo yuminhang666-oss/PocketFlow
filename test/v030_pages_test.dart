@@ -237,7 +237,12 @@ void main() {
           await tester.scrollUntilVisible(
             find.text(text),
             180,
-            scrollable: find.byType(Scrollable).last,
+            scrollable: find
+                .descendant(
+                  of: find.byType(ListView),
+                  matching: find.byType(Scrollable),
+                )
+                .first,
           );
           await tester.pumpAndSettle();
         }

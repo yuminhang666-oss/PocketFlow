@@ -127,7 +127,10 @@ void main() {
         await tester.pumpAndSettle();
         await hit(find.text('导出月报'));
         await tester.pumpAndSettle();
-        await hit(find.text('Markdown 月报 · 保存文件'));
+        await hit(find.text('10月'));
+        expect(find.text('导出预览'), findsOneWidget);
+        expect(find.text('2026-10-01 – 2026-10-17'), findsOneWidget);
+        await hit(find.text('保存文件'));
         await tester.pumpAndSettle();
         expect(
           files.saved,

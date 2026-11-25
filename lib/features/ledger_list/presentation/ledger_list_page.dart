@@ -30,6 +30,7 @@ class LedgerListPage extends StatefulWidget {
     this.onCurrentMonth,
     this.onMarkZero,
     this.onAddDay,
+    this.onExportFiltered,
   });
   final LedgerMonthData? data;
   final CalendarMonth? month;
@@ -38,6 +39,8 @@ class LedgerListPage extends StatefulWidget {
   final VoidCallback? onCurrentMonth;
   final Future<void> Function(String, bool)? onMarkZero;
   final ValueChanged<String>? onAddDay;
+  final void Function(LedgerRangeData snapshot, CalendarMonth month)?
+  onExportFiltered;
   final Object? readError;
   final VoidCallback? onRetry, onAdd;
   final LedgerQueryService query;
@@ -83,6 +86,14 @@ class LedgerListPageState extends State<LedgerListPage> {
       _from != null ||
       _min != null ||
       _max != null;
+  int get _filterCount => [
+    _search.text.isNotEmpty,
+    _kind != null,
+    _categoryId != null,
+    _from != null,
+    _min != null,
+    _max != null,
+  ].where((active) => active).length;
   @override
   void initState() {
     super.initState();
@@ -131,11 +142,12 @@ class LedgerListPageState extends State<LedgerListPage> {
     final last = end.isAfter(parseCalendarDay(widget.asOfLocalDate))
         ? parseCalendarDay(widget.asOfLocalDate)
         : end;
-    final first = DateTime(month.year, month.month, 1);
+    // Compare calendar containers, then give the picker local date components.
+    final first = month.firstDay;
     if (last.isBefore(first)) return;
     final picked = await showDateRangePicker(
       context: context,
-      firstDate: first,
+      firstDate: DateTime(first.year, first.month, first.day),
       lastDate: DateTime(last.year, last.month, last.day),
       helpText: tr(context, "筛选当前月份日期"),
       saveText: tr(context, "确定"),
@@ -304,6 +316,15 @@ class LedgerListPageState extends State<LedgerListPage> {
             asOfLocalDate: widget.asOfLocalDate,
           );
     final scheme = Theme.of(context).colorScheme;
+    final first = calendarDayKey(_month.firstDay);
+    final last = calendarDayKey(
+      DateTime.utc(_month.year, _month.month, _month.days),
+    );
+    final start = _from != null && _from!.compareTo(first) > 0 ? _from! : first;
+    final monthEnd = last.compareTo(widget.asOfLocalDate) > 0
+        ? widget.asOfLocalDate
+        : last;
+    final end = _to != null && _to!.compareTo(monthEnd) < 0 ? _to! : monthEnd;
     final historical =
         _month !=
         CalendarMonth.fromDate(parseCalendarDay(widget.asOfLocalDate));
@@ -318,6 +339,27 @@ class LedgerListPageState extends State<LedgerListPage> {
       appBar: AppBar(
         title: Text(tr(context, widget.drillDown ? '筛选明细' : '账单')),
         actions: [
+          if (widget.onExportFiltered != null &&
+              !_calendar &&
+              _filtered &&
+              view?.entries.isNotEmpty == true)
+            IconButton(
+              tooltip: tr(context, '导出筛选账单'),
+              icon: const Icon(Icons.ios_share_rounded),
+              onPressed:
+                  data == null || view == null || start.compareTo(end) > 0
+                  ? null
+                  : () => widget.onExportFiltered!(
+                      LedgerRangeData(
+                        start: start,
+                        end: end,
+                        entries: view.entries,
+                        categories: data.categories,
+                        revision: 'filtered-${identityHashCode(view)}',
+                      ),
+                      data.month,
+                    ),
+            ),
           IconButton(
             tooltip: tr(context, '搜索与筛选'),
             isSelected: _filters,
@@ -526,7 +568,12 @@ class LedgerListPageState extends State<LedgerListPage> {
                                   ? tr(context, "日期")
                                   : tr(context, "{0} 至 {1}", [_from, _to]),
                             ),
-                            onPressed: _range,
+                            onPressed:
+                                _month.firstDay.isAfter(
+                                  parseCalendarDay(widget.asOfLocalDate),
+                                )
+                                ? null
+                                : _range,
                           ),
                           if (_search.text.isNotEmpty ||
                               _kind != null ||
@@ -666,9 +713,17 @@ class LedgerListPageState extends State<LedgerListPage> {
                         spacing: 8,
                         runSpacing: 2,
                         children: [
-                          Text(
-                            tr(context, '当前范围共 {0} 笔', [view.entries.length]),
-                            style: Theme.of(context).textTheme.bodySmall,
+                          Semantics(
+                            liveRegion: true,
+                            label: tr(context, '已启用 {0} 项筛选，当前范围 {1} 笔', [
+                              _filterCount,
+                              view.entries.length,
+                            ]),
+                            excludeSemantics: true,
+                            child: Text(
+                              tr(context, '当前范围共 {0} 笔', [view.entries.length]),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ),
                           Wrap(
                             spacing: 4,

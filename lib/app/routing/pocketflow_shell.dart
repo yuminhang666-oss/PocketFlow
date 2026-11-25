@@ -1,6 +1,7 @@
 import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../theme/frosted_glass.dart';
+import '../../shared/widgets/ios_controls.dart';
 
 class PocketFlowShell extends StatefulWidget {
   const PocketFlowShell({
@@ -42,10 +43,9 @@ class PocketFlowShellState extends State<PocketFlowShell> {
         onTap: () {
           selectDestination(index);
         },
-        child: InkWell(
-          onTap: () {
-            selectDestination(index);
-          },
+        child: IosPressable(
+          haptics: true,
+          onPressed: () => selectDestination(index),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 58, minWidth: 48),
             child: AnimatedContainer(
@@ -53,7 +53,7 @@ class PocketFlowShellState extends State<PocketFlowShell> {
               decoration: selected == index
                   ? BoxDecoration(
                       color: scheme.primary.withValues(alpha: .10),
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(28),
                     )
                   : null,
               padding: const EdgeInsets.symmetric(vertical: 6),
@@ -105,7 +105,8 @@ class PocketFlowShellState extends State<PocketFlowShell> {
                 onPressed: widget.onAdd,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  minimumSize: const Size(82, 48),
+                  minimumSize: const Size(78, 48),
+                  shape: const StadiumBorder(),
                 ),
                 child: Text(tr(context, "＋记账")),
               ),
@@ -117,6 +118,7 @@ class PocketFlowShellState extends State<PocketFlowShell> {
       ),
     );
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(
         index: selected,
         children: [
@@ -131,9 +133,10 @@ class PocketFlowShellState extends State<PocketFlowShell> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
           child: FrostedSurface(
-            radius: 28,
+            radius: 32,
+            blur: true,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: BorderRadius.circular(32),
               child: navigation,
             ),
           ),
