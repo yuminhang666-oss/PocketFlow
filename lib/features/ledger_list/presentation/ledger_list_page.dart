@@ -1,9 +1,9 @@
 import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
-import '../../../shared/widgets/ios_controls.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
+import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/amount_text.dart';
 import '../../../shared/widgets/status_panel.dart';
 import '../../../shared/widgets/presentation_errors.dart';
@@ -379,15 +379,24 @@ class LedgerListPageState extends State<LedgerListPage> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Center(
-                    child: IosSegmentedControl<bool>(
-                      labels: {
-                        false: tr(context, '列表'),
-                        true: tr(context, '日历'),
-                      },
-                      value: _calendar,
-                      onChanged: (value) {
+                    child: SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          label: Text(tr(context, '列表')),
+                          icon: const Icon(Icons.view_list_outlined),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          label: Text(tr(context, '日历')),
+                          icon: const Icon(Icons.calendar_month_outlined),
+                        ),
+                      ],
+                      selected: {_calendar},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (value) {
                         ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                        setState(() => _calendar = value);
+                        setState(() => _calendar = value.single);
                       },
                     ),
                   ),
@@ -445,7 +454,7 @@ class LedgerListPageState extends State<LedgerListPage> {
                             },
                             child: Text(tr(context, '回到本月')),
                           ),
-                        if (view != null)
+                        if (view != null && _calendar)
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -492,23 +501,26 @@ class LedgerListPageState extends State<LedgerListPage> {
                               ],
                             ),
                           ),
+                        if (view != null && !_calendar)
+                          MetricGrid(
+                            compact: true,
+                            values: [
+                              (
+                                tr(context, _filtered ? '筛选支出' : '支出'),
+                                view.expense,
+                              ),
+                              (
+                                tr(context, _filtered ? '筛选收入' : '收入'),
+                                view.income,
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            if (!_filters && !_calendar)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: OutlinedButton.icon(
-                    onPressed: () => setState(() => _filters = true),
-                    icon: const Icon(Icons.search),
-                    label: Text(tr(context, '搜索备注或分类')),
-                  ),
-                ),
-              ),
             if (_filters)
               SliverToBoxAdapter(
                 child: Padding(

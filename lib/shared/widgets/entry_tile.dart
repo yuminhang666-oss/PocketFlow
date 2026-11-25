@@ -224,7 +224,7 @@ class EntryTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (!narrow) ...[const SizedBox(width: 8), amount],
+            if (!narrow) ...[const SizedBox(width: 8), Flexible(child: amount)],
           ],
         ),
       ),

@@ -176,8 +176,22 @@ class _ReportsPageState extends State<ReportsPage> {
     final after = monthly
         ? DateTime.utc(anchor.year, anchor.month + 1)
         : anchor.add(const Duration(days: 7));
+    final compactControls =
+        MediaQuery.textScalerOf(context).scale(14) > 17.5 ||
+        MediaQuery.sizeOf(context).width < 350;
     return Scaffold(
-      appBar: AppBar(title: Text(tr(context, '周报月报'))),
+      appBar: AppBar(
+        title: Text(tr(context, '周报月报')),
+        actions: [
+          if (compactControls)
+            IconButton(
+              tooltip: tr(context, '区间'),
+              isSelected: rangeMode,
+              onPressed: () => setState(() => rangeMode = true),
+              icon: const Icon(Icons.date_range_outlined),
+            ),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Column(
@@ -188,25 +202,37 @@ class _ReportsPageState extends State<ReportsPage> {
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  IosSegmentedControl<_ReportMode>(
-                    labels: {
-                      _ReportMode.week: tr(context, '周报'),
-                      _ReportMode.month: tr(context, '月报'),
-                      _ReportMode.range: tr(context, '区间'),
-                    },
-                    value: rangeMode
-                        ? _ReportMode.range
-                        : monthly
-                        ? _ReportMode.month
-                        : _ReportMode.week,
-                    onChanged: (mode) {
-                      if (mode == _ReportMode.range) {
-                        setState(() => rangeMode = true);
-                      } else {
-                        switchPeriod(mode == _ReportMode.month);
-                      }
-                    },
-                  ),
+                  if (compactControls) ...[
+                    ChoiceChip(
+                      label: Text(tr(context, '周报')),
+                      selected: !rangeMode && !monthly,
+                      onSelected: (_) => switchPeriod(false),
+                    ),
+                    ChoiceChip(
+                      label: Text(tr(context, '月报')),
+                      selected: !rangeMode && monthly,
+                      onSelected: (_) => switchPeriod(true),
+                    ),
+                  ] else
+                    IosSegmentedControl<_ReportMode>(
+                      labels: {
+                        _ReportMode.week: tr(context, '周报'),
+                        _ReportMode.month: tr(context, '月报'),
+                        _ReportMode.range: tr(context, '区间'),
+                      },
+                      value: rangeMode
+                          ? _ReportMode.range
+                          : monthly
+                          ? _ReportMode.month
+                          : _ReportMode.week,
+                      onChanged: (mode) {
+                        if (mode == _ReportMode.range) {
+                          setState(() => rangeMode = true);
+                        } else {
+                          switchPeriod(mode == _ReportMode.month);
+                        }
+                      },
+                    ),
                   if (!rangeMode && !monthly)
                     TextButton(
                       onPressed: () => switchPeriod(true),

@@ -40,7 +40,7 @@ abstract final class PocketFlowTheme {
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
           ...base.pageTransitionsTheme.builders,
-          TargetPlatform.android: const PocketFlowPageTransitions(),
+          TargetPlatform.android: const GlassPageTransitions(),
         },
       ),
       colorScheme: scheme,

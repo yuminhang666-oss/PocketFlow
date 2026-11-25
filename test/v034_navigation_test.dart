@@ -88,7 +88,7 @@ void main() {
         await tester.drag(scroll, const Offset(0, -450));
         await tester.pumpAndSettle();
         final position = tester.state<ScrollableState>(scroll).position.pixels;
-        await hit(find.byType(EntryTile).first);
+        await hit(find.byType(EntryTile).hitTestable().first);
         await hit(find.text('编辑账单'));
         await hit(find.byIcon(Icons.arrow_back_rounded));
         expect(find.byType(EntryDetailsPage), findsOneWidget);
