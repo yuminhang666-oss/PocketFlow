@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
-/// Keep Android's predictive back and its standard fallback. Glass routes share
-/// one backdrop above the Navigator, so the fallback must not paint over it.
-class PocketFlowPageTransitions extends PredictiveBackPageTransitionsBuilder {
-  const PocketFlowPageTransitions({super.fallbackColor});
+/// Use the framework's interactive horizontal transition for app pages.
+class PocketFlowPageTransitions extends CupertinoPageTransitionsBuilder {
+  const PocketFlowPageTransitions();
 
   @override
   Widget buildTransitions<T>(

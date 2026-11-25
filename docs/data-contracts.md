@@ -1,4 +1,10 @@
-# 数据合同 v3.1.0（0.3.1 集成候选）
+# 数据合同
+
+## 0.5.0 只读报告增量（候选 v3.3.0）
+
+在 main 的 3.2.0 之上新增用户可选的日期闭区间，一次最多 366 个本地自然日。`ReportDateRange` 明确起止日，`WeeklyReport.averageDailyExpense` 以整数分按实际自然日数四舍五入。报告展示、预览与文件复用冻结的 `LedgerRangeData`。schema4、JSON3、recovery3 和已有 `PlanningPort` 接口保持兼容。
+
+## v3.1.0 历史集成候选
 
 2026-10-20：0.3.0 已经 PR #9 合入 main cce2a22。0.3.1 在其上增加两个可选呈现偏好：`PersonalProfile.surfaceStyle` 为 classic/glass，缺省 classic；`locale` 为 zh_Hans/zh_Hant/en，缺省 zh_Hans。默认值不额外写入 JSON。`theme` 仍为 system/light/dark，glass 独立且固定浅色；语言只改变界面，用户原文、人民币金额和日期归属不变。旧客户端忽略新增字段，新客户端读取旧档案回退默认值；普通 profile 编辑须保留新增字段。数据库schema4、JSON3、recovery3及财务模型不变。接口和唯一类型以 lib/core/domain、lib/contracts 为准。以下0.3合同细节保留，旧候选的基线描述仅作历史。
 

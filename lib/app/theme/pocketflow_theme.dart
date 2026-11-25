@@ -40,9 +40,7 @@ abstract final class PocketFlowTheme {
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
           ...base.pageTransitionsTheme.builders,
-          TargetPlatform.android: const PocketFlowPageTransitions(
-            fallbackColor: Colors.transparent,
-          ),
+          TargetPlatform.android: const PocketFlowPageTransitions(),
         },
       ),
       colorScheme: scheme,
@@ -86,7 +84,7 @@ abstract final class PocketFlowTheme {
           onPrimary: dark ? const Color(0xFF14224B) : Colors.white,
           secondary: dark ? const Color(0xFFADBFFF) : primary,
           onSecondary: dark ? const Color(0xFF14224B) : Colors.white,
-          surface: dark ? const Color(0xFF1C1F28) : Colors.white,
+          surface: dark ? const Color(0xFF1C1C1E) : Colors.white,
           onSurface: dark ? const Color(0xFFF0F2F8) : const Color(0xFF1C2024),
           onSurfaceVariant: dark
               ? const Color(0xFFB2B8C8)
@@ -101,7 +99,7 @@ abstract final class PocketFlowTheme {
           error: dark ? const Color(0xFFFFB4B0) : const Color(0xFFB42335),
         );
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
-    final background = dark ? const Color(0xFF101218) : const Color(0xFFF3F5F9);
+    final background = dark ? const Color(0xFF0B0B0D) : const Color(0xFFF2F2F7);
     return base.copyWith(
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
@@ -110,6 +108,7 @@ abstract final class PocketFlowTheme {
         },
       ),
       scaffoldBackgroundColor: background,
+      splashFactory: NoSplash.splashFactory,
       segmentedButtonTheme: _segments(scheme),
       appBarTheme: AppBarTheme(
         backgroundColor: background,

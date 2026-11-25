@@ -5,6 +5,9 @@ import '../../../shared/widgets/presentation_errors.dart';
 import '../domain/range_report_service.dart';
 import '../../home/presentation/widgets/month_picker.dart';
 import 'report_content.dart';
+import '../../../shared/widgets/ios_controls.dart';
+
+enum _ReportMode { week, month, range }
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({
@@ -14,6 +17,7 @@ class ReportsPage extends StatefulWidget {
     this.initialStart,
     this.onEntryTap,
     this.onAdd,
+    this.onExport,
   });
   final PlanningPort port;
   final Clock clock;
@@ -22,12 +26,16 @@ class ReportsPage extends StatefulWidget {
   final String? initialStart;
   final ValueChanged<LedgerEntry>? onEntryTap;
   final VoidCallback? onAdd;
+  final ValueChanged<WeeklyReport>? onExport;
   @override
   State<ReportsPage> createState() => _ReportsPageState();
 }
 
 class _ReportsPageState extends State<ReportsPage> {
   bool monthly = false;
+  bool rangeMode = false;
+  int? recentDays = 30;
+  ReportDateRange? customRange;
   late DateTime anchor = parseCalendarDay(
     widget.initialStart ?? calendarDayKey(widget.clock.now()),
   );
@@ -69,13 +77,39 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   void switchPeriod(bool value) {
-    if (monthly == value) return;
+    if (!rangeMode && monthly == value) return;
     setState(() {
+      rangeMode = false;
       monthly = value;
       // Keep the viewed date when changing type. Old months outside the
       // retained weekly window return to this week when switching to weekly.
       if (!allowed(anchor)) anchor = now;
     });
+  }
+
+  Future<void> chooseRange(ReportDateRange current) async {
+    final chosen = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(1900),
+      lastDate: DateUtils.dateOnly(widget.clock.now()),
+      initialDateRange: DateTimeRange(start: current.start, end: current.end),
+    );
+    if (!mounted || chosen == null) return;
+    try {
+      final selected = ReportDateRange(
+        calendarDayKey(chosen.start),
+        calendarDayKey(chosen.end),
+        now: widget.clock.now(),
+      );
+      setState(() {
+        recentDays = null;
+        customRange = selected;
+      });
+    } on FormatException {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr(context, '日期范围须为 1 至 366 天，且不晚于今天'))),
+      );
+    }
   }
 
   Future<void> choose() async {
@@ -84,6 +118,7 @@ class _ReportsPageState extends State<ReportsPage> {
       final month = await showMonthPicker(
         context,
         CalendarMonth.fromDate(anchor),
+        maxMonth: CalendarMonth.fromDate(now),
       );
       if (month != null) date = DateTime.utc(month.year, month.month);
     } else {
@@ -106,10 +141,15 @@ class _ReportsPageState extends State<ReportsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final a = startFor(anchor),
-        naturalEnd = endFor(anchor),
-        b = naturalEnd.isAfter(now) ? now : naturalEnd;
-    final ongoing = !naturalEnd.isBefore(now);
+    final range = rangeMode
+        ? recentDays == null
+              ? customRange!
+              : ReportDateRange.recent(recentDays!, now: now)
+        : null;
+    final a = range?.start ?? startFor(anchor);
+    final naturalEnd = range?.end ?? endFor(anchor);
+    final b = naturalEnd.isAfter(now) ? now : naturalEnd;
+    final ongoing = range == null && !naturalEnd.isBefore(now);
     final previousStart = monthly
         ? DateTime.utc(a.year, a.month - 1)
         : a.subtract(const Duration(days: 7));
@@ -118,7 +158,10 @@ class _ReportsPageState extends State<ReportsPage> {
         : a.subtract(const Duration(days: 1));
     final dayCount = b.difference(a).inDays + 1;
     final previousEnd = previousStart.add(Duration(days: dayCount - 1));
-    final comparable = ongoing && !previousEnd.isAfter(previousNaturalEnd);
+    final comparable =
+        ongoing &&
+        previousStart.year >= 1900 &&
+        !previousEnd.isAfter(previousNaturalEnd);
     final start = calendarDayKey(a),
         end = calendarDayKey(b),
         queryStart = calendarDayKey(comparable ? previousStart : a);
@@ -145,17 +188,26 @@ class _ReportsPageState extends State<ReportsPage> {
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  ChoiceChip(
-                    label: Text(tr(context, '周报')),
-                    selected: !monthly,
-                    onSelected: (_) => switchPeriod(false),
+                  IosSegmentedControl<_ReportMode>(
+                    labels: {
+                      _ReportMode.week: tr(context, '周报'),
+                      _ReportMode.month: tr(context, '月报'),
+                      _ReportMode.range: tr(context, '区间'),
+                    },
+                    value: rangeMode
+                        ? _ReportMode.range
+                        : monthly
+                        ? _ReportMode.month
+                        : _ReportMode.week,
+                    onChanged: (mode) {
+                      if (mode == _ReportMode.range) {
+                        setState(() => rangeMode = true);
+                      } else {
+                        switchPeriod(mode == _ReportMode.month);
+                      }
+                    },
                   ),
-                  ChoiceChip(
-                    label: Text(tr(context, '月报')),
-                    selected: monthly,
-                    onSelected: (_) => switchPeriod(true),
-                  ),
-                  if (!monthly)
+                  if (!rangeMode && !monthly)
                     TextButton(
                       onPressed: () => switchPeriod(true),
                       child: Text(tr(context, '切换到月报')),
@@ -163,37 +215,56 @@ class _ReportsPageState extends State<ReportsPage> {
                 ],
               ),
             ),
-            Row(
-              children: [
-                IconButton(
-                  tooltip: tr(context, '上一期间'),
-                  onPressed: allowed(before) ? () => move(-1) : null,
-                  icon: const Icon(Icons.chevron_left),
-                ),
-                Expanded(
-                  child: TextButton.icon(
-                    key: const ValueKey('report-period-picker'),
-                    onPressed: choose,
-                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
-                    label: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('$start — $end', textAlign: TextAlign.center),
-                        Text(
-                          tr(context, monthly ? '选择月份' : '选择日期'),
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-                      ],
+            if (range != null) ...[
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final days in [30, 90])
+                    ChoiceChip(
+                      label: Text(tr(context, '最近 {0} 天', [days])),
+                      selected: recentDays == days,
+                      onSelected: (_) => setState(() => recentDays = days),
+                    ),
+                  OutlinedButton.icon(
+                    onPressed: () => chooseRange(range),
+                    icon: const Icon(Icons.date_range_outlined),
+                    label: Text(tr(context, '自定义区间')),
+                  ),
+                ],
+              ),
+              Text('$start – $end', textAlign: TextAlign.center),
+            ] else
+              Row(
+                children: [
+                  IconButton(
+                    tooltip: tr(context, '上一期间'),
+                    onPressed: allowed(before) ? () => move(-1) : null,
+                    icon: const Icon(Icons.chevron_left),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
+                      key: const ValueKey('report-period-picker'),
+                      onPressed: choose,
+                      icon: const Icon(Icons.calendar_month_outlined, size: 18),
+                      label: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('$start — $end', textAlign: TextAlign.center),
+                          Text(
+                            tr(context, monthly ? '选择月份' : '选择日期'),
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  tooltip: tr(context, '下一期间'),
-                  onPressed: allowed(after) ? () => move(1) : null,
-                  icon: const Icon(Icons.chevron_right),
-                ),
-              ],
-            ),
+                  IconButton(
+                    tooltip: tr(context, '下一期间'),
+                    onPressed: allowed(after) ? () => move(1) : null,
+                    icon: const Icon(Icons.chevron_right),
+                  ),
+                ],
+              ),
             if (ongoing) Text(tr(context, '截至 {0}', [end])),
             Expanded(
               child: StreamBuilder<LedgerRangeData>(
@@ -233,12 +304,17 @@ class _ReportsPageState extends State<ReportsPage> {
                         ),
                         revision: full.revision,
                       );
+                  final report = service.build(
+                    slice(start, end),
+                    now: widget.clock.now(),
+                  );
                   return ReportContent(
-                    report: service.build(
-                      slice(start, end),
-                      now: widget.clock.now(),
-                    ),
-                    monthly: monthly,
+                    report: report,
+                    monthly: !rangeMode && monthly,
+                    customRange: rangeMode,
+                    onExport: widget.onExport == null
+                        ? null
+                        : () => widget.onExport!(report),
                     previous: comparable
                         ? service.build(
                             slice(

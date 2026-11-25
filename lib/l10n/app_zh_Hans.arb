@@ -1659,5 +1659,20 @@
   "v042_chartSummary": "每日趋势：支出 {p0}，收入 {p1}。展开逐日金额与账单可查看每天数值。",
   "v042_entryDate": "发生日期",
   "v042_todayDate": "今天{p0}月{p1}日",
-  "v042_backfillDate": "{p0} · 补记"
+  "v042_backfillDate": "{p0} · 补记",
+  "reportRange": "区间",
+  "reportRecentDays": "最近 {p0} 天",
+  "reportCustomRange": "自定义区间",
+  "reportInvalidRange": "日期范围须为 1 至 366 天，且不晚于今天",
+  "reportWeeklyTrend": "每周趋势",
+  "reportMonthlyTrend": "每月趋势",
+  "reportDailyAverage": "日均支出 {p0}",
+  "reportExport": "导出报告",
+  "reportExportPreview": "导出预览",
+  "reportEntriesCsv": "明细 CSV",
+  "reportSummaryCsv": "汇总 CSV",
+  "reportSaveFile": "保存文件",
+  "reportShareFile": "分享文件",
+  "reportFileSaved": "文件已保存",
+  "reportFilteredExport": "导出筛选账单"
 }

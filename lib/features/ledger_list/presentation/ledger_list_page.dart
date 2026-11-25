@@ -1,9 +1,9 @@
 import 'package:pocketflow/l10n/app_strings.dart';
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/completed_modal.dart';
+import '../../../shared/widgets/ios_controls.dart';
 import '../../../contracts/contracts.dart';
 import '../../../shared/widgets/entry_tile.dart';
-import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/amount_text.dart';
 import '../../../shared/widgets/status_panel.dart';
 import '../../../shared/widgets/presentation_errors.dart';
@@ -30,6 +30,7 @@ class LedgerListPage extends StatefulWidget {
     this.onCurrentMonth,
     this.onMarkZero,
     this.onAddDay,
+    this.onExportFiltered,
   });
   final LedgerMonthData? data;
   final CalendarMonth? month;
@@ -38,6 +39,8 @@ class LedgerListPage extends StatefulWidget {
   final VoidCallback? onCurrentMonth;
   final Future<void> Function(String, bool)? onMarkZero;
   final ValueChanged<String>? onAddDay;
+  final void Function(LedgerRangeData snapshot, CalendarMonth month)?
+  onExportFiltered;
   final Object? readError;
   final VoidCallback? onRetry, onAdd;
   final LedgerQueryService query;
@@ -313,6 +316,15 @@ class LedgerListPageState extends State<LedgerListPage> {
             asOfLocalDate: widget.asOfLocalDate,
           );
     final scheme = Theme.of(context).colorScheme;
+    final first = calendarDayKey(_month.firstDay);
+    final last = calendarDayKey(
+      DateTime.utc(_month.year, _month.month, _month.days),
+    );
+    final start = _from != null && _from!.compareTo(first) > 0 ? _from! : first;
+    final monthEnd = last.compareTo(widget.asOfLocalDate) > 0
+        ? widget.asOfLocalDate
+        : last;
+    final end = _to != null && _to!.compareTo(monthEnd) < 0 ? _to! : monthEnd;
     final historical =
         _month !=
         CalendarMonth.fromDate(parseCalendarDay(widget.asOfLocalDate));
@@ -327,6 +339,27 @@ class LedgerListPageState extends State<LedgerListPage> {
       appBar: AppBar(
         title: Text(tr(context, widget.drillDown ? '筛选明细' : '账单')),
         actions: [
+          if (widget.onExportFiltered != null &&
+              !_calendar &&
+              _filtered &&
+              view?.entries.isNotEmpty == true)
+            IconButton(
+              tooltip: tr(context, '导出筛选账单'),
+              icon: const Icon(Icons.ios_share_rounded),
+              onPressed:
+                  data == null || view == null || start.compareTo(end) > 0
+                  ? null
+                  : () => widget.onExportFiltered!(
+                      LedgerRangeData(
+                        start: start,
+                        end: end,
+                        entries: view.entries,
+                        categories: data.categories,
+                        revision: 'filtered-${identityHashCode(view)}',
+                      ),
+                      data.month,
+                    ),
+            ),
           IconButton(
             tooltip: tr(context, '搜索与筛选'),
             isSelected: _filters,
@@ -346,24 +379,15 @@ class LedgerListPageState extends State<LedgerListPage> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Center(
-                    child: SegmentedButton<bool>(
-                      segments: [
-                        ButtonSegment(
-                          value: false,
-                          label: Text(tr(context, '列表')),
-                          icon: const Icon(Icons.view_list_outlined),
-                        ),
-                        ButtonSegment(
-                          value: true,
-                          label: Text(tr(context, '日历')),
-                          icon: const Icon(Icons.calendar_month_outlined),
-                        ),
-                      ],
-                      selected: {_calendar},
-                      showSelectedIcon: false,
-                      onSelectionChanged: (value) {
+                    child: IosSegmentedControl<bool>(
+                      labels: {
+                        false: tr(context, '列表'),
+                        true: tr(context, '日历'),
+                      },
+                      value: _calendar,
+                      onChanged: (value) {
                         ScaffoldMessenger.of(context).removeCurrentSnackBar();
-                        setState(() => _calendar = value.single);
+                        setState(() => _calendar = value);
                       },
                     ),
                   ),
@@ -421,7 +445,7 @@ class LedgerListPageState extends State<LedgerListPage> {
                             },
                             child: Text(tr(context, '回到本月')),
                           ),
-                        if (view != null && _calendar)
+                        if (view != null)
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -468,26 +492,23 @@ class LedgerListPageState extends State<LedgerListPage> {
                               ],
                             ),
                           ),
-                        if (view != null && !_calendar)
-                          MetricGrid(
-                            compact: true,
-                            values: [
-                              (
-                                tr(context, _filtered ? '筛选支出' : '支出'),
-                                view.expense,
-                              ),
-                              (
-                                tr(context, _filtered ? '筛选收入' : '收入'),
-                                view.income,
-                              ),
-                            ],
-                          ),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
+            if (!_filters && !_calendar)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: OutlinedButton.icon(
+                    onPressed: () => setState(() => _filters = true),
+                    icon: const Icon(Icons.search),
+                    label: Text(tr(context, '搜索备注或分类')),
+                  ),
+                ),
+              ),
             if (_filters)
               SliverToBoxAdapter(
                 child: Padding(

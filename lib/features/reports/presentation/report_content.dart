@@ -7,6 +7,7 @@ import '../../../shared/widgets/metric_grid.dart';
 import '../../../shared/widgets/entry_tile.dart';
 import '../../../shared/widgets/amount_text.dart';
 import '../../statistics/domain/report_arithmetic.dart';
+import '../domain/range_trend.dart';
 
 class ReportContent extends StatelessWidget {
   const ReportContent({
@@ -16,10 +17,14 @@ class ReportContent extends StatelessWidget {
     this.onEntryTap,
     this.onAdd,
     required this.monthly,
+    this.customRange = false,
+    this.onExport,
   });
   final WeeklyReport report;
   final WeeklyReport? previous;
   final bool monthly;
+  final bool customRange;
+  final VoidCallback? onExport;
   final ValueChanged<LedgerEntry>? onEntryTap;
   final VoidCallback? onAdd;
   Future<void> entries(
@@ -62,7 +67,19 @@ class ReportContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme, data = report.data;
     final largest = report.largestExpense;
-    final peak = report.daily.fold<int>(
+    final scale = customRange
+        ? rangeTrendScale(report.daily.length)
+        : RangeTrendScale.day;
+    final trend = groupRangeTrend(report.daily, scale);
+    final trendLabel = switch (scale) {
+      RangeTrendScale.day => '每日趋势',
+      RangeTrendScale.week => '每周趋势',
+      RangeTrendScale.month => '每月趋势',
+    };
+    String periodLabel(RangeTrendBucket bucket) => bucket.start == bucket.end
+        ? bucket.start
+        : '${bucket.start} – ${bucket.end}';
+    final peak = trend.fold<int>(
       0,
       (a, d) => math.max(a, math.max(d.expense.fen, d.income.fen)),
     );
@@ -83,6 +100,7 @@ class ReportContent extends StatelessWidget {
     }
 
     return SingleChildScrollView(
+      key: PageStorageKey((monthly, customRange, data.start, data.end)),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,6 +111,17 @@ class ReportContent extends StatelessWidget {
               (tr(context, '收入'), report.income),
             ],
           ),
+          if (customRange)
+            Text(tr(context, '日均支出 {0}', [report.averageDailyExpense.yuan])),
+          if (onExport != null)
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: TextButton.icon(
+                onPressed: onExport,
+                icon: const Icon(Icons.ios_share_rounded),
+                label: Text(tr(context, '导出报告')),
+              ),
+            ),
           const SizedBox(height: 12),
           Wrap(
             alignment: WrapAlignment.spaceBetween,
@@ -156,7 +185,7 @@ class ReportContent extends StatelessWidget {
           ] else ...[
             const SizedBox(height: 12),
             Text(
-              tr(context, '每日趋势'),
+              tr(context, trendLabel),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -181,10 +210,9 @@ class ReportContent extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Semantics(
-              label: tr(context, '每日趋势：支出 {0}，收入 {1}。展开逐日金额与账单可查看每天数值。', [
-                report.expense.yuan,
-                report.income.yuan,
-              ]),
+              label:
+                  '${tr(context, trendLabel)} · '
+                  '${tr(context, '支出 {0} · 收入 {1}', [report.expense.yuan, report.income.yuan])}',
               excludeSemantics: true,
               child: SizedBox(
                 height: MediaQuery.sizeOf(context).height < 700 ? 128 : 160,
@@ -215,15 +243,18 @@ class ReportContent extends StatelessWidget {
                           getTitlesWidget: (v, m) {
                             final i = v.toInt();
                             if (i < 0 ||
-                                i >= report.daily.length ||
-                                (monthly &&
+                                i >= trend.length ||
+                                (trend.length > 10 &&
                                     i != 0 &&
-                                    i != report.daily.length - 1 &&
-                                    (i + 1) % 7 != 0)) {
+                                    i != trend.length - 1 &&
+                                    i % ((trend.length + 4) ~/ 5) != 0)) {
                               return const SizedBox.shrink();
                             }
+                            final day = parseCalendarDay(trend[i].start);
                             return Text(
-                              '${parseCalendarDay(report.daily[i].localDate).day}',
+                              scale == RangeTrendScale.day
+                                  ? '${day.day}'
+                                  : '${day.month}/${day.day}',
                               style: const TextStyle(fontSize: 10),
                             );
                           },
@@ -231,21 +262,21 @@ class ReportContent extends StatelessWidget {
                       ),
                     ),
                     barGroups: [
-                      for (var i = 0; i < report.daily.length; i++)
+                      for (var i = 0; i < trend.length; i++)
                         BarChartGroupData(
                           x: i,
                           barRods: [
                             BarChartRodData(
-                              toY: report.daily[i].expense.fen / 100,
-                              width: monthly ? 4 : 9,
+                              toY: trend[i].expense.fen / 100,
+                              width: trend.length > 10 ? 3 : 8,
                               color: flowColor(context, EntryKind.expense),
                               borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(2),
                               ),
                             ),
                             BarChartRodData(
-                              toY: report.daily[i].income.fen / 100,
-                              width: monthly ? 4 : 9,
+                              toY: trend[i].income.fen / 100,
+                              width: trend.length > 10 ? 3 : 8,
                               color: flowColor(context, EntryKind.income),
                               borderRadius: BorderRadius.zero,
                             ),
@@ -255,13 +286,17 @@ class ReportContent extends StatelessWidget {
                     barTouchData: BarTouchData(
                       touchCallback: (event, response) {
                         if (event is FlTapUpEvent && response?.spot != null) {
-                          final day = report
-                              .daily[response!.spot!.touchedBarGroup.x]
-                              .localDate;
+                          final bucket =
+                              trend[response!.spot!.touchedBarGroup.x];
                           entries(
                             context,
-                            day,
-                            data.entries.where((e) => e.localDate == day),
+                            periodLabel(bucket),
+                            data.entries.where(
+                              (entry) =>
+                                  entry.localDate.compareTo(bucket.start) >=
+                                      0 &&
+                                  entry.localDate.compareTo(bucket.end) <= 0,
+                            ),
                           );
                         }
                       },
@@ -270,7 +305,7 @@ class ReportContent extends StatelessWidget {
                         fitInsideVertically: true,
                         getTooltipColor: (_) => scheme.inverseSurface,
                         getTooltipItem: (g, gi, r, ri) => BarTooltipItem(
-                          '${report.daily[g.x].localDate}\n${tr(context, ri == 0 ? "支出" : "收入")} ${(ri == 0 ? report.daily[g.x].expense : report.daily[g.x].income).yuan}',
+                          '${periodLabel(trend[g.x])}\n${tr(context, ri == 0 ? "支出" : "收入")} ${(ri == 0 ? trend[g.x].expense : trend[g.x].income).yuan}',
                           TextStyle(color: scheme.onInverseSurface),
                         ),
                       ),

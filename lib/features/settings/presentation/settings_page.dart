@@ -31,6 +31,7 @@ class SettingsPage extends StatelessWidget {
     this.onReminders,
     this.onFeedback,
     this.lastExportUtcMs,
+    this.now,
   });
   final ThemeMode themeMode;
   final bool glass;
@@ -51,6 +52,15 @@ class SettingsPage extends StatelessWidget {
       onReminders,
       onFeedback;
   final int? lastExportUtcMs;
+  final DateTime? now;
+
+  bool get _backupDue {
+    final lastExport = lastExportUtcMs;
+    if (lastExport == null) return true;
+    final elapsed = (now ?? DateTime.now()).millisecondsSinceEpoch - lastExport;
+    return elapsed > const Duration(days: 30).inMilliseconds;
+  }
+
   final ValueChanged<ThemeMode>? onThemeChanged;
   final ValueChanged<bool>? onFeedbackChanged;
   final VoidCallback? onBudget,
@@ -255,6 +265,11 @@ class SettingsPage extends StatelessWidget {
                       onRecoveryPoints,
                     ),
                     ListTile(
+                      leading: Icon(
+                        _backupDue
+                            ? Icons.info_outline
+                            : Icons.check_circle_outline,
+                      ),
                       title: Text(
                         lastExportUtcMs == null
                             ? tr(context, "尚未成功导出外部备份")
@@ -265,13 +280,11 @@ class SettingsPage extends StatelessWidget {
                               ]),
                       ),
                       subtitle: Text(
-                        lastExportUtcMs == null ||
-                                DateTime.now().millisecondsSinceEpoch -
-                                        lastExportUtcMs! >
-                                    const Duration(days: 30).inMilliseconds
+                        _backupDue
                             ? tr(context, "建议保存一份外部JSON备份，本地恢复点不能替代它。")
                             : tr(context, "请妥善保管外部JSON备份。"),
                       ),
+                      onTap: _backupDue ? onBackup : null,
                     ),
                   ]),
                   _group(context, tr(context, "关于"), [

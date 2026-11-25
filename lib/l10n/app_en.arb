@@ -1659,5 +1659,20 @@
   "v042_chartSummary": "Daily trend: expenses {p0}, income {p1}. Expand Daily amounts and entries to read each day.",
   "v042_entryDate": "Entry date",
   "v042_todayDate": "Today {p0}/{p1}",
-  "v042_backfillDate": "{p0} · Backfill"
+  "v042_backfillDate": "{p0} · Backfill",
+  "reportRange": "Range",
+  "reportRecentDays": "Last {p0} days",
+  "reportCustomRange": "Custom range",
+  "reportInvalidRange": "Select 1 to 366 days ending no later than today",
+  "reportWeeklyTrend": "Weekly trend",
+  "reportMonthlyTrend": "Monthly trend",
+  "reportDailyAverage": "Average daily spending {p0}",
+  "reportExport": "Export report",
+  "reportExportPreview": "Export preview",
+  "reportEntriesCsv": "Transaction CSV",
+  "reportSummaryCsv": "Summary CSV",
+  "reportSaveFile": "Save file",
+  "reportShareFile": "Share file",
+  "reportFileSaved": "File saved",
+  "reportFilteredExport": "Export filtered transactions"
 }

@@ -12,6 +12,7 @@ import '../../features/entry_editor/presentation/quick_entry_page.dart';
 import '../../features/export/application/report_export_service.dart';
 import '../../features/export/data/android_file_transfer_port.dart';
 import '../../features/export/domain/markdown_exporter.dart';
+import '../../features/export/presentation/report_export_preview.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/home/presentation/widgets/month_picker.dart';
 import '../../features/ledger_list/presentation/entry_details_page.dart';
@@ -285,33 +286,51 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     final repository = ref.read(ledgerRepositoryProvider);
     // A previous save notification must not cover the next editor's controls.
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    final entry = await Navigator.of(context).push<LedgerEntry>(
-      MaterialPageRoute(
-        builder: (_) => Consumer(
-          builder: (route, ref, _) {
-            final live =
-                ref.watch(monthDataProvider(data.month)).asData?.value ?? data;
-            return QuickEntryPage(
-              categories: live.categories,
-              profile: live.profile,
-              clock: ref.read(clockProvider),
-              initialEntry: initial,
-              template: template,
-              initialDate: localDate ?? calendarDayKey(now),
-              onSave: (draft) => initial == null
-                  ? repository.createExpense(draft)
-                  : repository.updateExpense(initial.id, draft),
-              onSaveIncome: (draft) => initial == null
-                  ? repository.createIncome(draft)
-                  : repository.updateIncome(initial.id, draft),
-              onAddRecommended: repository.addRecommendedCategories,
-              onSaveTemplate: repository.saveTemplate,
-              onUndo: ref.read(planningPortProvider)?.undoCreate,
-            );
-          },
-        ),
-      ),
+    Widget editor(BuildContext context) => Consumer(
+      builder: (route, ref, _) {
+        final live =
+            ref.watch(monthDataProvider(data.month)).asData?.value ?? data;
+        return QuickEntryPage(
+          categories: live.categories,
+          profile: live.profile,
+          clock: ref.read(clockProvider),
+          initialEntry: initial,
+          template: template,
+          initialDate: localDate ?? calendarDayKey(now),
+          onSave: (draft) => initial == null
+              ? repository.createExpense(draft)
+              : repository.updateExpense(initial.id, draft),
+          onSaveIncome: (draft) => initial == null
+              ? repository.createIncome(draft)
+              : repository.updateIncome(initial.id, draft),
+          onAddRecommended: repository.addRecommendedCategories,
+          onSaveTemplate: repository.saveTemplate,
+          onUndo: ref.read(planningPortProvider)?.undoCreate,
+          sheet: initial == null,
+        );
+      },
     );
+    final entry = initial == null
+        ? await showModalBottomSheet<LedgerEntry>(
+            context: context,
+            useSafeArea: true,
+            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
+            showDragHandle: false,
+            clipBehavior: Clip.antiAlias,
+            sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
+                ? AnimationStyle.noAnimation
+                : const AnimationStyle(
+                    duration: Duration(milliseconds: 330),
+                    reverseDuration: Duration(milliseconds: 240),
+                  ),
+            builder: (sheet) =>
+                FractionallySizedBox(heightFactor: .94, child: editor(sheet)),
+          )
+        : await Navigator.of(
+            context,
+          ).push<LedgerEntry>(MaterialPageRoute(builder: editor));
     if (entry != null && context.mounted) {
       final port = ref.read(planningPortProvider);
       ScaffoldMessenger.of(context)
@@ -588,30 +607,66 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
     }
   }
 
-  Future<void> _export(BuildContext context, LedgerMonthData data) =>
-      _files(context, () async {
-        final share = await _fileAction(context, tr(context, "Markdown 月报"));
-        if (share == null) return;
-        final clock = ref.read(clockProvider);
-        final reports = DefaultMonthlyReportService(clock: clock);
-        final report = reports.build(
-          data,
-          asOfLocalDate: reports.defaultCutoff(data.month),
-        );
-        final service = ReportExportService(
-          files: ref.read(fileTransferProvider),
-          markdown: DefaultMarkdownExporter(clock: clock),
-        );
-        final done = share
-            ? await service.share(report)
-            : await service.save(report);
-        if (done && context.mounted) {
-          _message(
-            context,
-            share ? tr(context, "已打开系统分享") : tr(context, "月报已保存"),
-          );
-        }
-      });
+  Future<void> _previewReport(
+    BuildContext context,
+    WeeklyReport report, {
+    MonthlyReport? month,
+    String? filteredMonth,
+  }) async {
+    final clock = ref.read(clockProvider);
+    final service = ReportExportService(
+      files: ref.read(fileTransferProvider),
+      markdown: DefaultMarkdownExporter(clock: clock),
+    );
+    final action = await showReportExportPreview(
+      context,
+      report,
+      filtered: filteredMonth != null,
+    );
+    if (action == null || !context.mounted) return;
+    final file = service.render(
+      report,
+      action.format,
+      month: month,
+      filteredMonth: filteredMonth,
+    );
+    final done = await service.transfer(file, share: action.share);
+    if (done && context.mounted) {
+      _message(context, tr(context, action.share ? '已打开系统分享' : '文件已保存'));
+    }
+  }
+
+  Future<void> _pickExportMonth(BuildContext context) => _files(
+    context,
+    () async {
+      final clock = ref.read(clockProvider);
+      final current = CalendarMonth.fromDate(calendarDay(clock.now()));
+      final month = await showMonthPicker(context, current, maxMonth: current);
+      if (month == null || !context.mounted) return;
+      final data = await ref
+          .read(ledgerRepositoryProvider)
+          .watchMonth(month)
+          .first;
+      if (!context.mounted) return;
+      final monthly = DefaultMonthlyReportService(clock: clock);
+      final report = monthly.build(
+        data,
+        asOfLocalDate: monthly.defaultCutoff(month),
+      );
+      final snapshot = LedgerRangeData(
+        start: calendarDayKey(month.firstDay),
+        end: report.asOfLocalDate,
+        entries: report.entries,
+        categories: data.categories,
+        revision: 'month-${month.key}-${identityHashCode(data)}',
+      );
+      await _previewReport(
+        context,
+        const RangeReportService().build(snapshot, now: clock.now()),
+        month: report,
+      );
+    },
+  );
 
   Future<void> _backup(BuildContext context) => _files(context, () async {
     final share = await _fileAction(context, tr(context, "JSON 完整备份"));
@@ -772,6 +827,17 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                     query: const DefaultLedgerQueryService(),
                     asOfLocalDate: calendarDayKey(today),
                     onChooseMonth: () => _chooseMonth(context),
+                    onExportFiltered: (snapshot, month) => _files(
+                      context,
+                      () => _previewReport(
+                        context,
+                        const RangeReportService().build(
+                          snapshot,
+                          now: ref.read(clockProvider).now(),
+                        ),
+                        filteredMonth: month.key,
+                      ),
+                    ),
                     onMoveMonth: (value) =>
                         setState(() => _ledgerMonth = value),
                     onCurrentMonth: () => setState(() => _ledgerMonth = null),
@@ -846,6 +912,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                   ),
                   settings: SettingsPage(
                     lastExportUtcMs: _lastExport,
+                    now: ref.read(clockProvider).now(),
                     onReports: () => _reports(context),
                     onPlans: current == null
                         ? null
@@ -879,11 +946,7 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
                         : () => _categoryBudgets(context, current),
                     onHistory: () =>
                         _shellKey.currentState?.selectDestination(1),
-                    onExport:
-                        current == null ||
-                            month.compareTo(CalendarMonth.fromDate(today)) > 0
-                        ? null
-                        : () => _export(context, current),
+                    onExport: () => _pickExportMonth(context),
                     onBackup: () => _backup(context),
                     onRestore: () => _restore(context),
                     onAbout: () => Navigator.of(context).push<void>(
@@ -925,6 +988,8 @@ class _PocketFlowRootState extends ConsumerState<PocketFlowRoot>
           port: port,
           clock: ref.read(clockProvider),
           initialStart: start,
+          onExport: (report) =>
+              _files(context, () => _previewReport(context, report)),
           onAdd: () async {
             final data = await ref
                 .read(ledgerRepositoryProvider)

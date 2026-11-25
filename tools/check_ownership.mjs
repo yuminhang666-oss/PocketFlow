@@ -8,9 +8,9 @@ export function checkOwnership(branch, paths) {
     : branch.startsWith('feat/c-') ? 'C'
     : branch.startsWith('chore/d-') ? 'D' : null;
   const allow = {
-    A: /^(lib\/app\/(?!composition\/)|lib\/shared\/widgets\/|lib\/features\/(home|entry_editor|ledger_list|settings)\/presentation\/|design\/|docs\/module-notes\/A\.md$|docs\/ui-ux-proposal-v1\.md$)/,
-    B: /^(lib\/core\/database\/|lib\/features\/budget\/(domain|application)\/|lib\/features\/transactions\/|docs\/module-notes\/B\.md$)/,
-    C: /^(lib\/features\/(statistics|export|backup)\/|docs\/module-notes\/C\.md$)/,
+    A: /^(lib\/app\/(?!composition\/)|lib\/shared\/widgets\/|lib\/features\/(home|entry_editor|ledger_list|settings|reports|planning|feedback)\/presentation\/|design\/|docs\/module-notes\/A\.md$|docs\/ui-ux-proposal-v1\.md$)/,
+    B: /^(lib\/core\/database\/|lib\/features\/budget\/(domain|application)\/|lib\/features\/transactions\/|lib\/features\/planning\/data\/|lib\/features\/reminders\/domain\/|docs\/module-notes\/B\.md$)/,
+    C: /^(lib\/features\/(statistics|export|backup)\/|lib\/features\/reports\/(?!presentation(?:\/|$))|lib\/features\/feedback\/data\/|docs\/module-notes\/C\.md$)/,
     D: /^(test\/|integration_test\/|android\/|\.github\/workflows\/|tools\/(?!check_ownership\.mjs$)|docs\/module-notes\/D\.md$|docs\/qa-report\.md$)/,
   };
   if (root) return [];

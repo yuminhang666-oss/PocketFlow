@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../contracts/contracts.dart';
 import '../../../core/domain/category_catalog.dart';
 import '../../../shared/widgets/presentation_errors.dart';
+import '../../../shared/widgets/ios_controls.dart';
 import 'amount_buffer.dart';
 import 'widgets/amount_keypad.dart';
 import 'widgets/category_selector.dart';
@@ -26,8 +27,10 @@ class QuickEntryPage extends StatefulWidget {
     this.initialKind = EntryKind.expense,
     this.initialDate,
     this.onUndo,
+    this.sheet = false,
   });
   final List<Category> categories;
+  final bool sheet;
   final Future<LedgerEntry> Function(EntryDraft) onSave;
   final Future<LedgerEntry> Function(EntryDraft)? onSaveIncome;
   final Future<void> Function()? onAddRecommended;
@@ -479,20 +482,14 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       children: [
         if (widget.initialEntry == null)
           Padding(
-            padding: const EdgeInsets.only(bottom: 0),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                for (final kind in EntryKind.values)
-                  ChoiceChip(
-                    label: Text(
-                      tr(context, kind == EntryKind.expense ? "支出" : "收入"),
-                    ),
-                    selected: _kind == kind,
-                    onSelected: _saving ? null : (_) => _switch(kind),
-                  ),
-              ],
+            padding: const EdgeInsets.only(bottom: 8),
+            child: IosSegmentedControl<EntryKind>(
+              labels: {
+                EntryKind.expense: tr(context, '支出'),
+                EntryKind.income: tr(context, '收入'),
+              },
+              value: _kind,
+              onChanged: _saving ? null : _switch,
             ),
           ),
         if (widget.initialEntry == null &&
@@ -691,6 +688,28 @@ class _QuickEntryPageState extends State<QuickEntryPage> {
       },
       child: Scaffold(
         appBar: AppBar(
+          bottom: widget.sheet
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(24),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onVerticalDragEnd: (details) {
+                      if ((details.primaryVelocity ?? 0) > 150) _leave();
+                    },
+                    child: Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: scheme.outlineVariant,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : null,
           leading: IconButton(
             tooltip: tr(context, "返回"),
             onPressed: _saving ? null : _leave,
