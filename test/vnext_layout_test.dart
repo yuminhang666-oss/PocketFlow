@@ -206,17 +206,7 @@ void main() {
       expect(find.text('收入分析').hitTestable(), findsOneWidget);
       await tester.tap(find.text('收入分析'));
       await tester.pumpAndSettle();
-      expect(
-        tester
-            .widget<ChoiceChip>(
-              find.ancestor(
-                of: find.text('收入分析'),
-                matching: find.byType(ChoiceChip),
-              ),
-            )
-            .selected,
-        isTrue,
-      );
+      expect(find.text('收入从哪里来'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('预算趋势'));
       await tester.pumpAndSettle();
